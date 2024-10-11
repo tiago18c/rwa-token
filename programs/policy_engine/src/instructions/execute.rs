@@ -3,7 +3,7 @@ use crate::{
 };
 use anchor_lang::{
     prelude::*,
-    solana_program::sysvar::{self},
+    solana_program::{program_option::COption, sysvar::{self}},
 };
 use anchor_spl::token_interface::{Mint, TokenAccount};
 use identity_registry::{
@@ -105,40 +105,43 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
         &identity_registry::id(),
     )?;
 
-    verify_pda(
-        ctx.accounts.destination_identity_account.key(),
-        &[
-            &ctx.accounts.identity_registry_account.key().to_bytes(),
-            &ctx.accounts.destination_account.owner.to_bytes(),
-        ],
-        &identity_registry::id(),
-    )?;
-
-    let destination_levels = if !ctx.accounts.destination_identity_account.data_is_empty() {
-        IdentityAccount::deserialize(
+    let destination_levels = if ctx.accounts.destination_identity_account.owner.key() == crate::id() 
+    && ctx.accounts.destination_identity_account.data.borrow()[..8] == *IdentityAccount::DISCRIMINATOR {
+        require!(
+            ctx.accounts.destination_account.close_authority == COption::Some(ctx.accounts.destination_identity_account.key()), 
+            PolicyEngineErrors::InvalidIdentityAccount
+        );
+        let destination_identity_account = IdentityAccount::deserialize(
             &mut &ctx.accounts.destination_identity_account.data.borrow()[8..],
-        )?
-        .levels
+        )?;
+        require!(
+            destination_identity_account.identity_registry == ctx.accounts.identity_registry_account.key(),
+            PolicyEngineErrors::InvalidIdentityAccount
+        );
+        destination_identity_account.levels
     } else {
         vec![NO_IDENTITY_LEVEL]
     };
 
-    verify_pda(
-        ctx.accounts.source_identity_account.key(),
-        &[
-            &ctx.accounts.identity_registry_account.key().to_bytes(),
-            &ctx.accounts.source_account.owner.to_bytes(),
-        ],
-        &identity_registry::id(),
-    )?;
-
-    let source_levels = if !ctx.accounts.source_identity_account.data_is_empty() {
-        IdentityAccount::deserialize(&mut &ctx.accounts.source_identity_account.data.borrow()[8..])?
-            .levels
+    let source_levels = if ctx.accounts.source_identity_account.owner.key() == crate::id() 
+    && ctx.accounts.source_identity_account.data.borrow()[..8] == *IdentityAccount::DISCRIMINATOR {
+        require!(
+            ctx.accounts.source_account.close_authority == COption::Some(ctx.accounts.source_identity_account.key()), 
+            PolicyEngineErrors::InvalidIdentityAccount
+        );
+        let source_identity_account = IdentityAccount::deserialize(
+            &mut &ctx.accounts.source_identity_account.data.borrow()[8..],
+        )?;
+        require!(
+            source_identity_account.identity_registry == ctx.accounts.identity_registry_account.key(),
+            PolicyEngineErrors::InvalidIdentityAccount
+        );
+        source_identity_account.levels
     } else {
         vec![NO_IDENTITY_LEVEL]
     };
 
+    // TODO: refactor skip policy level check
     // if user has identity skip level, skip enforcing policy
     if destination_levels.contains(&SKIP_POLICY_LEVEL) {
         return Ok(());

@@ -48,4 +48,6 @@ pub enum PolicyEngineErrors {
     TrackerAccountOwnerMismatch,
     #[msg("Forbidden identity group")]
     ForbiddenIdentityGroup,
+    #[msg("Invalid identity account")]
+    InvalidIdentityAccount,
 }
