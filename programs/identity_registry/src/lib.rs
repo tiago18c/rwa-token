@@ -16,6 +16,7 @@ declare_id!("idtynCMYbdisCTv4FrCWPSQboZb1uM4TV2cPi79yxQf");
 
 #[program]
 pub mod identity_registry {
+
     use super::*;
 
     /// registry functions
@@ -78,5 +79,19 @@ pub mod identity_registry {
         max_allowed: Option<u64>,
     ) -> Result<()> {
         instructions::metadata::handler(ctx, level, max_allowed)
+    }
+
+    /// attach token account to identity account
+    pub fn attach_token_account_to_identity(
+        ctx: Context<AttachTokenAccountToIdentity>,
+    ) -> Result<()> {
+        instructions::account::attach_token_account_to_identity::handler(ctx)
+    }
+
+    /// detach token account from identity account
+    pub fn detach_token_account_from_identity(
+        ctx: Context<DetachTokenAccountFromIdentity>,
+    ) -> Result<()> {
+        instructions::account::detach_token_account_from_identity::handler(ctx)
     }
 }

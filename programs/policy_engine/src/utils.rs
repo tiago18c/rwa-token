@@ -61,10 +61,17 @@ pub fn get_total_transactions_in_timeframe(
     total_transactions
 }
 
+#[derive(InitSpace, AnchorDeserialize, AnchorSerialize, Copy, Clone, PartialEq)]
+pub enum Side {
+    Buy,
+    Sell
+}
+
 #[derive(InitSpace, AnchorDeserialize, AnchorSerialize, Copy, Clone)]
 pub struct Transfer {
     pub amount: u64,
     pub timestamp: i64,
+    pub side: Side,
 }
 
 pub const TRANSFER_HOOK_MINT_INDEX: usize = 1;

@@ -20,4 +20,8 @@ pub enum AssetControllerErrors {
     Unauthorized,
     #[msg("Pda passed in for transfer is wrong")]
     InvalidPdaPassedIn,
+    #[msg("Token account is not initialized")]
+    TokenAccountNotInitialized,
+    #[msg("Token account is already initialized")]
+    TokenAccountAlreadyInitialized
 }

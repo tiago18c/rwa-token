@@ -8,6 +8,7 @@ use anchor_spl::{
         get_mint_extension_data, token_metadata_initialize, Mint, Token2022,
         TokenMetadataInitialize,
     },
+    token_2022::spl_token_2022::state::AccountState,
 };
 use data_registry::{
     cpi::{accounts::CreateDataRegistry, create_data_registry},
@@ -72,6 +73,7 @@ pub struct CreateAssetController<'info> {
         extensions::interest_bearing_mint::authority = asset_controller.key(),
         extensions::interest_bearing_mint::rate = args.interest_rate.unwrap_or(0),
         extensions::close_authority::authority = asset_controller.key(),
+        extensions::default_account_state::state = &AccountState::Frozen,
     )]
     pub asset_mint: Box<InterfaceAccount<'info, Mint>>,
     #[account(mut)]

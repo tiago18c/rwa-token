@@ -12,4 +12,6 @@ pub enum IdentityRegistryErrors {
     UnauthorizedSigner,
     #[msg("Identity limit reached")]
     LimitReached,
+    #[msg("Token account is already initialized")]
+    TokenAccountAlreadyInitialized,
 }

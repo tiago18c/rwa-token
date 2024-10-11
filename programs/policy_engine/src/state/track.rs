@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{PolicyEngineErrors, Transfer};
+use crate::{PolicyEngineErrors, Side, Transfer};
 
 pub const MAX_TRANSFER_HISTORY: usize = 25;
 
@@ -10,13 +10,15 @@ pub struct TrackerAccount {
     pub version: u8,
     // corresponding asset mint
     pub asset_mint: Pubkey,
-    // owner of the policy account
+    // identity account of the owner of the policy account
     pub owner: Pubkey,
     // transfer amounts
     // this is not a realloc field because we dont have a mutable account during transfers to transfer the required amount
     #[max_len(MAX_TRANSFER_HISTORY)]
     // MAX_TRANSFER_HISTORY is the max number of transfers we want to store
     pub transfers: Vec<Transfer>,
+
+    pub total_amount: u64,
 }
 
 impl TrackerAccount {
@@ -33,7 +35,14 @@ impl TrackerAccount {
         amount: u64,
         timestamp: i64,
         max_timeframe: i64,
+        side: Side,
     ) -> Result<()> {
+        self.total_amount = if side == Side::Buy {
+            self.total_amount + amount
+        } else {
+            self.total_amount - amount
+        };
+
         if max_timeframe == 0 {
             // if max_timeframe is 0, we dont need to track any history
             return Ok(());
@@ -41,7 +50,7 @@ impl TrackerAccount {
         let min_timestamp = timestamp - max_timeframe;
         self.transfers
             .retain(|transfer| transfer.timestamp >= min_timestamp);
-        self.transfers.push(Transfer { amount, timestamp });
+        self.transfers.push(Transfer { amount, timestamp, side });
         // return error if the transfer history is too large
         if self.transfers.len() > MAX_TRANSFER_HISTORY {
             return Err(PolicyEngineErrors::TransferHistoryFull.into());

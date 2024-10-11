@@ -24,6 +24,8 @@ pub enum PolicyEngineErrors {
     PolicyAlreadyExists,
     #[msg("Max balance exceeded")]
     MaxBalanceExceeded,
+    #[msg("Min balance exceeded")]
+    MinBalanceExceeded,
     #[msg("Invalid CPI transfer amount")]
     InvalidCpiTransferAmount,
     #[msg("Invalid CPI transfer mint")]
@@ -42,4 +44,8 @@ pub enum PolicyEngineErrors {
     HolderLimitExceeded,
     #[msg("Balance limit exceeded")]
     BalanceLimitExceeded,
+    #[msg("Tracker account owner mismatch")]
+    TrackerAccountOwnerMismatch,
+    #[msg("Forbidden identity group")]
+    ForbiddenIdentityGroup,
 }
