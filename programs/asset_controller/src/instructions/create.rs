@@ -34,6 +34,7 @@ pub struct CreateAssetControllerArgs {
     pub uri: String,
     pub delegate: Option<Pubkey>,
     pub interest_rate: Option<i16>,
+    pub require_identity_creation: bool,
 }
 
 #[derive(Accounts)]
@@ -73,7 +74,11 @@ pub struct CreateAssetController<'info> {
         extensions::interest_bearing_mint::authority = asset_controller.key(),
         extensions::interest_bearing_mint::rate = args.interest_rate.unwrap_or(0),
         extensions::close_authority::authority = asset_controller.key(),
-        extensions::default_account_state::state = &AccountState::Frozen,
+        extensions::default_account_state::state = if args.require_identity_creation {
+            &AccountState::Frozen
+        } else {
+            &AccountState::Initialized
+        },
     )]
     pub asset_mint: Box<InterfaceAccount<'info, Mint>>,
     #[account(mut)]
@@ -145,6 +150,7 @@ impl<'info> CreateAssetController<'info> {
         &self,
         delegate: Option<Pubkey>,
         signer_seeds: &[&[&[u8]]],
+        require_identity_creation: bool,
     ) -> Result<()> {
         let cpi_accounts = CreateIdentityRegistry {
             payer: self.payer.to_account_info(),
@@ -158,7 +164,7 @@ impl<'info> CreateAssetController<'info> {
             cpi_accounts,
             signer_seeds,
         );
-        create_identity_registry(cpi_ctx, self.authority.key(), delegate)?;
+        create_identity_registry(cpi_ctx, self.authority.key(), delegate, require_identity_creation)?;
         Ok(())
     }
 
@@ -237,7 +243,7 @@ pub fn handler(ctx: Context<CreateAssetController>, args: CreateAssetControllerA
 
     // create identity registry
     ctx.accounts
-        .create_identity_registry(args.delegate, &[&signer_seeds])?;
+        .create_identity_registry(args.delegate, &[&signer_seeds], args.require_identity_creation)?;
 
     // create data registry
     ctx.accounts

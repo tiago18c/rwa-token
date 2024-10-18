@@ -147,7 +147,8 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
         return Ok(());
     }
 
-    let self_transfer = ctx.accounts.source_account.close_authority == ctx.accounts.destination_account.close_authority; 
+    let self_transfer = ctx.accounts.source_account.close_authority != COption::None 
+        && ctx.accounts.source_account.close_authority == ctx.accounts.destination_account.close_authority; 
 
     let source_tracker_account: Option<TrackerAccount> = if source_levels.contains(&NO_TRACKER_LEVEL) {
         None

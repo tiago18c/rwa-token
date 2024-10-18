@@ -51,6 +51,7 @@ impl<'info> DetachTokenAccountFromIdentity<'info> {
 }
 
 pub fn handler(ctx: Context<DetachTokenAccountFromIdentity>) -> Result<()> {
+    require!(ctx.accounts.identity_registry.require_identity_creation, IdentityRegistryErrors::IdentityCreationRequired);
     let identity_registry = ctx.accounts.identity_registry.key();
     let owner = ctx.accounts.owner.key();
     let signer_seeds = [

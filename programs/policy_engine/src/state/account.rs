@@ -1,4 +1,5 @@
 use anchor_lang::prelude::*;
+use identity_registry::IdentityLevel;
 use num_enum::IntoPrimitive;
 use serde::{Deserialize, Serialize};
 
@@ -16,6 +17,7 @@ use super::TrackerAccount;
 pub struct IdentityFilter {
     pub identity_levels: [u8; 10],         // 10
     pub comparision_type: ComparisionType, // 2
+    pub counterparty_filter: CounterpartyFilter, // 2
 }
 
 #[repr(u8)]
@@ -33,7 +35,28 @@ pub struct IdentityFilter {
 pub enum ComparisionType {
     Or,
     And,
+    Except
 }
+
+#[repr(u8)]
+#[derive(
+    IntoPrimitive,
+    AnchorDeserialize,
+    AnchorSerialize,
+    Clone,
+    InitSpace,
+    Copy,
+    Debug,
+    Serialize,
+    Deserialize,
+    PartialEq,
+)]
+pub enum CounterpartyFilter {
+    Sender,
+    Receiver,
+    Both,
+}
+
 
 #[account()]
 #[derive(InitSpace)]
@@ -143,8 +166,8 @@ impl PolicyAccount {
         &self,
         transfer_amount: u64,
         timestamp: i64,
-        source_identity: &[u8],
-        receiver_identity: &[u8],
+        source_identity: &[IdentityLevel],
+        receiver_identity: &[IdentityLevel],
         source_balance: u64,
         source_tracker_account: &Option<TrackerAccount>,
         destination_tracker_account: &Option<TrackerAccount>,
@@ -153,16 +176,16 @@ impl PolicyAccount {
         for policy in self.policies.iter() {
             match &policy.policy_type {
                 PolicyType::IdentityApproval => {
-                    enforce_identity_filter(receiver_identity, policy.identity_filter)?;
+                    enforce_identity_filter(receiver_identity, source_identity, policy.identity_filter, timestamp)?;
                 }
                 PolicyType::TransactionAmountLimit { limit } => {
-                    if enforce_identity_filter(receiver_identity, policy.identity_filter).is_ok()
+                    if enforce_identity_filter(receiver_identity, source_identity, policy.identity_filter, timestamp).is_ok()
                         && transfer_amount > *limit {
                         return Err(PolicyEngineErrors::TransactionAmountLimitExceeded.into());
                     }
                 }
                 PolicyType::TransactionAmountVelocity { limit, timeframe } => {
-                    if !self_transfer && enforce_identity_filter(receiver_identity, policy.identity_filter).is_ok() {
+                    if !self_transfer && enforce_identity_filter(receiver_identity, source_identity, policy.identity_filter, timestamp).is_ok() {
                         if let Some(dst_tracker) = destination_tracker_account {
                             let total_amount_transferred = get_total_amount_transferred_in_timeframe(
                                 &dst_tracker.transfers, *timeframe, timestamp,
@@ -177,7 +200,7 @@ impl PolicyAccount {
                     }
                 }
                 PolicyType::TransactionCountVelocity { limit, timeframe } => {
-                    if !self_transfer && enforce_identity_filter(receiver_identity, policy.identity_filter).is_ok() {
+                    if !self_transfer && enforce_identity_filter(receiver_identity, source_identity, policy.identity_filter, timestamp).is_ok() {
                         if let Some(dst_tracker) = destination_tracker_account {
                             let total_transactions =
                                 get_total_transactions_in_timeframe(&dst_tracker.transfers, *timeframe, timestamp);
@@ -188,7 +211,7 @@ impl PolicyAccount {
                     }
                 }
                 PolicyType::MaxBalance { limit } => {
-                    if !self_transfer && enforce_identity_filter(receiver_identity, policy.identity_filter).is_ok() {
+                    if !self_transfer && enforce_identity_filter(receiver_identity, source_identity, policy.identity_filter, timestamp).is_ok() {
                         if let Some(dst_tracker) = destination_tracker_account {
                             if dst_tracker.total_amount > *limit {
                                 return Err(PolicyEngineErrors::MaxBalanceExceeded.into());
@@ -197,7 +220,7 @@ impl PolicyAccount {
                     }
                 }
                 PolicyType::MinBalance { limit } => {
-                    if !self_transfer && enforce_identity_filter(source_identity, policy.identity_filter).is_ok() {
+                    if !self_transfer && enforce_identity_filter(source_identity, receiver_identity, policy.identity_filter, timestamp).is_ok() {
                         if let Some(src_tracker) = source_tracker_account {
                             if src_tracker.total_amount < *limit {
                                 return Err(PolicyEngineErrors::MinBalanceExceeded.into());
@@ -206,17 +229,19 @@ impl PolicyAccount {
                     }
                 }
                 PolicyType::TransferPause => {
-                    return Err(PolicyEngineErrors::TransferPaused.into());
+                    if enforce_identity_filter(source_identity, receiver_identity, policy.identity_filter, timestamp).is_ok() {
+                        return Err(PolicyEngineErrors::TransferPaused.into());
+                    }
                 }
                 PolicyType::ForceFullTransfer => {
-                    if enforce_identity_filter(source_identity, policy.identity_filter).is_ok()
+                    if enforce_identity_filter(source_identity, receiver_identity, policy.identity_filter, timestamp).is_ok()
                         && source_balance != 0
                     {
                         return Err(PolicyEngineErrors::ForceFullTransfer.into());
                     }
                 }
                 PolicyType::ForbiddenIdentityGroup => {
-                    if enforce_identity_filter(receiver_identity, policy.identity_filter).is_ok()
+                    if enforce_identity_filter(receiver_identity, source_identity, policy.identity_filter, timestamp).is_ok()
                     {
                         return Err(PolicyEngineErrors::ForbiddenIdentityGroup.into());
                     }

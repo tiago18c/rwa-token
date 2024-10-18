@@ -25,8 +25,9 @@ pub mod identity_registry {
         ctx: Context<CreateIdentityRegistry>,
         authority: Pubkey,
         delegate: Option<Pubkey>,
+        require_identity_creation: bool,
     ) -> Result<()> {
-        instructions::registry::create::handler(ctx, authority, delegate)
+        instructions::registry::create::handler(ctx, authority, delegate, require_identity_creation)
     }
 
     /// delegate identity registry
@@ -43,16 +44,27 @@ pub mod identity_registry {
         ctx: Context<CreateIdentityAccount>,
         owner: Pubkey,
         level: u8,
+        expiry: i64,
     ) -> Result<()> {
-        instructions::account::create::handler(ctx, owner, level)
+        instructions::account::create::handler(ctx, owner, level, expiry)
     }
 
     /// add level to identity account
     pub fn add_level_to_identity_account(
         ctx: Context<AddLevelToIdentityAccount>,
         level: u8,
+        expiry: i64,
     ) -> Result<()> {
-        instructions::account::add::handler(ctx, level)
+        instructions::account::add::handler(ctx, level, expiry)
+    }
+
+    /// add level to identity account
+    pub fn refresh_level_to_identity_account(
+        ctx: Context<RefreshLevelToIdentityAccount>,
+        level: u8,
+        expiry: i64,
+    ) -> Result<()> {
+        instructions::account::refresh::handler(ctx, level, expiry)
     }
 
     /// remove level from identity account

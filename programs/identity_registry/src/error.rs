@@ -14,4 +14,6 @@ pub enum IdentityRegistryErrors {
     LimitReached,
     #[msg("Token account is already initialized")]
     TokenAccountAlreadyInitialized,
+    #[msg("Identity creation must be enforced for this feature")]
+    IdentityCreationRequired,
 }

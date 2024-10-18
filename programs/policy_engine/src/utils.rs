@@ -4,26 +4,63 @@ use anchor_lang::{
     solana_program::sysvar::{self, instructions::get_instruction_relative},
 };
 use anchor_spl::token_2022;
+use identity_registry::IdentityLevel;
 use spl_tlv_account_resolution::{
     account::ExtraAccountMeta, seeds::Seed, state::ExtraAccountMetaList,
 };
 
-pub fn enforce_identity_filter(identity: &[u8], identity_filter: IdentityFilter) -> Result<()> {
+pub fn enforce_identity_filter(receiver_identity: &[IdentityLevel], source_identity: &[IdentityLevel], identity_filter: IdentityFilter, timestamp: i64) -> Result<()> {
     match identity_filter.comparision_type {
         ComparisionType::Or => {
             // if any level is in the identities array, return Ok
-            for level in identity.iter() {
-                if *level != 0 && identity_filter.identity_levels.contains(level) {
-                    return Ok(());
+            if identity_filter.counterparty_filter == CounterpartyFilter::Receiver || identity_filter.counterparty_filter == CounterpartyFilter::Both {
+                for level in receiver_identity.iter() {
+                    if level.expiry > timestamp && identity_filter.identity_levels.contains(&level.level) {
+                        return Ok(());
+                    }
+                }
+            }
+            if identity_filter.counterparty_filter == CounterpartyFilter::Sender || identity_filter.counterparty_filter == CounterpartyFilter::Both {
+                for level in source_identity.iter() {
+                    if level.expiry > timestamp && identity_filter.identity_levels.contains(&level.level) {
+                        return Ok(());
+                    }
                 }
             }
             Err(PolicyEngineErrors::IdentityFilterFailed.into())
         }
         ComparisionType::And => {
             // if all levels are in the identities array, return Ok
-            for level in identity_filter.identity_levels.iter() {
-                if *level != 0 && !identity.contains(level) {
-                    return Err(PolicyEngineErrors::IdentityFilterFailed.into());
+            if identity_filter.counterparty_filter == CounterpartyFilter::Receiver || identity_filter.counterparty_filter == CounterpartyFilter::Both {
+                for level in receiver_identity.iter() {
+                    if level.expiry > timestamp && !identity_filter.identity_levels.contains(&level.level) {
+                        return Err(PolicyEngineErrors::IdentityFilterFailed.into());
+                    }
+                }
+            }
+            if identity_filter.counterparty_filter == CounterpartyFilter::Sender || identity_filter.counterparty_filter == CounterpartyFilter::Both {
+                for level in source_identity.iter() {
+                    if level.expiry > timestamp && !identity_filter.identity_levels.contains(&level.level) {
+                        return Err(PolicyEngineErrors::IdentityFilterFailed.into());
+                    }
+                }
+            }
+            Ok(())
+        }
+        ComparisionType::Except => {
+            // if any level is in the identities array, return Err
+            if identity_filter.counterparty_filter == CounterpartyFilter::Receiver || identity_filter.counterparty_filter == CounterpartyFilter::Both {
+                for level in receiver_identity.iter() {
+                    if level.expiry > timestamp && identity_filter.identity_levels.contains(&level.level) {
+                        return Err(PolicyEngineErrors::IdentityFilterFailed.into());
+                    }
+                }
+            }
+            if identity_filter.counterparty_filter == CounterpartyFilter::Sender || identity_filter.counterparty_filter == CounterpartyFilter::Both {
+                for level in source_identity.iter() {
+                    if level.expiry > timestamp && identity_filter.identity_levels.contains(&level.level) {
+                        return Err(PolicyEngineErrors::IdentityFilterFailed.into());
+                    }
                 }
             }
             Ok(())

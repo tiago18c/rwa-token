@@ -15,31 +15,47 @@ pub struct IdentityAccount {
     pub num_token_accounts: u16,
     // identity levels corresponding to the user
     #[max_len(1)] // initial length is 1
-    pub levels: Vec<u8>,
+    pub levels: Vec<IdentityLevel>,
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq, InitSpace)]
+pub struct IdentityLevel {
+    pub level: u8,
+    pub expiry: i64,
 }
 
 impl IdentityAccount {
     pub const VERSION: u8 = 1;
-    pub fn new(&mut self, owner: Pubkey, identity_registry: Pubkey, level: u8) {
+    pub fn new(&mut self, owner: Pubkey, identity_registry: Pubkey, level: u8, expiry: i64) {
         self.identity_registry = identity_registry;
         self.owner = owner;
         self.version = Self::VERSION;
-        self.levels = vec![level];
+        self.levels = vec![IdentityLevel { level, expiry }];
     }
 
-    pub fn add_level(&mut self, level: u8) -> Result<()> {
-        if self.levels.contains(&level) {
+    pub fn add_level(&mut self, level: u8, expiry: i64) -> Result<()> {
+        if self.levels.iter().any(|l| l.level == level) {
             return Err(IdentityRegistryErrors::LevelAlreadyPresent.into());
         }
-        self.levels.push(level);
+        self.levels.push(IdentityLevel { level, expiry });
         Ok(())
     }
 
     pub fn remove_level(&mut self, level: u8) -> Result<()> {
-        if !self.levels.contains(&level) {
+        let index = self.levels.iter().position(|l| l.level == level);
+        if index.is_none() {
             return Err(IdentityRegistryErrors::LevelNotFound.into());
         }
-        self.levels.retain(|&x| x != level);
+        self.levels.swap_remove(index.unwrap());
+        Ok(())
+    }
+
+    pub fn refresh_level(&mut self, level: u8, expiry: i64) -> Result<()> {
+        let index = self.levels.iter().position(|l| l.level == level);
+        if index.is_none() {
+            return Err(IdentityRegistryErrors::LevelNotFound.into());
+        }
+        self.levels[index.unwrap()].expiry = expiry;
         Ok(())
     }
 

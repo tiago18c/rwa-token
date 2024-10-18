@@ -32,7 +32,7 @@ pub struct CreateIdentityAccount<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<CreateIdentityAccount>, owner: Pubkey, level: u8) -> Result<()> {
+pub fn handler(ctx: Context<CreateIdentityAccount>, owner: Pubkey, level: u8, expiry: i64) -> Result<()> {
     // init limit account if level is not present
     if ctx.accounts.identity_metadata_account.level == 0 {
         ctx.accounts.identity_metadata_account.new(
@@ -41,9 +41,8 @@ pub fn handler(ctx: Context<CreateIdentityAccount>, owner: Pubkey, level: u8) ->
             u64::MAX,
         );
     }
-    ctx.accounts.identity_account.add_level(level)?;
     ctx.accounts
         .identity_account
-        .new(owner, ctx.accounts.identity_registry.key(), level);
+        .new(owner, ctx.accounts.identity_registry.key(), level, expiry);
     Ok(())
 }
