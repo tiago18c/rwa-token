@@ -39,6 +39,7 @@ pub fn handler(ctx: Context<CreateIdentityAccount>, owner: Pubkey, level: u8, ex
             ctx.accounts.identity_registry.key(),
             level,
             u64::MAX,
+            0,
         );
     }
     ctx.accounts

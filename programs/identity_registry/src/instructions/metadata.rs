@@ -29,14 +29,17 @@ pub fn handler(
     ctx: Context<EditIdentityMetadata>,
     level: u8,
     max_allowed: Option<u64>,
+    min_allowed: Option<u64>,
 ) -> Result<()> {
     let max_allowed = max_allowed.unwrap_or(u64::MAX);
+    let min_allowed = min_allowed.unwrap_or(0);
     // init limit account if level is not present
     if ctx.accounts.identity_metadata_account.level == 0 {
         ctx.accounts.identity_metadata_account.new(
             ctx.accounts.identity_registry.key(),
             level,
             max_allowed,
+            min_allowed,
         );
     }
     Ok(())

@@ -42,6 +42,7 @@ pub fn handler(ctx: Context<AddLevelToIdentityAccount>, level: u8, expiry: i64) 
             ctx.accounts.identity_registry.key(),
             level,
             u64::MAX,
+            0,
         );
     }
     ctx.accounts.identity_account.add_level(level, expiry)?;

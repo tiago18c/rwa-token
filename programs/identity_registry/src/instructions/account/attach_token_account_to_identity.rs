@@ -25,6 +25,7 @@ pub struct AttachTokenAccountToIdentity<'info> {
 
 
 pub fn handler(ctx: Context<AttachTokenAccountToIdentity>) -> Result<()> {
+    require!(ctx.accounts.identity_registry.require_identity_creation, IdentityRegistryErrors::IdentityCreationRequired);
     ctx.accounts.identity_account.add_token_account()?;
     Ok(())
 }

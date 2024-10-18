@@ -89,8 +89,9 @@ pub mod identity_registry {
         ctx: Context<EditIdentityMetadata>,
         level: u8,
         max_allowed: Option<u64>,
+        min_allowed: Option<u64>,
     ) -> Result<()> {
-        instructions::metadata::handler(ctx, level, max_allowed)
+        instructions::metadata::handler(ctx, level, max_allowed, min_allowed)
     }
 
     /// attach token account to identity account

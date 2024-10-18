@@ -15,16 +15,19 @@ pub struct IdentityMetadataAccount {
     pub current_users: u64,
     /// max number of users
     pub max_users: u64,
+    /// min number of users
+    pub min_users: u64,
 }
 
 impl IdentityMetadataAccount {
     pub const VERSION: u8 = 1;
-    pub fn new(&mut self, identity_registry: Pubkey, level: u8, max_users: u64) {
+    pub fn new(&mut self, identity_registry: Pubkey, level: u8, max_users: u64, min_users: u64) {
         self.identity_registry = identity_registry;
         self.level = level;
         self.version = Self::VERSION;
         self.current_users = 0;
         self.max_users = max_users;
+        self.min_users = min_users;
     }
 
     pub fn add_user(&mut self) -> Result<()> {
@@ -36,6 +39,9 @@ impl IdentityMetadataAccount {
     }
 
     pub fn remove_user(&mut self) -> Result<()> {
+        if self.current_users <= self.min_users {
+            return Err(IdentityRegistryErrors::LimitReached.into());
+        }
         self.current_users -= 1;
         Ok(())
     }
