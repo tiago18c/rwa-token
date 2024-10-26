@@ -72,8 +72,49 @@ export type IdentityRegistry = {
         {
           "name": "level",
           "type": "u8"
+        },
+        {
+          "name": "expiry",
+          "type": "i64"
         }
       ]
+    },
+    {
+      "name": "attachTokenAccountToIdentity",
+      "docs": [
+        "attach token account to identity account"
+      ],
+      "discriminator": [
+        15,
+        34,
+        253,
+        94,
+        151,
+        78,
+        242,
+        82
+      ],
+      "accounts": [
+        {
+          "name": "assetController",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "identityAccount"
+        },
+        {
+          "name": "identityRegistry"
+        },
+        {
+          "name": "tokenAccount",
+          "writable": true
+        },
+        {
+          "name": "assetMint"
+        }
+      ],
+      "args": []
     },
     {
       "name": "createIdentityAccount",
@@ -137,6 +178,10 @@ export type IdentityRegistry = {
         {
           "name": "level",
           "type": "u8"
+        },
+        {
+          "name": "expiry",
+          "type": "i64"
         }
       ]
     },
@@ -196,6 +241,12 @@ export type IdentityRegistry = {
           "type": {
             "option": "pubkey"
           }
+        },
+        {
+          "name": "requireIdentityCreation",
+          "type": {
+            "option": "bool"
+          }
         }
       ]
     },
@@ -230,6 +281,62 @@ export type IdentityRegistry = {
           "type": "pubkey"
         }
       ]
+    },
+    {
+      "name": "detachTokenAccountFromIdentity",
+      "docs": [
+        "detach token account from identity account"
+      ],
+      "discriminator": [
+        235,
+        17,
+        27,
+        19,
+        210,
+        21,
+        24,
+        150
+      ],
+      "accounts": [
+        {
+          "name": "owner"
+        },
+        {
+          "name": "assetController",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "identityAccount",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "identityRegistry"
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
+        },
+        {
+          "name": "identityRegistry"
+        },
+        {
+          "name": "tokenAccount",
+          "writable": true
+        },
+        {
+          "name": "assetMint"
+        },
+        {
+          "name": "tokenProgram",
+          "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+        }
+      ],
+      "args": []
     },
     {
       "name": "editIdentityMetdata",
@@ -278,6 +385,69 @@ export type IdentityRegistry = {
           "type": {
             "option": "u64"
           }
+        },
+        {
+          "name": "minAllowed",
+          "type": {
+            "option": "u64"
+          }
+        }
+      ]
+    },
+    {
+      "name": "refreshLevelToIdentityAccount",
+      "docs": [
+        "add level to identity account"
+      ],
+      "discriminator": [
+        23,
+        68,
+        237,
+        111,
+        144,
+        169,
+        239,
+        91
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "signer",
+          "signer": true
+        },
+        {
+          "name": "identityRegistry"
+        },
+        {
+          "name": "identityAccount",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "identityRegistry"
+              },
+              {
+                "kind": "account",
+                "path": "identity_account.owner",
+                "account": "identityAccount"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "level",
+          "type": "u8"
+        },
+        {
+          "name": "expiry",
+          "type": "i64"
         }
       ]
     },
@@ -471,6 +641,16 @@ export type IdentityRegistry = {
       "code": 6004,
       "name": "limitReached",
       "msg": "Identity limit reached"
+    },
+    {
+      "code": 6005,
+      "name": "tokenAccountAlreadyInitialized",
+      "msg": "Token account is already initialized"
+    },
+    {
+      "code": 6006,
+      "name": "identityCreationRequired",
+      "msg": "Identity creation must be enforced for this feature"
     }
   ],
   "types": [
@@ -501,8 +681,34 @@ export type IdentityRegistry = {
             "type": "pubkey"
           },
           {
+            "name": "numTokenAccounts",
+            "type": "u16"
+          },
+          {
             "name": "levels",
-            "type": "bytes"
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "identityLevel"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "identityLevel",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "level",
+            "type": "u8"
+          },
+          {
+            "name": "expiry",
+            "type": "i64"
           }
         ]
       }
@@ -546,6 +752,13 @@ export type IdentityRegistry = {
               "max number of users"
             ],
             "type": "u64"
+          },
+          {
+            "name": "minUsers",
+            "docs": [
+              "min number of users"
+            ],
+            "type": "u64"
           }
         ]
       }
@@ -579,6 +792,10 @@ export type IdentityRegistry = {
               "registry delegate"
             ],
             "type": "pubkey"
+          },
+          {
+            "name": "requireIdentityCreation",
+            "type": "bool"
           }
         ]
       }

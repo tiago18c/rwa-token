@@ -1,5 +1,5 @@
 use crate::{
-    get_asset_controller_account_pda, verify_cpi_program_is_token22, verify_pda, PolicyAccount, PolicyEngineAccount, PolicyEngineErrors, Side, TrackerAccount
+    get_asset_controller_account_pda, id, program::PolicyEngine, verify_cpi_program_is_token22, verify_pda, PolicyAccount, PolicyEngineAccount, PolicyEngineErrors, Side, TrackerAccount
 };
 use anchor_lang::{
     prelude::*,
@@ -41,6 +41,11 @@ pub struct ExecuteTransferHook<'info> {
     pub identity_registry_account: UncheckedAccount<'info>,
     /// CHECK: internal ix checks
     pub destination_identity_account: UncheckedAccount<'info>,
+    /// CHECK: internal ix checks
+    pub source_identity_account: UncheckedAccount<'info>,
+    #[account(mut)]
+    /// CHECK: internal ix checks
+    pub destination_tracker_account: UncheckedAccount<'info>,
     #[account(mut)]
     /// CHECK: internal ix checks
     pub source_tracker_account: UncheckedAccount<'info>,
@@ -50,10 +55,6 @@ pub struct ExecuteTransferHook<'info> {
     #[account(constraint = instructions_program.key() == sysvar::instructions::id())]
     /// CHECK: constraint check
     pub instructions_program: UncheckedAccount<'info>,
-    /// CHECK: internal ix checks
-    pub source_identity_account: UncheckedAccount<'info>,
-    /// CHECK: internal ix checks
-    pub destination_tracker_account: UncheckedAccount<'info>,
 }
 
 pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
@@ -105,15 +106,16 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
         &identity_registry::id(),
     )?;
 
-    let destination_levels = if ctx.accounts.destination_identity_account.owner.key() == crate::id() 
+    let destination_levels = if ctx.accounts.destination_identity_account.owner.key() == identity_registry::id() 
     && ctx.accounts.destination_identity_account.data.borrow()[..8] == *IdentityAccount::DISCRIMINATOR {
-        require!(
-            ctx.accounts.destination_account.close_authority == COption::Some(ctx.accounts.destination_identity_account.key()), 
-            PolicyEngineErrors::InvalidIdentityAccount
-        );
         let destination_identity_account = IdentityAccount::deserialize(
             &mut &ctx.accounts.destination_identity_account.data.borrow()[8..],
         )?;
+        require!(
+            ctx.accounts.destination_account.owner == destination_identity_account.owner || 
+            ctx.accounts.destination_account.close_authority == COption::Some(ctx.accounts.destination_identity_account.key()), 
+            PolicyEngineErrors::InvalidIdentityAccount
+        );
         require!(
             destination_identity_account.identity_registry == ctx.accounts.identity_registry_account.key(),
             PolicyEngineErrors::InvalidIdentityAccount
@@ -123,15 +125,16 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
         vec![NO_IDENTITY_LEVEL]
     };
 
-    let source_levels = if ctx.accounts.source_identity_account.owner.key() == crate::id() 
+    let source_levels = if ctx.accounts.source_identity_account.owner.key() == identity_registry::id() 
     && ctx.accounts.source_identity_account.data.borrow()[..8] == *IdentityAccount::DISCRIMINATOR {
-        require!(
-            ctx.accounts.source_account.close_authority == COption::Some(ctx.accounts.source_identity_account.key()), 
-            PolicyEngineErrors::InvalidIdentityAccount
-        );
         let source_identity_account = IdentityAccount::deserialize(
             &mut &ctx.accounts.source_identity_account.data.borrow()[8..],
         )?;
+        require!(
+            ctx.accounts.source_account.owner == source_identity_account.owner || 
+            ctx.accounts.source_account.close_authority == COption::Some(ctx.accounts.source_identity_account.key()), 
+            PolicyEngineErrors::InvalidIdentityAccount
+        );
         require!(
             source_identity_account.identity_registry == ctx.accounts.identity_registry_account.key(),
             PolicyEngineErrors::InvalidIdentityAccount
@@ -162,7 +165,7 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
             &mut &ctx.accounts.source_tracker_account.data.borrow()[8..],
         )?;
         require!(
-            source_tracker_account.owner == ctx.accounts.source_identity_account.key(),
+            source_tracker_account.identity_account == ctx.accounts.source_identity_account.key(),
             PolicyEngineErrors::TrackerAccountOwnerMismatch
         );
 
@@ -181,7 +184,6 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
         Some(source_tracker_account)
     };
     
-
     let destination_tracker_account: Option<TrackerAccount> = if destination_levels.contains(&NO_TRACKER_LEVEL) {
         None
     } else {
@@ -194,7 +196,7 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
             &mut &ctx.accounts.destination_tracker_account.data.borrow()[8..],
         )?;
         require!(
-            destination_tracker_account.owner == ctx.accounts.destination_identity_account.key(),
+            destination_tracker_account.identity_account == ctx.accounts.destination_identity_account.key(),
             PolicyEngineErrors::TrackerAccountOwnerMismatch
         );
         

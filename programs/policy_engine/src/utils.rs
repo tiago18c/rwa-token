@@ -1,4 +1,4 @@
-use crate::{state::*, PolicyEngineErrors};
+use crate::{policy_engine, state::*, PolicyEngineErrors};
 use anchor_lang::{
     prelude::*,
     solana_program::sysvar::{self, instructions::get_instruction_relative},
@@ -8,6 +8,63 @@ use identity_registry::IdentityLevel;
 use spl_tlv_account_resolution::{
     account::ExtraAccountMeta, seeds::Seed, state::ExtraAccountMetaList,
 };
+
+/// enforce receiver
+/// enforce sender
+/// 
+/// enforce both
+/// 
+pub fn enforce_identity_filter2(identity: &[IdentityLevel], identity_filter: IdentityFilter, timestamp: i64) -> Result<()> {
+    match identity_filter.comparision_type {
+        ComparisionType::Or => {
+            // if any level is in the identities array, return Ok
+            for level in identity.iter() {
+                if level.expiry > timestamp && identity_filter.identity_levels.contains(&level.level) {
+                    return Ok(());
+                }
+            }
+            Err(PolicyEngineErrors::IdentityFilterFailed.into())
+        }
+        ComparisionType::And => {
+            // if all levels are in the identities array, return Ok
+            for level in identity.iter() {
+                if level.expiry > timestamp && !identity_filter.identity_levels.contains(&level.level) {
+                    return Err(PolicyEngineErrors::IdentityFilterFailed.into());
+                }
+            }
+            Ok(())
+        }
+        ComparisionType::Except => {
+            // if any level is in the identities array, return Err
+            for level in identity.iter() {
+                if level.expiry > timestamp && identity_filter.identity_levels.contains(&level.level) {
+                    return Err(PolicyEngineErrors::IdentityFilterFailed.into());
+                }
+            }
+            Ok(())
+        }
+    }
+}
+
+pub fn enforce_transfer_identity_filter(receiver_identity: &[IdentityLevel], sender_identity: &[IdentityLevel], identity_filter: IdentityFilter, timestamp: i64) -> Result<()> {
+    match (identity_filter.comparision_type, identity_filter.counterparty_filter) {
+        (ComparisionType::Or, CounterpartyFilter::Both) => {
+            enforce_identity_filter2(receiver_identity, identity_filter, timestamp)
+            .or(enforce_identity_filter2(sender_identity, identity_filter, timestamp))
+        }
+        (_, CounterpartyFilter::Receiver) => {
+            enforce_identity_filter2(receiver_identity, identity_filter, timestamp)
+        }
+        (_, CounterpartyFilter::Sender) => {
+            enforce_identity_filter2(sender_identity, identity_filter, timestamp)
+        }
+        (_, CounterpartyFilter::Both) => 
+        {
+            enforce_identity_filter2(receiver_identity, identity_filter, timestamp)?;
+            enforce_identity_filter2(sender_identity, identity_filter, timestamp)
+        }
+    }
+}
 
 pub fn enforce_identity_filter(receiver_identity: &[IdentityLevel], source_identity: &[IdentityLevel], identity_filter: IdentityFilter, timestamp: i64) -> Result<()> {
     match identity_filter.comparision_type {
@@ -101,7 +158,7 @@ pub fn get_total_transactions_in_timeframe(
 #[derive(InitSpace, AnchorDeserialize, AnchorSerialize, Copy, Clone, PartialEq)]
 pub enum Side {
     Buy,
-    Sell
+    Sell,
 }
 
 #[derive(InitSpace, AnchorDeserialize, AnchorSerialize, Copy, Clone)]
@@ -163,7 +220,7 @@ pub fn get_extra_account_metas() -> Result<Vec<ExtraAccountMeta>> {
             false,
             false,
         )?,
-        // receiver identity account
+        // destination identity account
         ExtraAccountMeta::new_external_pda_with_seeds(
             6,
             &[
@@ -178,23 +235,6 @@ pub fn get_extra_account_metas() -> Result<Vec<ExtraAccountMeta>> {
             false,
             false,
         )?,
-        // user tracker account
-        ExtraAccountMeta::new_with_seeds(
-            &[
-                Seed::AccountKey { index: 1 },
-                Seed::AccountData {
-                    account_index: 2,
-                    data_index: 32,
-                    length: 32,
-                },
-            ],
-            false,
-            true,
-        )?,
-        // policy account
-        ExtraAccountMeta::new_with_seeds(&[Seed::AccountKey { index: 5 }], false, true)?,
-        // instructions program
-        ExtraAccountMeta::new_with_pubkey(&sysvar::instructions::id(), false, false)?,
         // source identity account
         ExtraAccountMeta::new_external_pda_with_seeds(
             6,
@@ -209,5 +249,27 @@ pub fn get_extra_account_metas() -> Result<Vec<ExtraAccountMeta>> {
             false,
             false,
         )?,
+        // destination tracker account
+        ExtraAccountMeta::new_with_seeds(
+            &[
+                Seed::AccountKey { index: 1 },
+                Seed::AccountKey { index: 8 },
+            ],
+            false,
+            true,
+        )?,
+        // source tracker account
+        ExtraAccountMeta::new_with_seeds(
+            &[
+                Seed::AccountKey { index: 1 },
+                Seed::AccountKey { index: 9 },
+            ],
+            false,
+            true,
+        )?,
+        // policy account
+        ExtraAccountMeta::new_with_seeds(&[Seed::AccountKey { index: 5 }], false, true)?,
+        // instructions program
+        ExtraAccountMeta::new_with_pubkey(&sysvar::instructions::id(), false, false)?,
     ])
 }

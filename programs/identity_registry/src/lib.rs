@@ -25,7 +25,7 @@ pub mod identity_registry {
         ctx: Context<CreateIdentityRegistry>,
         authority: Pubkey,
         delegate: Option<Pubkey>,
-        require_identity_creation: bool,
+        require_identity_creation: Option<bool>,
     ) -> Result<()> {
         instructions::registry::create::handler(ctx, authority, delegate, require_identity_creation)
     }

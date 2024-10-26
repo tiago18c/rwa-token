@@ -25,8 +25,9 @@ pub mod policy_engine {
         ctx: Context<CreatePolicyEngine>,
         authority: Pubkey,
         delegate: Option<Pubkey>,
+        enforce_policy_issuance: Option<bool>,
     ) -> Result<()> {
-        instructions::engine::create::handler(ctx, authority, delegate)
+        instructions::engine::create::handler(ctx, authority, delegate, enforce_policy_issuance)
     }
 
     /// policies
@@ -65,5 +66,9 @@ pub mod policy_engine {
     #[interface(spl_transfer_hook_interface::execute)]
     pub fn execute_transaction(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
         instructions::execute::handler(ctx, amount)
+    }
+
+    pub fn enforce_policy_issuance(ctx: Context<EnforcePolicyIssuanceAccounts>, amount: u64) -> Result<()> {
+        instructions::issue::handler(ctx, amount)
     }
 }

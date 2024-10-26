@@ -10,12 +10,13 @@ import {
 	getIdentityRegistryPda,
 	getIdentityMetadataPda,
 } from "./utils";
-import { type AnchorProvider } from "@coral-xyz/anchor";
+import { BN, type AnchorProvider } from "@coral-xyz/anchor";
 
 /** Represents arguments for creating an on identity registry on chain. */
 export type CreateIdentityRegistryArgs = {
   authority: string;
   signer: string;
+  requireIdentityCreation?: boolean;
 } & CommonArgs;
 
 /**
@@ -31,7 +32,8 @@ export async function getCreateIdentityRegistryIx(
 	const ix = await identityProgram.methods
 		.createIdentityRegistry(
 			new PublicKey(args.authority),
-			args.delegate ? new PublicKey(args.delegate) : null
+			args.delegate ? new PublicKey(args.delegate) : null,
+			args.requireIdentityCreation ? args.requireIdentityCreation : null
 		)
 		.accountsStrict({
 			payer: args.payer,
@@ -48,6 +50,7 @@ export async function getCreateIdentityRegistryIx(
 export type CreateIdentityAccountArgs = {
   level: number;
   owner: string;
+  expiry: BN;
 } & CommonArgs;
 
 /**
@@ -61,7 +64,7 @@ export async function getCreateIdentityAccountIx(
 ): Promise<TransactionInstruction> {
 	const identityProgram = getIdentityRegistryProgram(provider);
 	const ix = await identityProgram.methods
-		.createIdentityAccount(new PublicKey(args.owner), args.level)
+		.createIdentityAccount(new PublicKey(args.owner), args.level, args.expiry)
 		.accountsStrict({
 			payer: args.payer,
 			identityRegistry: getIdentityRegistryPda(args.assetMint),
@@ -80,6 +83,7 @@ export async function getCreateIdentityAccountIx(
 export type AddLevelToIdentityAccountArgs = {
   owner: string;
   level: number;
+  expiry: BN;
   signer: string;
 } & CommonArgs;
 
@@ -94,7 +98,7 @@ export async function getAddLevelToIdentityAccount(
 ): Promise<TransactionInstruction> {
 	const identityProgram = getIdentityRegistryProgram(provider);
 	const ix = await identityProgram.methods
-		.addLevelToIdentityAccount(args.level)
+		.addLevelToIdentityAccount(args.level, args.expiry)
 		.accountsStrict({
 			signer: args.signer,
 			identityRegistry: getIdentityRegistryPda(args.assetMint),
@@ -119,7 +123,7 @@ export type RemoveLevelFromIdentityAccountArgs = {
  * @returns Add level to identity account transaction instruction.
  */
 export async function getRemoveLevelFromIdentityAccount(
-	args: AddLevelToIdentityAccountArgs,
+	args: RemoveLevelFromIdentityAccountArgs,
 	provider: AnchorProvider
 ): Promise<TransactionInstruction> {
 	const identityProgram = getIdentityRegistryProgram(provider);

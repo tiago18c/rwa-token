@@ -14,11 +14,13 @@ import {
 } from "./utils";
 import { type PolicyType, type IdentityFilter } from "./types";
 import { type AnchorProvider } from "@coral-xyz/anchor";
+import { getIdentityAccountPda, getIdentityRegistryPda } from "../identity-registry";
 
 /** Represents the arguments required to create a policy engine account. */
 export type CreatePolicyEngineArgs = {
   authority: string;
   signer: string;
+  enforcePolicyIssuance: boolean;
 } & CommonArgs;
 
 /**
@@ -34,7 +36,8 @@ export async function getCreatePolicyEngineIx(
 	const ix = await policyProgram.methods
 		.createPolicyEngine(
 			new PublicKey(args.authority),
-			args.delegate ? new PublicKey(args.delegate) : null
+			args.delegate ? new PublicKey(args.delegate) : null,
+			args.enforcePolicyIssuance
 		)
 		.accountsStrict({
 			payer: args.payer,
@@ -171,11 +174,12 @@ export async function getCreateTrackerAccountIx(
 		.accountsStrict({
 			payer: args.payer,
 			trackerAccount,
-			owner: new PublicKey(args.owner),
 			systemProgram: SystemProgram.programId,
 			program: policyProgram.programId,
 			assetMint: new PublicKey(args.assetMint),
 			eventAuthority: getPolicyEnginerEventAuthority(),
+			identityRegistry: getIdentityRegistryPda(args.assetMint),
+			identityAccount: getIdentityAccountPda(args.assetMint, args.owner),
 		})
 		.instruction();
 	return ix;

@@ -66,8 +66,49 @@
         {
           "name": "level",
           "type": "u8"
+        },
+        {
+          "name": "expiry",
+          "type": "i64"
         }
       ]
+    },
+    {
+      "name": "attach_token_account_to_identity",
+      "docs": [
+        "attach token account to identity account"
+      ],
+      "discriminator": [
+        15,
+        34,
+        253,
+        94,
+        151,
+        78,
+        242,
+        82
+      ],
+      "accounts": [
+        {
+          "name": "asset_controller",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "identity_account"
+        },
+        {
+          "name": "identity_registry"
+        },
+        {
+          "name": "token_account",
+          "writable": true
+        },
+        {
+          "name": "asset_mint"
+        }
+      ],
+      "args": []
     },
     {
       "name": "create_identity_account",
@@ -131,6 +172,10 @@
         {
           "name": "level",
           "type": "u8"
+        },
+        {
+          "name": "expiry",
+          "type": "i64"
         }
       ]
     },
@@ -190,6 +235,12 @@
           "type": {
             "option": "pubkey"
           }
+        },
+        {
+          "name": "require_identity_creation",
+          "type": {
+            "option": "bool"
+          }
         }
       ]
     },
@@ -224,6 +275,62 @@
           "type": "pubkey"
         }
       ]
+    },
+    {
+      "name": "detach_token_account_from_identity",
+      "docs": [
+        "detach token account from identity account"
+      ],
+      "discriminator": [
+        235,
+        17,
+        27,
+        19,
+        210,
+        21,
+        24,
+        150
+      ],
+      "accounts": [
+        {
+          "name": "owner"
+        },
+        {
+          "name": "asset_controller",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "identity_account",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "identity_registry"
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
+        },
+        {
+          "name": "identity_registry"
+        },
+        {
+          "name": "token_account",
+          "writable": true
+        },
+        {
+          "name": "asset_mint"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+        }
+      ],
+      "args": []
     },
     {
       "name": "edit_identity_metdata",
@@ -272,6 +379,69 @@
           "type": {
             "option": "u64"
           }
+        },
+        {
+          "name": "min_allowed",
+          "type": {
+            "option": "u64"
+          }
+        }
+      ]
+    },
+    {
+      "name": "refresh_level_to_identity_account",
+      "docs": [
+        "add level to identity account"
+      ],
+      "discriminator": [
+        23,
+        68,
+        237,
+        111,
+        144,
+        169,
+        239,
+        91
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "signer",
+          "signer": true
+        },
+        {
+          "name": "identity_registry"
+        },
+        {
+          "name": "identity_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "identity_registry"
+              },
+              {
+                "kind": "account",
+                "path": "identity_account.owner",
+                "account": "IdentityAccount"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "level",
+          "type": "u8"
+        },
+        {
+          "name": "expiry",
+          "type": "i64"
         }
       ]
     },
@@ -465,6 +635,16 @@
       "code": 6004,
       "name": "LimitReached",
       "msg": "Identity limit reached"
+    },
+    {
+      "code": 6005,
+      "name": "TokenAccountAlreadyInitialized",
+      "msg": "Token account is already initialized"
+    },
+    {
+      "code": 6006,
+      "name": "IdentityCreationRequired",
+      "msg": "Identity creation must be enforced for this feature"
     }
   ],
   "types": [
@@ -495,8 +675,34 @@
             "type": "pubkey"
           },
           {
+            "name": "num_token_accounts",
+            "type": "u16"
+          },
+          {
             "name": "levels",
-            "type": "bytes"
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "IdentityLevel"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "IdentityLevel",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "level",
+            "type": "u8"
+          },
+          {
+            "name": "expiry",
+            "type": "i64"
           }
         ]
       }
@@ -540,6 +746,13 @@
               "max number of users"
             ],
             "type": "u64"
+          },
+          {
+            "name": "min_users",
+            "docs": [
+              "min number of users"
+            ],
+            "type": "u64"
           }
         ]
       }
@@ -573,6 +786,10 @@
               "registry delegate"
             ],
             "type": "pubkey"
+          },
+          {
+            "name": "require_identity_creation",
+            "type": "bool"
           }
         ]
       }

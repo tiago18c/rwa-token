@@ -26,11 +26,12 @@ describe("test suite to test tracker account is being updated correctly on trans
 
 	test("setup provider", async () => {
 		const connectionUrl = process.env.RPC_URL ?? "http://localhost:8899";
-		const connection = new Connection(connectionUrl);
+		const connection = new Connection(connectionUrl, "processed");
 
 		const confirmationOptions: ConfirmOptions = {
 			skipPreflight: false,
 			maxRetries: 3,
+			commitment: "processed",
 		};
 
 		const config: Config = {
@@ -71,6 +72,7 @@ describe("test suite to test tracker account is being updated correctly on trans
 			signer: setup.authority.toString(),
 			assetMint: mint,
 			levels: [1],
+			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60)],
 		};
 		const setupIx1 = await rwaClient.identityRegistry.setupUserIxns(
 			setupUser1Args
@@ -87,6 +89,7 @@ describe("test suite to test tracker account is being updated correctly on trans
 			signer: setup.authority.toString(),
 			assetMint: mint,
 			levels: [1],
+			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60)],
 		};
 		const setupIx2 = await rwaClient.identityRegistry.setupUserIxns(
 			setupUser2Args

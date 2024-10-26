@@ -4,6 +4,7 @@ use anchor_spl::{
     token_2022::{thaw_account, ThawAccount},
     token_interface::{Mint, Token2022, TokenAccount},
 };
+use identity_registry::IdentityRegistryAccount;
 use rwa_utils::get_bump_in_seed_form;
 
 #[derive(Accounts)]
@@ -19,6 +20,8 @@ pub struct ThawTokenAccount<'info> {
         constraint = asset_controller.authority == authority.key()
     )]
     pub asset_controller: Box<Account<'info, AssetControllerAccount>>,
+    #[account(mut, has_one = asset_mint)]
+    pub identity_registry_account: Box<Account<'info, IdentityRegistryAccount>>,
     #[account(mut)]
     pub token_account: Box<InterfaceAccount<'info, TokenAccount>>,
     pub token_program: Program<'info, Token2022>,
@@ -43,7 +46,7 @@ impl<'info> ThawTokenAccount<'info> {
 
 pub fn handler(ctx: Context<ThawTokenAccount>) -> Result<()> {
     require!(
-        ctx.accounts.token_account.close_authority != COption::None,
+        !ctx.accounts.identity_registry_account.require_identity_creation || ctx.accounts.token_account.close_authority != COption::None,
         AssetControllerErrors::TokenAccountNotInitialized
     );
     let asset_mint = ctx.accounts.asset_mint.key();

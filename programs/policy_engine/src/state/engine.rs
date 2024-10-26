@@ -15,6 +15,8 @@ pub struct PolicyEngineAccount {
     pub delegate: Pubkey,
     /// max timeframe of all the policies
     pub max_timeframe: i64,
+    /// enforce policy issuance
+    pub enforce_policy_issuance: bool,
 }
 
 pub fn get_policy_engine_pda(asset_mint: Pubkey) -> Pubkey {
@@ -24,11 +26,12 @@ pub fn get_policy_engine_pda(asset_mint: Pubkey) -> Pubkey {
 
 impl PolicyEngineAccount {
     pub const VERSION: u8 = 1;
-    pub fn new(&mut self, authority: Pubkey, delegate: Option<Pubkey>, asset_mint: Pubkey) {
+    pub fn new(&mut self, authority: Pubkey, delegate: Option<Pubkey>, asset_mint: Pubkey, enforce_policy_issuance: bool) {
         self.version = Self::VERSION;
         self.authority = authority;
         self.delegate = delegate.unwrap_or(authority);
         self.asset_mint = asset_mint;
+        self.enforce_policy_issuance = enforce_policy_issuance;
     }
     pub fn update_delegate(&mut self, delegate: Pubkey) {
         self.delegate = delegate;

@@ -174,7 +174,31 @@ export type AssetController = {
           "signer": true
         },
         {
-          "name": "assetMint"
+          "name": "identityAccountOwner"
+        },
+        {
+          "name": "assetMint",
+          "relations": [
+            "identityRegistry"
+          ]
+        },
+        {
+          "name": "assetController",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "assetMint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "identityAccount",
+          "signer": true
+        },
+        {
+          "name": "identityRegistry"
         },
         {
           "name": "tokenAccount",
@@ -273,6 +297,10 @@ export type AssetController = {
         {
           "name": "associatedTokenProgram",
           "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "identityRegistryProgram",
+          "address": "idtynCMYbdisCTv4FrCWPSQboZb1uM4TV2cPi79yxQf"
         }
       ],
       "args": []
@@ -662,7 +690,11 @@ export type AssetController = {
         },
         {
           "name": "assetMint",
-          "writable": true
+          "writable": true,
+          "relations": [
+            "identityRegistry",
+            "trackerAccount"
+          ]
         },
         {
           "name": "assetController",
@@ -736,6 +768,19 @@ export type AssetController = {
           }
         },
         {
+          "name": "identityRegistry",
+          "relations": [
+            "identityAccount"
+          ]
+        },
+        {
+          "name": "identityAccount"
+        },
+        {
+          "name": "trackerAccount",
+          "writable": true
+        },
+        {
           "name": "tokenProgram",
           "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
         },
@@ -746,6 +791,16 @@ export type AssetController = {
         {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "policyEngineProgram",
+          "address": "po1cPf1eyUJJPqULw4so3T4JU9pdFn83CDyuLEKFAau"
+        },
+        {
+          "name": "policyEngine"
+        },
+        {
+          "name": "policyAccount"
         }
       ],
       "args": [
@@ -894,7 +949,10 @@ export type AssetController = {
         },
         {
           "name": "assetMint",
-          "writable": true
+          "writable": true,
+          "relations": [
+            "identityRegistryAccount"
+          ]
         },
         {
           "name": "assetController",
@@ -906,6 +964,10 @@ export type AssetController = {
               }
             ]
           }
+        },
+        {
+          "name": "identityRegistryAccount",
+          "writable": true
         },
         {
           "name": "tokenAccount",
@@ -1104,6 +1166,71 @@ export type AssetController = {
         52,
         105
       ]
+    },
+    {
+      "name": "identityAccount",
+      "discriminator": [
+        194,
+        90,
+        181,
+        160,
+        182,
+        206,
+        116,
+        158
+      ]
+    },
+    {
+      "name": "identityRegistryAccount",
+      "discriminator": [
+        154,
+        254,
+        118,
+        4,
+        115,
+        36,
+        125,
+        78
+      ]
+    },
+    {
+      "name": "policyAccount",
+      "discriminator": [
+        218,
+        201,
+        183,
+        164,
+        156,
+        127,
+        81,
+        175
+      ]
+    },
+    {
+      "name": "policyEngineAccount",
+      "discriminator": [
+        124,
+        85,
+        205,
+        80,
+        2,
+        18,
+        26,
+        45
+      ]
+    },
+    {
+      "name": "trackerAccount",
+      "discriminator": [
+        83,
+        95,
+        166,
+        148,
+        57,
+        30,
+        90,
+        210
+      ]
     }
   ],
   "events": [
@@ -1179,6 +1306,16 @@ export type AssetController = {
       "code": 6008,
       "name": "invalidPdaPassedIn",
       "msg": "Pda passed in for transfer is wrong"
+    },
+    {
+      "code": 6009,
+      "name": "tokenAccountNotInitialized",
+      "msg": "Token account is not initialized"
+    },
+    {
+      "code": 6010,
+      "name": "tokenAccountAlreadyInitialized",
+      "msg": "Token account is already initialized"
     }
   ],
   "types": [
@@ -1254,6 +1391,46 @@ export type AssetController = {
       }
     },
     {
+      "name": "comparisionType",
+      "repr": {
+        "kind": "rust"
+      },
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "or"
+          },
+          {
+            "name": "and"
+          },
+          {
+            "name": "except"
+          }
+        ]
+      }
+    },
+    {
+      "name": "counterpartyFilter",
+      "repr": {
+        "kind": "rust"
+      },
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "sender"
+          },
+          {
+            "name": "receiver"
+          },
+          {
+            "name": "both"
+          }
+        ]
+      }
+    },
+    {
       "name": "createAssetControllerArgs",
       "type": {
         "kind": "struct",
@@ -1285,6 +1462,18 @@ export type AssetController = {
             "type": {
               "option": "i16"
             }
+          },
+          {
+            "name": "requireIdentityCreation",
+            "type": {
+              "option": "bool"
+            }
+          },
+          {
+            "name": "enforcePolicyIssuance",
+            "type": {
+              "option": "bool"
+            }
           }
         ]
       }
@@ -1305,6 +1494,391 @@ export type AssetController = {
           {
             "name": "metadata",
             "type": "bytes"
+          }
+        ]
+      }
+    },
+    {
+      "name": "identityAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "version",
+            "docs": [
+              "version of the account"
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "identityRegistry",
+            "docs": [
+              "identity registry to which the account belongs"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "docs": [
+              "owner of the identity account"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "numTokenAccounts",
+            "type": "u16"
+          },
+          {
+            "name": "levels",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "identityLevel"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "identityFilter",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "identityLevels",
+            "type": {
+              "array": [
+                "u8",
+                10
+              ]
+            }
+          },
+          {
+            "name": "comparisionType",
+            "type": {
+              "defined": {
+                "name": "comparisionType"
+              }
+            }
+          },
+          {
+            "name": "counterpartyFilter",
+            "type": {
+              "defined": {
+                "name": "counterpartyFilter"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "identityLevel",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "level",
+            "type": "u8"
+          },
+          {
+            "name": "expiry",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "identityRegistryAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "version",
+            "type": "u8"
+          },
+          {
+            "name": "assetMint",
+            "docs": [
+              "corresponding asset mint"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "authority",
+            "docs": [
+              "authority to manage the registry"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "delegate",
+            "docs": [
+              "registry delegate"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "requireIdentityCreation",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "policy",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "hash",
+            "type": "string"
+          },
+          {
+            "name": "identityFilter",
+            "type": {
+              "defined": {
+                "name": "identityFilter"
+              }
+            }
+          },
+          {
+            "name": "policyType",
+            "type": {
+              "defined": {
+                "name": "policyType"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "policyAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "version",
+            "type": "u8"
+          },
+          {
+            "name": "policyEngine",
+            "docs": [
+              "Engine account that the policy belongs to"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "policies",
+            "docs": [
+              "Different policies that can be applied to the policy account",
+              "initial max len"
+            ],
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "policy"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "policyEngineAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "version",
+            "docs": [
+              "version"
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "assetMint",
+            "docs": [
+              "asset mint"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "authority",
+            "docs": [
+              "authority of the registry"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "delegate",
+            "docs": [
+              "policy delegate"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "maxTimeframe",
+            "docs": [
+              "max timeframe of all the policies"
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "enforcePolicyIssuance",
+            "docs": [
+              "enforce policy issuance"
+            ],
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "policyType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "identityApproval"
+          },
+          {
+            "name": "transactionAmountLimit",
+            "fields": [
+              {
+                "name": "limit",
+                "type": "u64"
+              }
+            ]
+          },
+          {
+            "name": "transactionAmountVelocity",
+            "fields": [
+              {
+                "name": "limit",
+                "type": "u64"
+              },
+              {
+                "name": "timeframe",
+                "type": "i64"
+              }
+            ]
+          },
+          {
+            "name": "transactionCountVelocity",
+            "fields": [
+              {
+                "name": "limit",
+                "type": "u64"
+              },
+              {
+                "name": "timeframe",
+                "type": "i64"
+              }
+            ]
+          },
+          {
+            "name": "maxBalance",
+            "fields": [
+              {
+                "name": "limit",
+                "type": "u64"
+              }
+            ]
+          },
+          {
+            "name": "minBalance",
+            "fields": [
+              {
+                "name": "limit",
+                "type": "u64"
+              }
+            ]
+          },
+          {
+            "name": "transferPause"
+          },
+          {
+            "name": "forbiddenIdentityGroup"
+          },
+          {
+            "name": "forceFullTransfer"
+          }
+        ]
+      }
+    },
+    {
+      "name": "side",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "buy"
+          },
+          {
+            "name": "sell"
+          }
+        ]
+      }
+    },
+    {
+      "name": "trackerAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "version",
+            "type": "u8"
+          },
+          {
+            "name": "assetMint",
+            "type": "pubkey"
+          },
+          {
+            "name": "identityAccount",
+            "type": "pubkey"
+          },
+          {
+            "name": "transfers",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "transfer"
+                }
+              }
+            }
+          },
+          {
+            "name": "totalAmount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "transfer",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "side",
+            "type": {
+              "defined": {
+                "name": "side"
+              }
+            }
           }
         ]
       }

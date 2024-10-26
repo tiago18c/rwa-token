@@ -34,7 +34,8 @@ pub struct CreateAssetControllerArgs {
     pub uri: String,
     pub delegate: Option<Pubkey>,
     pub interest_rate: Option<i16>,
-    pub require_identity_creation: bool,
+    pub require_identity_creation: Option<bool>,
+    pub enforce_policy_issuance: Option<bool>,
 }
 
 #[derive(Accounts)]
@@ -74,7 +75,7 @@ pub struct CreateAssetController<'info> {
         extensions::interest_bearing_mint::authority = asset_controller.key(),
         extensions::interest_bearing_mint::rate = args.interest_rate.unwrap_or(0),
         extensions::close_authority::authority = asset_controller.key(),
-        extensions::default_account_state::state = if args.require_identity_creation {
+        extensions::default_account_state::state = if args.require_identity_creation.unwrap_or(false) {
             &AccountState::Frozen
         } else {
             &AccountState::Initialized
@@ -128,6 +129,7 @@ impl<'info> CreateAssetController<'info> {
         &self,
         delegate: Option<Pubkey>,
         signer_seeds: &[&[&[u8]]],
+        enforce_policy_issuance: Option<bool>,
     ) -> Result<()> {
         let cpi_accounts = CreatePolicyEngine {
             payer: self.payer.to_account_info(),
@@ -142,7 +144,7 @@ impl<'info> CreateAssetController<'info> {
             cpi_accounts,
             signer_seeds,
         );
-        create_policy_engine(cpi_ctx, self.authority.key(), delegate)?;
+        create_policy_engine(cpi_ctx, self.authority.key(), delegate, enforce_policy_issuance)?;
         Ok(())
     }
 
@@ -150,7 +152,7 @@ impl<'info> CreateAssetController<'info> {
         &self,
         delegate: Option<Pubkey>,
         signer_seeds: &[&[&[u8]]],
-        require_identity_creation: bool,
+        require_identity_creation: Option<bool>,
     ) -> Result<()> {
         let cpi_accounts = CreateIdentityRegistry {
             payer: self.payer.to_account_info(),
@@ -239,7 +241,7 @@ pub fn handler(ctx: Context<CreateAssetController>, args: CreateAssetControllerA
 
     // create policy registry
     ctx.accounts
-        .create_policy_engine(args.delegate, &[&signer_seeds])?;
+        .create_policy_engine(args.delegate, &[&signer_seeds], args.enforce_policy_issuance)?;
 
     // create identity registry
     ctx.accounts

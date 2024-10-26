@@ -18,7 +18,7 @@ pub struct IdentityAccount {
     pub levels: Vec<IdentityLevel>,
 }
 
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq, InitSpace)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq, InitSpace, Debug)]
 pub struct IdentityLevel {
     pub level: u8,
     pub expiry: i64,

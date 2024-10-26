@@ -4,8 +4,7 @@ use num_enum::IntoPrimitive;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    enforce_identity_filter, get_total_amount_transferred_in_timeframe,
-    get_total_transactions_in_timeframe, PolicyEngineErrors, Transfer,
+    enforce_identity_filter, enforce_identity_filter2, enforce_transfer_identity_filter, get_total_amount_transferred_in_timeframe, get_total_transactions_in_timeframe, PolicyEngineErrors, Transfer
 };
 
 use super::TrackerAccount;
@@ -159,6 +158,71 @@ impl PolicyAccount {
         Ok(policy_type)
     }
 
+    pub fn enforce_policy_issuance(&self, amount: u64, timestamp: i64, identity: &[IdentityLevel], tracker_account: Option<&TrackerAccount>) -> Result<()> {
+        for policy in self.policies.iter() {
+            match &policy.policy_type {
+                PolicyType::IdentityApproval => {
+                    enforce_identity_filter2(identity, policy.identity_filter, timestamp)?;
+                }
+                PolicyType::TransactionAmountLimit { limit } => {
+                    if enforce_identity_filter2(identity, policy.identity_filter, timestamp).is_ok()
+                        && amount > *limit {
+                        return Err(PolicyEngineErrors::TransactionAmountLimitExceeded.into());
+                    }
+                }
+                PolicyType::TransactionAmountVelocity { limit, timeframe } => {
+                    if enforce_identity_filter2(identity, policy.identity_filter, timestamp).is_ok() {
+                        if let Some(dst_tracker) = tracker_account {
+                            let total_amount_transferred = get_total_amount_transferred_in_timeframe(
+                                &dst_tracker.transfers, *timeframe, timestamp,
+                            );
+
+                            if total_amount_transferred > *limit {
+                                return Err(
+                                    PolicyEngineErrors::TransactionAmountVelocityExceeded.into()
+                                );
+                            }
+                        }
+                    }
+                }
+                PolicyType::TransactionCountVelocity { limit, timeframe } => {
+                    if enforce_identity_filter2(identity, policy.identity_filter, timestamp).is_ok() {
+                        if let Some(dst_tracker) = tracker_account {
+                            let total_transactions =
+                                get_total_transactions_in_timeframe(&dst_tracker.transfers, *timeframe, timestamp);
+                            if total_transactions + 1 > *limit {
+                                return Err(PolicyEngineErrors::TransactionCountVelocityExceeded.into());
+                            }
+                        }
+                    }
+                }
+                PolicyType::MaxBalance { limit } => {
+                    if enforce_identity_filter2(identity, policy.identity_filter, timestamp).is_ok() {
+                        if let Some(dst_tracker) = tracker_account {
+                            if dst_tracker.total_amount > *limit {
+                                return Err(PolicyEngineErrors::MaxBalanceExceeded.into());
+                            }
+                        }
+                    }
+                }
+                PolicyType::TransferPause => {
+                    if enforce_identity_filter2(identity, policy.identity_filter, timestamp).is_ok() {
+                        return Err(PolicyEngineErrors::TransferPaused.into());
+                    }
+                }
+                PolicyType::ForbiddenIdentityGroup => {
+                    if enforce_identity_filter2(identity, policy.identity_filter, timestamp).is_ok()
+                    {
+                        return Err(PolicyEngineErrors::ForbiddenIdentityGroup.into());
+                    }
+                }
+                _ => {}
+            }
+        }
+        Ok(())
+    }
+
+
     /// enforces different types of policies
     #[inline(never)]
     #[allow(clippy::too_many_arguments)]
@@ -176,7 +240,7 @@ impl PolicyAccount {
         for policy in self.policies.iter() {
             match &policy.policy_type {
                 PolicyType::IdentityApproval => {
-                    enforce_identity_filter(receiver_identity, source_identity, policy.identity_filter, timestamp)?;
+                    enforce_transfer_identity_filter(receiver_identity, source_identity, policy.identity_filter, timestamp)?;
                 }
                 PolicyType::TransactionAmountLimit { limit } => {
                     if enforce_identity_filter(receiver_identity, source_identity, policy.identity_filter, timestamp).is_ok()
@@ -204,7 +268,7 @@ impl PolicyAccount {
                         if let Some(dst_tracker) = destination_tracker_account {
                             let total_transactions =
                                 get_total_transactions_in_timeframe(&dst_tracker.transfers, *timeframe, timestamp);
-                            if total_transactions + 1 > *limit {
+                            if total_transactions > *limit {
                                 return Err(PolicyEngineErrors::TransactionCountVelocityExceeded.into());
                             }
                         }

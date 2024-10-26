@@ -7,7 +7,7 @@ convert_to_pascal_case() {
 
 # Define source and destination directories
 source_dir="target/idl"
-destination_dir="../clients/rwa-token-sdk/src/programs/idls"
+destination_dir="clients/rwa-token-sdk/src/programs/idls"
 
 # Iterate over all JSON files in the source directory
 for file in "$source_dir"/*.json; do
@@ -19,7 +19,7 @@ done
 
 # Define source and destination directories
 source_dir="target/types"
-destination_dir="../clients/rwa-token-sdk/src/programs/types"
+destination_dir="clients/rwa-token-sdk/src/programs/types"
 
 
 # Iterate over all ts files in the source directory

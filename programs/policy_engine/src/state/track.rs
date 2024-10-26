@@ -11,7 +11,7 @@ pub struct TrackerAccount {
     // corresponding asset mint
     pub asset_mint: Pubkey,
     // identity account of the owner of the policy account
-    pub owner: Pubkey,
+    pub identity_account: Pubkey,
     // transfer amounts
     // this is not a realloc field because we dont have a mutable account during transfers to transfer the required amount
     #[max_len(MAX_TRANSFER_HISTORY)]
@@ -26,7 +26,7 @@ impl TrackerAccount {
     pub fn new(&mut self, asset_mint: Pubkey, owner: Pubkey) {
         self.version = Self::VERSION;
         self.asset_mint = asset_mint;
-        self.owner = owner;
+        self.identity_account = owner;
     }
     /// for all timestamps, if timestamp is older than timestamp - max_timeframe. remove it,
     #[inline(never)]
@@ -37,7 +37,7 @@ impl TrackerAccount {
         max_timeframe: i64,
         side: Side,
     ) -> Result<()> {
-        self.total_amount = if side == Side::Buy {
+        self.total_amount = if side != Side::Sell {
             self.total_amount + amount
         } else {
             self.total_amount - amount
@@ -55,6 +55,16 @@ impl TrackerAccount {
         if self.transfers.len() > MAX_TRANSFER_HISTORY {
             return Err(PolicyEngineErrors::TransferHistoryFull.into());
         }
+        Ok(())
+    }
+
+    pub fn update_balance_mint(&mut self, amount: u64) -> Result<()> {
+        self.total_amount += amount;
+        Ok(())
+    }
+
+    pub fn update_balance_burn(&mut self, amount: u64) -> Result<()> {
+        self.total_amount -= amount;
         Ok(())
     }
 }

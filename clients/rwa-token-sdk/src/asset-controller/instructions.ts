@@ -53,6 +53,8 @@ export type CreateAssetControllerIx = {
   uri: string;
   symbol: string;
   interestRate?: number;
+  requireIdentityCreation?: boolean;
+  enforcePolicyIssuance?: boolean;
 } & CommonArgs;
 
 /**
@@ -73,6 +75,8 @@ export async function getCreateAssetControllerIx(
 			symbol: args.symbol,
 			delegate: args.delegate ? new PublicKey(args.delegate) : null,
 			interestRate: args.interestRate ? new BN(args.interestRate) : null,
+			requireIdentityCreation: args.requireIdentityCreation ? args.requireIdentityCreation : null,
+			enforcePolicyIssuance: args.enforcePolicyIssuance ? args.enforcePolicyIssuance : false,
 		})
 		.accountsStrict({
 			payer: args.payer,
@@ -157,6 +161,12 @@ export async function getIssueTokensIx(
 			authority: new PublicKey(args.authority),
 			assetMint: new PublicKey(args.assetMint),
 			assetController: getAssetControllerPda(args.assetMint),
+			policyEngine: getPolicyEnginePda(args.assetMint),
+			policyAccount: getPolicyAccountPda(args.assetMint),
+			policyEngineProgram: policyEngineProgramId,
+			identityAccount: getIdentityAccountPda(args.assetMint, args.owner),
+			trackerAccount: getTrackerAccountPda(args.assetMint, args.owner),
+			identityRegistry: getIdentityRegistryPda(args.assetMint),
 			tokenProgram: TOKEN_2022_PROGRAM_ID,
 			tokenAccount: getAssociatedTokenAddressSync(
 				new PublicKey(args.assetMint),
@@ -241,7 +251,17 @@ export async function getTransferTokensIxs(
 			isSigner: false,
 		},
 		{
+			pubkey: getIdentityAccountPda(args.assetMint, args.from),
+			isWritable: false,
+			isSigner: false,
+		},
+		{
 			pubkey: getTrackerAccountPda(args.assetMint, args.to),
+			isWritable: true,
+			isSigner: false,
+		},
+		{
+			pubkey: getTrackerAccountPda(args.assetMint, args.from),
 			isWritable: true,
 			isSigner: false,
 		},
@@ -262,11 +282,6 @@ export async function getTransferTokensIxs(
 		},
 		{
 			pubkey: policyEngineProgramId,
-			isWritable: false,
-			isSigner: false,
-		},
-		{
-			pubkey: getIdentityAccountPda(args.assetMint, args.from),
 			isWritable: false,
 			isSigner: false,
 		}
@@ -338,6 +353,8 @@ export type SetupAssetControllerArgs = {
   uri: string;
   symbol: string;
   interestRate?: number;
+  requireIdentityCreation?: boolean;
+  enforcePolicyIssuance?: boolean;
 };
 
 /**
@@ -375,6 +392,7 @@ export type SetupUserArgs = {
   signer: string;
   assetMint: string;
   levels: number[];
+  expiry: BN[];
 };
 
 /**
@@ -396,6 +414,7 @@ export async function getSetupUserIxs(
 			assetMint: args.assetMint,
 			owner: args.owner,
 			level: args.levels[0],
+			expiry: args.expiry[0],
 		},
 		provider
 	);
@@ -408,6 +427,7 @@ export async function getSetupUserIxs(
 					owner: args.owner,
 					assetMint: args.assetMint,
 					level: args.levels[i],
+					expiry: args.expiry[i],
 					signer: args.signer,
 					payer: args.payer,
 				},
@@ -592,6 +612,7 @@ export async function getThawTokenIx(
 			assetMint: new PublicKey(args.assetMint),
 			tokenProgram: TOKEN_2022_PROGRAM_ID,
 			assetController: getAssetControllerPda(args.assetMint),
+			identityRegistryAccount: getIdentityRegistryPda(args.assetMint),
 			tokenAccount: getAssociatedTokenAddressSync(
 				new PublicKey(args.assetMint),
 				new PublicKey(args.owner),
@@ -632,6 +653,11 @@ export async function getRevokeTokensIx(
 			isSigner: false,
 		},
 		{
+			pubkey: policyEngineProgramId,
+			isWritable: false,
+			isSigner: false,
+		},
+		{
 			pubkey: getIdentityRegistryPda(args.assetMint),
 			isWritable: false,
 			isSigner: false,
@@ -642,7 +668,17 @@ export async function getRevokeTokensIx(
 			isSigner: false,
 		},
 		{
+			pubkey: getIdentityAccountPda(args.assetMint, args.owner),
+			isWritable: false,
+			isSigner: false,
+		},
+		{
 			pubkey: getTrackerAccountPda(args.assetMint, getAssetControllerPda(args.assetMint).toString()),
+			isWritable: true,
+			isSigner: false,
+		},
+		{
+			pubkey: getTrackerAccountPda(args.assetMint, args.owner),
 			isWritable: true,
 			isSigner: false,
 		},
@@ -657,22 +693,12 @@ export async function getRevokeTokensIx(
 			isSigner: false,
 		},
 		{
-			pubkey: policyEngineProgramId,
-			isWritable: false,
-			isSigner: false,
-		},
-		{
 			pubkey: getExtraMetasListPda(args.assetMint),
-			isWritable: false,
-			isSigner: false,
-		},
-		{
-			pubkey: getIdentityAccountPda(args.assetMint, args.owner),
 			isWritable: false,
 			isSigner: false,
 		}
 	];
-	const ixs: TransactionInstruction[] = [];
+	const ixs: TransactionInstruction[] = [ComputeBudgetProgram.setComputeUnitLimit({units: 450_000})];
 	const ix = await assetProgram.methods
 		.revokeTokens(new BN(args.amount))
 		.accountsStrict({

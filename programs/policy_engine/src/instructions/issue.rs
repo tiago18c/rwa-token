@@ -1,0 +1,68 @@
+use crate::{
+    get_asset_controller_account_pda, id, program::PolicyEngine, verify_cpi_program_is_token22, verify_pda, PolicyAccount, PolicyEngineAccount, PolicyEngineErrors, Side, TrackerAccount
+};
+use anchor_lang::{
+    prelude::*,
+    solana_program::{program_option::COption, sysvar::{self}},
+};
+use anchor_spl::token_interface::{Mint, TokenAccount};
+use identity_registry::{
+    program::IdentityRegistry, IdentityAccount, IdentityRegistryAccount, NO_IDENTITY_LEVEL, NO_TRACKER_LEVEL, SKIP_POLICY_LEVEL
+};
+use rwa_utils::META_LIST_ACCOUNT_SEED;
+
+#[derive(Accounts)]
+#[instruction(amount: u64)]
+pub struct EnforcePolicyIssuanceAccounts<'info> {
+    //#[account(signer, has_one = asset_mint)]
+    pub asset_controller: Signer<'info>,
+    #[account(
+        token::token_program = anchor_spl::token_interface::spl_token_2022::id(),
+        mint::authority = asset_controller
+    )]
+    pub asset_mint: Box<InterfaceAccount<'info, Mint>>,
+    #[account(has_one = asset_mint)]
+    pub policy_engine: Box<Account<'info, PolicyEngineAccount>>,
+    #[account(has_one = policy_engine)]
+    pub policy_account: Box<Account<'info, PolicyAccount>>,
+    // can be any token account, user must make sure it is an associated token account with relevant identity permissions
+    
+    #[account(mut,
+        token::mint = asset_mint,
+        token::token_program = anchor_spl::token_interface::spl_token_2022::id(),
+    )]
+    pub destination_account: Box<InterfaceAccount<'info, TokenAccount>>,
+    #[account(has_one = asset_mint)]
+    pub identity_registry: Box<Account<'info, IdentityRegistryAccount>>,
+    #[account(has_one = identity_registry)]
+    pub identity_account: Box<Account<'info, IdentityAccount>>,
+    #[account(mut, has_one = identity_account)]
+    pub destination_tracker_account: Box<Account<'info, TrackerAccount>>,
+}
+
+pub fn handler(ctx: Context<EnforcePolicyIssuanceAccounts>, amount: u64) -> Result<()> {
+
+    // TODO: refactor skip policy level check
+    // if user has identity skip level, skip enforcing policy
+    if ctx.accounts.identity_account.levels.contains(&SKIP_POLICY_LEVEL) {
+        return Ok(());
+    }
+
+
+    let tracker_account : &mut TrackerAccount = &mut ctx.accounts.destination_tracker_account;
+
+    tracker_account.update_balance_mint(amount)?;
+
+    if !ctx.accounts.policy_engine.enforce_policy_issuance {
+        return Ok(());
+    }
+
+    // evaluate policies
+    ctx.accounts.policy_account.enforce_policy_issuance(
+        amount,
+        Clock::get()?.unix_timestamp,
+        &ctx.accounts.identity_account.levels,
+        Some(&tracker_account),
+    )?;
+    Ok(())
+}

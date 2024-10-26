@@ -18,7 +18,7 @@ describe("test policy setup", async () => {
 
 	test("setup provider", async () => {
 		const connectionUrl = process.env.RPC_URL ?? "http://localhost:8899";
-		const connection = new Connection(connectionUrl);
+		const connection = new Connection(connectionUrl, "processed");
 
 		const confirmationOptions: ConfirmOptions = {
 			skipPreflight: false,
@@ -47,6 +47,7 @@ describe("test policy setup", async () => {
 		const setupAssetController = await rwaClient.assetController.setupNewRegistry(
 			createAssetControllerArgs
 		);
+
 		const txnId = await sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...setupAssetController.ixs), [setup.payerKp, setup.authorityKp, ...setupAssetController.signers]);
 		mint = setupAssetController.signers[0].publicKey.toString();
 		expect(txnId).toBeTruthy();
@@ -60,6 +61,7 @@ describe("test policy setup", async () => {
 			identityFilter: {
 				identityLevels: [1, 2],
 				comparisionType: { or: {} },
+				counterpartyFilter: { both: {} }
 			},
 			policyType: {
 				identityApproval: {},
@@ -77,10 +79,11 @@ describe("test policy setup", async () => {
 			identityFilter: {
 				identityLevels: [1], // Going to skip other identity levels
 				comparisionType: { or: {} },
+				counterpartyFilter: { receiver: {} }
 			},
 			policyType: {
 				transactionAmountLimit: {
-					limit: new BN(100),
+					limit: new BN(10000),
 				},
 			},
 		});
@@ -96,6 +99,7 @@ describe("test policy setup", async () => {
 			identityFilter: {
 				identityLevels: [2], // Going to skip other identity levels
 				comparisionType: { or: {} },
+				counterpartyFilter: { receiver: {} }
 			},
 			policyType: {
 				transactionAmountLimit: {
@@ -115,10 +119,11 @@ describe("test policy setup", async () => {
 			identityFilter: {
 				identityLevels: [1], // Going to skip other identity levels
 				comparisionType: { or: {} },
+				counterpartyFilter: { receiver: {} }
 			},
 			policyType: {
 				transactionAmountVelocity: {
-					limit: new BN(20),
+					limit: new BN(25000),
 					timeframe: new BN(3000),
 				},
 			},
@@ -135,10 +140,11 @@ describe("test policy setup", async () => {
 			identityFilter: {
 				identityLevels: [1], // Going to skip other identity levels
 				comparisionType: { or: {} },
+				counterpartyFilter: { receiver: {} }
 			},
 			policyType: {
 				transactionCountVelocity: {
-					limit: new BN(2),
+					limit: new BN(4),
 					timeframe: new BN(300),
 				},
 			},
@@ -155,6 +161,7 @@ describe("test policy setup", async () => {
 			identityFilter: {
 				identityLevels: [2], // Going to skip other identity levels
 				comparisionType: { or: {} },
+				counterpartyFilter: { receiver: {} }
 			},
 			policyType: {
 				transactionCountVelocity: {
@@ -175,6 +182,7 @@ describe("test policy setup", async () => {
 			owner: setup.user1.toString(),
 			assetMint: mint,
 			levels: [1],
+			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60)],
 			signer: setup.authorityKp.publicKey.toString()
 		});
 		const txnId = await sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...setupUser.ixs), [setup.payerKp, setup.authorityKp, ...setupUser.signers]);
@@ -187,6 +195,7 @@ describe("test policy setup", async () => {
 			owner: setup.user2.toString(),
 			assetMint: mint,
 			levels: [2],
+			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60)],
 			signer: setup.authorityKp.publicKey.toString()
 		});
 		const txnId = await sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...setupUser.ixs), [setup.payerKp, setup.authorityKp, ...setupUser.signers]);
@@ -199,6 +208,7 @@ describe("test policy setup", async () => {
 			owner: setup.user3.toString(),
 			assetMint: mint,
 			levels: [255], // Skips all policies
+			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60)],
 			signer: setup.authorityKp.publicKey.toString()
 		});
 		const txnId = await sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...setupUser.ixs), [setup.payerKp, setup.authorityKp, ...setupUser.signers]);
@@ -240,7 +250,7 @@ describe("test policy setup", async () => {
 			from: setup.user2.toString(),
 			to: setup.user1.toString(),
 			assetMint: mint,
-			amount: 1000,
+			amount: 100000,
 			decimals,
 		}, rwaClient.provider);
 		void expect(sendAndConfirmTransaction(
@@ -276,12 +286,12 @@ describe("test policy setup", async () => {
 		expect(txnId).toBeTruthy();
 	});
 
-	test("transfer 10 tokens 3 times to user1, fail 3rd time", async () => {
+	test("transfer 10000 tokens 3 times to user1, fail 3rd time", async () => {
 		let transferTokensIxs = await getTransferTokensIxs({
 			from: setup.user2.toString(),
 			to: setup.user1.toString(),
 			assetMint: mint,
-			amount: 10,
+			amount: 10000,
 			decimals,
 		}, rwaClient.provider);
 		let txnId = await sendAndConfirmTransaction(
@@ -294,7 +304,7 @@ describe("test policy setup", async () => {
 			from: setup.user2.toString(),
 			to: setup.user1.toString(),
 			assetMint: mint,
-			amount: 10,
+			amount: 10000,
 			decimals,
 		}, rwaClient.provider);
 		txnId = await sendAndConfirmTransaction(
@@ -307,7 +317,7 @@ describe("test policy setup", async () => {
 			from: setup.user2.toString(),
 			to: setup.user1.toString(),
 			assetMint: mint,
-			amount: 1000,
+			amount: 10000,
 			decimals,
 		}, rwaClient.provider);
 		void expect(sendAndConfirmTransaction(

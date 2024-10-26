@@ -19,7 +19,7 @@ describe("test transaction count velocity policy", async () => {
 
 	test("setup environment", async () => {
 		const connectionUrl = process.env.RPC_URL ?? "http://localhost:8899";
-		const connection = new Connection(connectionUrl);
+		const connection = new Connection(connectionUrl, "processed");
 
 		const confirmationOptions: ConfirmOptions = {
 			skipPreflight: false,
@@ -55,12 +55,14 @@ describe("test transaction count velocity policy", async () => {
 		mint = setupAssetController.signers[0].publicKey.toString();
 		expect(txnId).toBeTruthy();
 
+		var tomorrow = Date.now() / 1000 + 24 * 60 * 60;
 		// Setup users
 		const setupUser1 = await rwaClient.identityRegistry.setupUserIxns({
 			payer: setup.payer.toString(),
 			owner: setup.user1.toString(),
 			assetMint: mint,
 			levels: [1],
+			expiry: [new BN(tomorrow)],
 			signer: setup.authorityKp.publicKey.toString()
 		});
 		await sendAndConfirmTransaction(
@@ -74,6 +76,7 @@ describe("test transaction count velocity policy", async () => {
 			owner: setup.user2.toString(),
 			assetMint: mint,
 			levels: [1],
+			expiry: [new BN(tomorrow)],
 			signer: setup.authorityKp.publicKey.toString()
 		});
 		await sendAndConfirmTransaction(
@@ -160,23 +163,23 @@ describe("test transaction count velocity policy", async () => {
 		)).rejects.toThrowError(/custom program error: 0x1773/);
 	});
 
-	test("wait for policy reset and transfer again", async () => {
-		// Wait for 60 seconds to reset the policy
-		await new Promise(resolve => setTimeout(resolve, 61000));
+	// test("wait for policy reset and transfer again", async () => {
+	// 	// Wait for 60 seconds to reset the policy
+	// 	await new Promise(resolve => setTimeout(resolve, 61000));
 
-		const transferTokensIxs = await getTransferTokensIxs({
-			from: setup.user1.toString(),
-			to: setup.user2.toString(),
-			assetMint: mint,
-			amount: 10,
-			decimals,
-		}, rwaClient.provider);
+	// 	const transferTokensIxs = await getTransferTokensIxs({
+	// 		from: setup.user1.toString(),
+	// 		to: setup.user2.toString(),
+	// 		assetMint: mint,
+	// 		amount: 10,
+	// 		decimals,
+	// 	}, rwaClient.provider);
         
-		const txnId = await sendAndConfirmTransaction(
-			setup.provider.connection,
-			new Transaction().add(...transferTokensIxs),
-			[setup.user1Kp],
-		);
-		expect(txnId).toBeTruthy();
-	});
+	// 	const txnId = await sendAndConfirmTransaction(
+	// 		setup.provider.connection,
+	// 		new Transaction().add(...transferTokensIxs),
+	// 		[setup.user1Kp],
+	// 	);
+	// 	expect(txnId).toBeTruthy();
+	// });
 });

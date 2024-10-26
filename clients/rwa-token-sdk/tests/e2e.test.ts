@@ -14,6 +14,7 @@ import {
 	type TransferTokensArgs,
 	type UpdateDataAccountArgs,
 	VoidTokensArgs,
+	getIdentityAccount,
 } from "../src";
 import { setupTests } from "./setup";
 import {
@@ -36,7 +37,7 @@ describe("e2e tests", async () => {
 
 	test("setup provider", async () => {
 		const connectionUrl = process.env.RPC_URL ?? "http://localhost:8899";
-		const connection = new Connection(connectionUrl);
+		const connection = new Connection(connectionUrl, "processed");
 
 		const confirmationOptions: ConfirmOptions = {
 			skipPreflight: false,
@@ -67,12 +68,15 @@ describe("e2e tests", async () => {
 			setupAssetControllerArgs
 		);
 		mint = setupIx.signers[0].publicKey.toString();
+		var tomorrow = Date.now() / 1000 + 24 * 60 * 60;
+
 		const setupUserIxs = await getSetupUserIxs({
 			assetMint: mint,
 			payer: setup.payer.toString(),
 			owner: setup.user1.toString(),
 			signer: setup.authority.toString(),
 			levels: [1],
+			expiry: [new BN(tomorrow)],
 		}, rwaClient.provider);
 		const setupUser2Ixs = await getSetupUserIxs({
 			assetMint: mint,
@@ -80,6 +84,7 @@ describe("e2e tests", async () => {
 			owner: setup.user2.toString(),
 			signer: setup.authority.toString(),
 			levels: [1],
+			expiry: [new BN(1800000000)],
 		}, rwaClient.provider);
 		const setupUser3Ixs = await getSetupUserIxs({
 			assetMint: mint,
@@ -87,13 +92,14 @@ describe("e2e tests", async () => {
 			owner: setup.authority.toString(),
 			signer: setup.authority.toString(),
 			levels: [255],
+			expiry: [new BN(tomorrow)],
 		}, rwaClient.provider);
 		const txnId = await sendAndConfirmTransaction(
 			rwaClient.provider.connection,
 			new Transaction().add(...setupIx.ixs).add(...setupUserIxs.ixs),
 			[setup.payerKp, setup.authorityKp, ...setupIx.signers, ...setupUserIxs.signers]
 		);
-		await sendAndConfirmTransaction(
+		const txnId2 = await sendAndConfirmTransaction(
 			rwaClient.provider.connection,
 			new Transaction().add(...setupUser2Ixs.ixs).add(...setupUser3Ixs.ixs),
 			[setup.payerKp, setup.authorityKp, ...setupUser2Ixs.signers, ...setupUser3Ixs.signers]
@@ -156,6 +162,7 @@ describe("e2e tests", async () => {
 			identityFilter: {
 				identityLevels: [1],
 				comparisionType: { or: {} },
+				counterpartyFilter: { both: {}}
 			},
 			policyType: {
 				identityApproval: {},
@@ -292,7 +299,8 @@ describe("e2e tests", async () => {
 		const txnId = await sendAndConfirmTransaction(
 			rwaClient.provider.connection,
 			new Transaction().add(...revokeIx),
-			[setup.payerKp, setup.authorityKp]
+			[setup.payerKp, setup.authorityKp],
+			{skipPreflight: true}
 		);
 		expect(txnId).toBeTruthy();
 	});
@@ -376,7 +384,8 @@ describe("e2e tests", async () => {
 		const txnId = await sendAndConfirmTransaction(
 			rwaClient.provider.connection,
 			new Transaction().add(...transferIxs),
-			[setup.user1Kp]
+			[setup.user1Kp],
+			{skipPreflight: true}
 		);
 		expect(txnId).toBeTruthy();
 	});

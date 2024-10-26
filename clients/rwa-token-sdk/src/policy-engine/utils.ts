@@ -3,6 +3,7 @@ import { PolicyEngineIdl } from "../programs/idls";
 import { PublicKey } from "@solana/web3.js";
 import { type PolicyEngineIdlTypes } from "../programs/types";
 import { utf8 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
+import { getIdentityAccountPda } from "../identity-registry";
 
 /** Program address for the policy engine program. */
 export const policyEngineProgramId = new PublicKey(
@@ -51,7 +52,7 @@ export const getPolicyAccountPda = (assetMint: string) =>
  */
 export const getTrackerAccountPda = (assetMint: string, owner: string) =>
 	PublicKey.findProgramAddressSync(
-		[new PublicKey(assetMint).toBuffer(), new PublicKey(owner).toBuffer()],
+		[new PublicKey(assetMint).toBuffer(), getIdentityAccountPda(assetMint, owner).toBuffer()],
 		policyEngineProgramId
 	)[0];
 

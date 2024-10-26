@@ -1,4 +1,4 @@
-import { Wallet } from "@coral-xyz/anchor";
+import { BN, Wallet } from "@coral-xyz/anchor";
 import {
 	getCloseMintIx,
 	getDisableMemoTransferIx,
@@ -28,7 +28,7 @@ describe("extension tests", async () => {
 
 	test("setup provider", async () => {
 		const connectionUrl = process.env.RPC_URL ?? "http://localhost:8899";
-		const connection = new Connection(connectionUrl);
+		const connection = new Connection(connectionUrl, "processed");
 
 		const confirmationOptions: ConfirmOptions = {
 			skipPreflight: false,
@@ -67,6 +67,7 @@ describe("extension tests", async () => {
 				owner: setup.authority.toString(),
 				signer: setup.authority.toString(),
 				levels: [255],
+				expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60)],
 			},
 			rwaClient.provider
 		);

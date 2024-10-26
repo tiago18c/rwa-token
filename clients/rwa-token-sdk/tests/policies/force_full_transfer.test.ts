@@ -1,4 +1,4 @@
-import { Wallet } from "@coral-xyz/anchor";
+import { BN, Wallet } from "@coral-xyz/anchor";
 import {
 	getTransferTokensIxs,
 	RwaClient,
@@ -16,7 +16,7 @@ describe("test additional policies", async () => {
 
 	test("setup environment", async () => {
 		const connectionUrl = process.env.RPC_URL ?? "http://localhost:8899";
-		const connection = new Connection(connectionUrl);
+		const connection = new Connection(connectionUrl, "processed");
 
 		const confirmationOptions: ConfirmOptions = {
 			skipPreflight: false,
@@ -58,6 +58,7 @@ describe("test additional policies", async () => {
 			owner: setup.user1.toString(),
 			assetMint: mint,
 			levels: [1],
+			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60)],
 			signer: setup.authorityKp.publicKey.toString()
 		});
 		await sendAndConfirmTransaction(
@@ -71,6 +72,7 @@ describe("test additional policies", async () => {
 			owner: setup.user2.toString(),
 			assetMint: mint,
 			levels: [1],
+			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60)],
 			signer: setup.authorityKp.publicKey.toString()
 		});
 		await sendAndConfirmTransaction(
