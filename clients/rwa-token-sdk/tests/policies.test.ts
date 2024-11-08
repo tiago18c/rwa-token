@@ -1,7 +1,7 @@
 
 import { BN, Wallet } from "@coral-xyz/anchor";
 import {
-	getPolicyAccountPda, getPolicyEngineProgram, getTransferTokensIxs, 
+	getPolicyAccountPda, getPolicyEnginePda, getPolicyEngineProgram, getTransferTokensIxs, 
 	RwaClient,
 } from "../src";
 import { setupTests } from "./setup";
@@ -48,13 +48,13 @@ describe("test policy setup", async () => {
 			createAssetControllerArgs
 		);
 
-		const txnId = await sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...setupAssetController.ixs), [setup.payerKp, setup.authorityKp, ...setupAssetController.signers]);
+		const txnId = await sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...setupAssetController.ixs), [setup.payerKp, ...setupAssetController.signers]);
 		mint = setupAssetController.signers[0].publicKey.toString();
 		expect(txnId).toBeTruthy();
 	});
 
 	test("create policy account and attach identity approval policy", async () => {
-		const attachPolicy = await rwaClient.policyEngine.createPolicy({
+		const attachPolicy = await rwaClient.policyEngine.attachPolicy({
 			payer: setup.payer.toString(),
 			assetMint: mint,
 			authority: setup.authority.toString(),
@@ -172,7 +172,7 @@ describe("test policy setup", async () => {
 		});
 		const txnId = await sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...attachPolicy.ixs), [setup.payerKp, setup.authorityKp, ...attachPolicy.signers]);
 		expect(txnId).toBeTruthy();
-		const policyAccount = await getPolicyEngineProgram(setup.provider).account.policyAccount.fetch(getPolicyAccountPda(mint));
+		const policyAccount = await getPolicyEngineProgram(setup.provider).account.policyEngineAccount.fetch(getPolicyEnginePda(mint));
 		expect(policyAccount.policies.length).toBe(6);
 	});
 

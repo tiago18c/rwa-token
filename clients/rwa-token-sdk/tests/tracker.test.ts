@@ -59,7 +59,7 @@ describe("test suite to test tracker account is being updated correctly on trans
 		const txnId = await sendAndConfirmTransaction(
 			rwaClient.provider.connection,
 			new Transaction().add(...setupIx.ixs),
-			[setup.payerKp, setup.authorityKp, ...setupIx.signers]
+			[setup.payerKp, ...setupIx.signers]
 		);
 		mint = setupIx.signers[0].publicKey.toString();
 		expect(txnId).toBeTruthy();
@@ -156,7 +156,7 @@ describe("test suite to test tracker account is being updated correctly on trans
 			},
 			policyType: {transactionAmountVelocity: { limit: new BN(1000000000000), timeframe: new BN(1000000000000) }} // enough limit and timeframe to allow a lot of transfers
 		};
-		const attachPolicyIx = await rwaClient.policyEngine.createPolicy(
+		const attachPolicyIx = await rwaClient.policyEngine.attachPolicy(
 			attachPolicyArgs
 		);
 		const txnId = await sendAndConfirmTransaction(
@@ -187,7 +187,8 @@ describe("test suite to test tracker account is being updated correctly on trans
 				new Transaction().add(...transferIxs),
 				[setup.user1Kp],
 				{
-					commitment,
+				//	commitment,
+					skipPreflight: true,
 				}
 			);
 			expect(txnId).toBeTruthy();
@@ -213,8 +214,12 @@ describe("test suite to test tracker account is being updated correctly on trans
 		expect(sendAndConfirmTransaction(
 			rwaClient.provider.connection,
 			new Transaction().add(...transferIxs),
-			[setup.user1Kp]
-		)).rejects.toThrowError(/failed \(\{"err":\{"InstructionError":\[0,\{"Custom":6015\}\]\}\}\)/);
+			[setup.user1Kp],
+			{
+			//	commitment,
+				skipPreflight: true,
+			}
+		)).rejects.toThrowError(/failed \(\{"err":\{"InstructionError":\[0,\{"Custom":6016\}\]\}\}\)/);
 	});
 
 });

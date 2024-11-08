@@ -1,6 +1,6 @@
 import { type AnchorProvider } from "@coral-xyz/anchor";
-import { type PolicyEngineAccount, type PolicyAccount, TrackerAccount } from "./types";
-import { getPolicyAccountPda, getPolicyEnginePda, getPolicyEngineProgram, getTrackerAccountPda } from "./utils";
+import { type PolicyEngineAccount, type  TrackerAccount } from "./types";
+import { getPolicyEnginePda, getPolicyEngineProgram, getTrackerAccountPda } from "./utils";
 import { GetProgramAccountsFilter, PublicKey } from "@solana/web3.js";
 
 /**
@@ -49,18 +49,6 @@ export async function getPolicyEngineAccountsWithFilter(filter: PolicyEngineFilt
 	});
 	return policyAccounts.map(account => policyEngineProgram.coder.accounts.decode("PolicyEngineAccount", account.account.data));
 }
-
-/**
- * Retrieves a policy account associated with a specific asset mint.
- * @param assetMint - The string representation of the asset mint.
- * @returns A promise resolving to the fetched policy account, or `undefined` if it doesn't exist.
- */
-export async function getPolicyAccount(assetMint: string, provider: AnchorProvider): Promise<PolicyAccount | undefined> {
-	const policyEngineProgram = getPolicyEngineProgram(provider);
-	const policyAccountPda = getPolicyAccountPda(assetMint);
-	return policyEngineProgram.account.policyAccount.fetch(policyAccountPda);
-}
-
 
 
 /**

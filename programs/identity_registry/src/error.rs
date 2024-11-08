@@ -16,4 +16,6 @@ pub enum IdentityRegistryErrors {
     TokenAccountAlreadyInitialized,
     #[msg("Identity creation must be enforced for this feature")]
     IdentityCreationRequired,
+    #[msg("Multiple wallets are not allowed")]
+    MultipleWalletsNotAllowed,
 }

@@ -9,5 +9,5 @@ crate-type = ["cdylib", "lib"]
 name = "rwa_utils"
 
 [dependencies]
-anchor-lang = { workspace = true }
-anchor-spl = { workspace = true }
+anchor-lang = { git = "https://github.com/bridgesplit/anchor" }
+anchor-spl = { git = "https://github.com/bridgesplit/anchor" }

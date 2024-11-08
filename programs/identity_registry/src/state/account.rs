@@ -12,7 +12,7 @@ pub struct IdentityAccount {
     /// owner of the identity account
     pub owner: Pubkey,
 
-    pub num_token_accounts: u16,
+    pub num_wallets: u16,
     // identity levels corresponding to the user
     #[max_len(1)] // initial length is 1
     pub levels: Vec<IdentityLevel>,
@@ -59,13 +59,13 @@ impl IdentityAccount {
         Ok(())
     }
 
-    pub fn add_token_account(&mut self) -> Result<()> {
-        self.num_token_accounts += 1;
+    pub fn add_wallet(&mut self) -> Result<()> {
+        self.num_wallets += 1;
         Ok(())
     }
 
-    pub fn remove_token_account(&mut self) -> Result<()> {
-        self.num_token_accounts -= 1;
+    pub fn remove_wallet(&mut self) -> Result<()> {
+        self.num_wallets -= 1;
         Ok(())
     }
 }

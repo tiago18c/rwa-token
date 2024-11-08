@@ -14,85 +14,20 @@ export type PolicyEngine = {
   },
   "instructions": [
     {
-      "name": "attachToPolicyAccount",
+      "name": "attachToPolicyEngine",
       "docs": [
+        "policies",
         "attach a policy"
       ],
       "discriminator": [
-        247,
-        116,
-        130,
-        17,
-        89,
-        232,
-        103,
-        16
-      ],
-      "accounts": [
-        {
-          "name": "payer",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "signer",
-          "signer": true
-        },
-        {
-          "name": "policyEngine",
-          "writable": true
-        },
-        {
-          "name": "policyAccount",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "account",
-                "path": "policyEngine"
-              }
-            ]
-          }
-        },
-        {
-          "name": "systemProgram",
-          "address": "11111111111111111111111111111111"
-        }
-      ],
-      "args": [
-        {
-          "name": "identityFilter",
-          "type": {
-            "defined": {
-              "name": "identityFilter"
-            }
-          }
-        },
-        {
-          "name": "policyType",
-          "type": {
-            "defined": {
-              "name": "policyType"
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "createPolicyAccount",
-      "docs": [
-        "policies",
-        "create policy account"
-      ],
-      "discriminator": [
-        52,
-        228,
-        143,
-        138,
-        102,
-        135,
+        99,
         59,
-        193
+        117,
+        21,
+        146,
+        11,
+        54,
+        173
       ],
       "accounts": [
         {
@@ -107,18 +42,6 @@ export type PolicyEngine = {
         {
           "name": "policyEngine",
           "writable": true
-        },
-        {
-          "name": "policyAccount",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "account",
-                "path": "policyEngine"
-              }
-            ]
-          }
         },
         {
           "name": "systemProgram",
@@ -336,19 +259,19 @@ export type PolicyEngine = {
       "args": []
     },
     {
-      "name": "detachFromPolicyAccount",
+      "name": "detachFromPolicyEngine",
       "docs": [
         "remove policy"
       ],
       "discriminator": [
-        81,
-        24,
-        116,
-        10,
-        12,
-        108,
-        109,
-        242
+        156,
+        137,
+        67,
+        121,
+        46,
+        207,
+        45,
+        12
       ],
       "accounts": [
         {
@@ -363,18 +286,6 @@ export type PolicyEngine = {
         {
           "name": "policyEngine",
           "writable": true
-        },
-        {
-          "name": "policyAccount",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "account",
-                "path": "policyEngine"
-              }
-            ]
-          }
         },
         {
           "name": "systemProgram",
@@ -413,13 +324,7 @@ export type PolicyEngine = {
           ]
         },
         {
-          "name": "policyEngine",
-          "relations": [
-            "policyAccount"
-          ]
-        },
-        {
-          "name": "policyAccount"
+          "name": "policyEngine"
         },
         {
           "name": "destinationAccount",
@@ -537,10 +442,6 @@ export type PolicyEngine = {
           "writable": true
         },
         {
-          "name": "policyAccount",
-          "writable": true
-        },
-        {
           "name": "instructionsProgram"
         }
       ],
@@ -577,19 +478,6 @@ export type PolicyEngine = {
         36,
         125,
         78
-      ]
-    },
-    {
-      "name": "policyAccount",
-      "discriminator": [
-        218,
-        201,
-        183,
-        164,
-        156,
-        127,
-        81,
-        175
       ]
     },
     {
@@ -940,39 +828,6 @@ export type PolicyEngine = {
       }
     },
     {
-      "name": "policyAccount",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "version",
-            "type": "u8"
-          },
-          {
-            "name": "policyEngine",
-            "docs": [
-              "Engine account that the policy belongs to"
-            ],
-            "type": "pubkey"
-          },
-          {
-            "name": "policies",
-            "docs": [
-              "Different policies that can be applied to the policy account",
-              "initial max len"
-            ],
-            "type": {
-              "vec": {
-                "defined": {
-                  "name": "policy"
-                }
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
       "name": "policyEngineAccount",
       "type": {
         "kind": "struct",
@@ -1018,6 +873,19 @@ export type PolicyEngine = {
               "enforce policy issuance"
             ],
             "type": "bool"
+          },
+          {
+            "name": "policies",
+            "docs": [
+              "initial max len"
+            ],
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "policy"
+                }
+              }
+            }
           }
         ]
       }

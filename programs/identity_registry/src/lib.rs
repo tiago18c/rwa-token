@@ -25,9 +25,9 @@ pub mod identity_registry {
         ctx: Context<CreateIdentityRegistry>,
         authority: Pubkey,
         delegate: Option<Pubkey>,
-        require_identity_creation: Option<bool>,
+        allow_multiple_wallets: Option<bool>,
     ) -> Result<()> {
-        instructions::registry::create::handler(ctx, authority, delegate, require_identity_creation)
+        instructions::registry::create::handler(ctx, authority, delegate, allow_multiple_wallets)
     }
 
     /// delegate identity registry
@@ -95,16 +95,17 @@ pub mod identity_registry {
     }
 
     /// attach token account to identity account
-    pub fn attach_token_account_to_identity(
-        ctx: Context<AttachTokenAccountToIdentity>,
+    pub fn attach_wallet_to_identity(
+        ctx: Context<AttachWalletToIdentity>,
+        wallet: Pubkey,
     ) -> Result<()> {
-        instructions::account::attach_token_account_to_identity::handler(ctx)
+        instructions::account::attach_wallet_to_identity::handler(ctx, wallet)
     }
 
     /// detach token account from identity account
-    pub fn detach_token_account_from_identity(
-        ctx: Context<DetachTokenAccountFromIdentity>,
+    pub fn detach_wallet_from_identity(
+        ctx: Context<DetachWalletFromIdentity>,
     ) -> Result<()> {
-        instructions::account::detach_token_account_from_identity::handler(ctx)
+        instructions::account::detach_wallet_from_identity::handler(ctx)
     }
 }

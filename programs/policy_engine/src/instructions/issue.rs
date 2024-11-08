@@ -1,5 +1,5 @@
 use crate::{
-    get_asset_controller_account_pda, id, program::PolicyEngine, verify_cpi_program_is_token22, verify_pda, PolicyAccount, PolicyEngineAccount, PolicyEngineErrors, Side, TrackerAccount
+    get_asset_controller_account_pda, id, program::PolicyEngine, verify_cpi_program_is_token22, verify_pda, PolicyEngineAccount, PolicyEngineErrors, Side, TrackerAccount
 };
 use anchor_lang::{
     prelude::*,
@@ -23,10 +23,7 @@ pub struct EnforcePolicyIssuanceAccounts<'info> {
     pub asset_mint: Box<InterfaceAccount<'info, Mint>>,
     #[account(has_one = asset_mint)]
     pub policy_engine: Box<Account<'info, PolicyEngineAccount>>,
-    #[account(has_one = policy_engine)]
-    pub policy_account: Box<Account<'info, PolicyAccount>>,
     // can be any token account, user must make sure it is an associated token account with relevant identity permissions
-    
     #[account(mut,
         token::mint = asset_mint,
         token::token_program = anchor_spl::token_interface::spl_token_2022::id(),
@@ -58,7 +55,7 @@ pub fn handler(ctx: Context<EnforcePolicyIssuanceAccounts>, amount: u64) -> Resu
     }
 
     // evaluate policies
-    ctx.accounts.policy_account.enforce_policy_issuance(
+    ctx.accounts.policy_engine.enforce_policy_issuance(
         amount,
         Clock::get()?.unix_timestamp,
         &ctx.accounts.identity_account.levels,

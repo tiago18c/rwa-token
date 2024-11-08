@@ -34,6 +34,19 @@ export const getIdentityAccountPda = (assetMint: string, owner: string) => Publi
 
 
 /**
+ * Retrieves the wallet identity account pda public key for a specific asset mint.
+ * @param assetMint - The string representation of the asset's mint address.
+ * @param owner - The string representation of the asset's owner.
+ * @returns The identity account pda.
+ */
+export const getWalletIdentityAccountPda = (assetMint: string, owner: string) => PublicKey.findProgramAddressSync(
+	[new PublicKey(owner).toBuffer(), new PublicKey(assetMint).toBuffer()],
+	identityRegistryProgramId,
+)[0];
+
+
+
+/**
  * Retrieves the identity metadata account pda public key for a specific asset mint.
  * @param assetMint - The string representation of the asset's mint address.
  * @param level - The level of the identity account.

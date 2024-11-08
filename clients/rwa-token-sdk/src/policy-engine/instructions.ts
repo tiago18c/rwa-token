@@ -6,7 +6,6 @@ import {
 import { type CommonArgs, type IxReturn } from "../utils";
 import {
 	getExtraMetasListPda,
-	getPolicyAccountPda,
 	getPolicyEnginePda,
 	getPolicyEngineProgram,
 	getPolicyEnginerEventAuthority,
@@ -79,16 +78,14 @@ export type DetachPolicyArgs = {
  * @param args {@link AttachPolicyArgs}
  * @returns - {@link IxReturn}, a list of transaction instructions and a new key pair responsible to sign it.
  */
-export async function getAttachToPolicyAccountIx(
+export async function getAttachToPolicyEngineIx(
 	args: AttachPolicyArgs,
 	provider: AnchorProvider
 ): Promise<IxReturn> {
 	const policyProgram = getPolicyEngineProgram(provider);
-	const policyAccount = getPolicyAccountPda(args.assetMint);
 	const ix = await policyProgram.methods
-		.attachToPolicyAccount(args.identityFilter, args.policyType)
+		.attachToPolicyEngine(args.identityFilter, args.policyType)
 		.accountsStrict({
-			policyAccount,
 			signer: new PublicKey(args.authority),
 			payer: args.payer,
 			policyEngine: getPolicyEnginePda(args.assetMint),
@@ -113,38 +110,14 @@ export async function getAttachToPolicyAccountIx(
  * @param args {@link AttachPolicyArgs}
  * @returns - {@link IxReturn}, a list of transaction instructions and a new key pair responsible to sign it.
  */
-export async function getDetachFromPolicyAccountIx(
+export async function getDetachFromPolicyEngineIx(
 	args: DetachPolicyArgs,
 	provider: AnchorProvider
 ): Promise<IxReturn> {
 	const policyProgram = getPolicyEngineProgram(provider);
-	const policyAccount = getPolicyAccountPda(args.assetMint);
 	const ix = await policyProgram.methods
-		.detachFromPolicyAccount(args.hash)
+		.detachFromPolicyEngine(args.hash)
 		.accountsStrict({
-			policyAccount,
-			signer: new PublicKey(args.authority),
-			payer: args.payer,
-			policyEngine: getPolicyEnginePda(args.assetMint),
-			systemProgram: SystemProgram.programId,
-		})
-		.instruction();
-	return {
-		ixs: [ix],
-		signers: [],
-	};
-}
-
-export async function getCreatePolicyAccountIx(
-	args: AttachPolicyArgs,
-	provider: AnchorProvider
-): Promise<IxReturn> {
-	const policyProgram = getPolicyEngineProgram(provider);
-	const policyAccount = getPolicyAccountPda(args.assetMint);
-	const ix = await policyProgram.methods
-		.createPolicyAccount(args.identityFilter, args.policyType)
-		.accountsStrict({
-			policyAccount,
 			signer: new PublicKey(args.authority),
 			payer: args.payer,
 			policyEngine: getPolicyEnginePda(args.assetMint),

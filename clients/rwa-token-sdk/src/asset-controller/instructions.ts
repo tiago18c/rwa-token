@@ -10,7 +10,6 @@ import {
 } from "@solana/web3.js";
 import {
 	getPolicyEnginePda,
-	getPolicyAccountPda,
 	getTrackerAccountPda,
 	policyEngineProgramId,
 	getCreateTrackerAccountIx,
@@ -23,6 +22,7 @@ import {
 	getIdentityAccountPda,
 	getIdentityRegistryPda,
 	getAddLevelToIdentityAccount,
+	getWalletIdentityAccountPda,
 } from "../identity-registry";
 import {
 	type CommonArgs,
@@ -162,7 +162,6 @@ export async function getIssueTokensIx(
 			assetMint: new PublicKey(args.assetMint),
 			assetController: getAssetControllerPda(args.assetMint),
 			policyEngine: getPolicyEnginePda(args.assetMint),
-			policyAccount: getPolicyAccountPda(args.assetMint),
 			policyEngineProgram: policyEngineProgramId,
 			identityAccount: getIdentityAccountPda(args.assetMint, args.owner),
 			trackerAccount: getTrackerAccountPda(args.assetMint, args.owner),
@@ -266,11 +265,6 @@ export async function getTransferTokensIxs(
 			isSigner: false,
 		},
 		{
-			pubkey: getPolicyAccountPda(args.assetMint),
-			isWritable: true,
-			isSigner: false,
-		},
-		{
 			pubkey: SYSVAR_INSTRUCTIONS_PUBKEY,
 			isWritable: false,
 			isSigner: false,
@@ -282,6 +276,16 @@ export async function getTransferTokensIxs(
 		},
 		{
 			pubkey: policyEngineProgramId,
+			isWritable: false,
+			isSigner: false,
+		},
+		{
+			pubkey: getWalletIdentityAccountPda(args.assetMint, args.to),
+			isWritable: false,
+			isSigner: false,
+		},
+		{
+			pubkey: getWalletIdentityAccountPda(args.assetMint, args.from),
 			isWritable: false,
 			isSigner: false,
 		}
@@ -683,17 +687,22 @@ export async function getRevokeTokensIx(
 			isSigner: false,
 		},
 		{
-			pubkey: getPolicyAccountPda(args.assetMint),
-			isWritable: true,
-			isSigner: false,
-		},
-		{
 			pubkey: SYSVAR_INSTRUCTIONS_PUBKEY,
 			isWritable: false,
 			isSigner: false,
 		},
 		{
 			pubkey: getExtraMetasListPda(args.assetMint),
+			isWritable: false,
+			isSigner: false,
+		},
+		{
+			pubkey: getWalletIdentityAccountPda(args.assetMint, getAssetControllerPda(args.assetMint).toString()),
+			isWritable: false,
+			isSigner: false,
+		},
+		{
+			pubkey: getWalletIdentityAccountPda(args.assetMint, args.owner),
 			isWritable: false,
 			isSigner: false,
 		}

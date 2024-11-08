@@ -792,9 +792,6 @@
         },
         {
           "name": "policy_engine"
-        },
-        {
-          "name": "policy_account"
         }
       ],
       "args": [
@@ -1185,19 +1182,6 @@
         36,
         125,
         78
-      ]
-    },
-    {
-      "name": "PolicyAccount",
-      "discriminator": [
-        218,
-        201,
-        183,
-        164,
-        156,
-        127,
-        81,
-        175
       ]
     },
     {
@@ -1650,39 +1634,6 @@
       }
     },
     {
-      "name": "PolicyAccount",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "version",
-            "type": "u8"
-          },
-          {
-            "name": "policy_engine",
-            "docs": [
-              "Engine account that the policy belongs to"
-            ],
-            "type": "pubkey"
-          },
-          {
-            "name": "policies",
-            "docs": [
-              "Different policies that can be applied to the policy account",
-              "initial max len"
-            ],
-            "type": {
-              "vec": {
-                "defined": {
-                  "name": "Policy"
-                }
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
       "name": "PolicyEngineAccount",
       "type": {
         "kind": "struct",
@@ -1728,6 +1679,19 @@
               "enforce policy issuance"
             ],
             "type": "bool"
+          },
+          {
+            "name": "policies",
+            "docs": [
+              "initial max len"
+            ],
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "Policy"
+                }
+              }
+            }
           }
         ]
       }

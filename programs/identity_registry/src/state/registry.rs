@@ -12,7 +12,7 @@ pub struct IdentityRegistryAccount {
     pub authority: Pubkey,
     /// registry delegate
     pub delegate: Pubkey,
-    pub require_identity_creation: bool,
+    pub allow_multiple_wallets: bool,
 }
 
 /// level if attached to user account, will skip any policy checks
@@ -25,12 +25,12 @@ pub const NO_TRACKER_LEVEL: IdentityLevel = IdentityLevel { level: u8::MAX - 2, 
 
 impl IdentityRegistryAccount {
     pub const VERSION: u8 = 1;
-    pub fn new(&mut self, asset_mint: Pubkey, authority: Pubkey, delegate: Option<Pubkey>, require_identity_creation: bool) {
+    pub fn new(&mut self, asset_mint: Pubkey, authority: Pubkey, delegate: Option<Pubkey>, allow_multiple_wallets: bool) {
         self.asset_mint = asset_mint;
         self.authority = authority;
         self.delegate = delegate.unwrap_or(authority);
         self.version = Self::VERSION;
-        self.require_identity_creation = require_identity_creation;
+        self.allow_multiple_wallets = allow_multiple_wallets;
     }
     pub fn update_delegate(&mut self, delegate: Pubkey) {
         self.delegate = delegate;

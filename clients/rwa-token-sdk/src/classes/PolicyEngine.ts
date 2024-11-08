@@ -2,9 +2,8 @@ import { type IxReturn } from "../utils";
 import {
 	type AttachPolicyArgs,
 	DetachPolicyArgs,
-	getAttachToPolicyAccountIx,
-	getCreatePolicyAccountIx,
-	getDetachFromPolicyAccountIx,
+	getAttachToPolicyEngineIx,
+	getDetachFromPolicyEngineIx,
 	getPolicyEnginePda,
 } from "../policy-engine";
 import { type RwaClient } from "./Client";
@@ -21,25 +20,12 @@ export class PolicyEngine {
 	}
 
 	/**
-   * Asynchronously create a policy account to assets.
-   * @param - {@link AttachPolicyArgs}
-   * @returns A Promise that resolves to the instructions to attach a policy.
-   * */
-	async createPolicy(policyArgs: AttachPolicyArgs): Promise<IxReturn> {
-		const createPolicyIx = await getCreatePolicyAccountIx(
-			policyArgs,
-			this.rwaClient.provider
-		);
-		return createPolicyIx;
-	}
-
-	/**
-   * Asynchronously attaches a policy to the policy account.
+   * Asynchronously attaches a policy to the policy engine.
    * @param - {@link AttachPolicyArgs}
    * @returns A Promise that resolves to the instructions to attach a policy.
    * */
 	async attachPolicy(policyArgs: AttachPolicyArgs): Promise<IxReturn> {
-		const attachPolicyIx = await getAttachToPolicyAccountIx(
+		const attachPolicyIx = await getAttachToPolicyEngineIx(
 			policyArgs,
 			this.rwaClient.provider
 		);
@@ -47,12 +33,12 @@ export class PolicyEngine {
 	}
 
 	/**
-   * Asynchronously detaches a policy to the policy account.
+   * Asynchronously detaches a policy to the policy engine.
    * @param - {@link DetachPolicyArgs}
    * @returns A Promise that resolves to the instructions to detach a policy.
    * */
 	async detachPolicy(policyArgs: DetachPolicyArgs): Promise<IxReturn> {
-		const attachPolicyIx = await getDetachFromPolicyAccountIx(
+		const attachPolicyIx = await getDetachFromPolicyEngineIx(
 			policyArgs,
 			this.rwaClient.provider
 		);

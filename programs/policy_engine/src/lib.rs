@@ -31,30 +31,21 @@ pub mod policy_engine {
     }
 
     /// policies
-    /// create policy account
-    pub fn create_policy_account(
-        ctx: Context<CreatePolicyAccount>,
-        identity_filter: IdentityFilter,
-        policy_type: PolicyType,
-    ) -> Result<()> {
-        instructions::account::create::handler(ctx, identity_filter, policy_type)
-    }
-
     /// attach a policy
-    pub fn attach_to_policy_account(
-        ctx: Context<AttachToPolicyAccount>,
+    pub fn attach_to_policy_engine(
+        ctx: Context<AttachToPolicyEngine>,
         identity_filter: IdentityFilter,
         policy_type: PolicyType,
     ) -> Result<()> {
-        instructions::account::attach::handler(ctx, identity_filter, policy_type)
+        instructions::engine::attach::handler(ctx, identity_filter, policy_type)
     }
 
     /// remove policy
-    pub fn detach_from_policy_account(
-        ctx: Context<DetachFromPolicyAccount>,
+    pub fn detach_from_policy_engine(
+        ctx: Context<DetachFromPolicyEngine>,
         hash: String,
     ) -> Result<()> {
-        instructions::account::detach::handler(ctx, hash)
+        instructions::engine::detach::handler(ctx, hash)
     }
 
     /// create tracker account

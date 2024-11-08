@@ -5,7 +5,6 @@ import {
 	DeleteDataAccountArgs,
 	getDataAccountsWithFilter,
 	getFreezeTokenIx,
-	getPolicyAccount,
 	getRevokeTokensIx,
 	getSetupUserIxs,
 	getThawTokenIx,
@@ -15,6 +14,7 @@ import {
 	type UpdateDataAccountArgs,
 	VoidTokensArgs,
 	getIdentityAccount,
+	getPolicyEngineAccount,
 } from "../src";
 import { setupTests } from "./setup";
 import {
@@ -169,7 +169,7 @@ describe("e2e tests", async () => {
 			},
 		};
 
-		const policyIx = await rwaClient.policyEngine.createPolicy(policyArgs);
+		const policyIx = await rwaClient.policyEngine.attachPolicy(policyArgs);
 		const txnId = await sendAndConfirmTransaction(
 			rwaClient.provider.connection,
 			new Transaction().add(...policyIx.ixs),
@@ -391,7 +391,7 @@ describe("e2e tests", async () => {
 	});
 
 	test("detach all policies", async () => {
-		let policyAccount = await getPolicyAccount(mint, rwaClient.provider);
+		let policyAccount = await getPolicyEngineAccount(mint, rwaClient.provider);
 
 		for (const policy of policyAccount?.policies ?? []) {
 			const policyIx = await rwaClient.policyEngine.detachPolicy({
@@ -408,7 +408,7 @@ describe("e2e tests", async () => {
 			);
 			expect(txnId).toBeTruthy();
 		}
-		policyAccount = await getPolicyAccount(mint, rwaClient.provider);
+		policyAccount = await getPolicyEngineAccount(mint, rwaClient.provider);
 
 		expect(policyAccount?.policies.length).toBe(0);
 	});

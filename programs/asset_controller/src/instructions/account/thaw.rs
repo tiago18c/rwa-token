@@ -45,10 +45,6 @@ impl<'info> ThawTokenAccount<'info> {
 }
 
 pub fn handler(ctx: Context<ThawTokenAccount>) -> Result<()> {
-    require!(
-        !ctx.accounts.identity_registry_account.require_identity_creation || ctx.accounts.token_account.close_authority != COption::None,
-        AssetControllerErrors::TokenAccountNotInitialized
-    );
     let asset_mint = ctx.accounts.asset_mint.key();
     let signer_seeds = [
         asset_mint.as_ref(),

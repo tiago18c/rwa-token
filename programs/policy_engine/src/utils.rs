@@ -46,32 +46,32 @@ pub fn enforce_identity_filter2(identity: &[IdentityLevel], identity_filter: Ide
     }
 }
 
-pub fn enforce_transfer_identity_filter(receiver_identity: &[IdentityLevel], sender_identity: &[IdentityLevel], identity_filter: IdentityFilter, timestamp: i64) -> Result<()> {
+pub fn enforce_transfer_identity_filter(destination_identity: &[IdentityLevel], source_identity: &[IdentityLevel], identity_filter: IdentityFilter, timestamp: i64) -> Result<()> {
     match (identity_filter.comparision_type, identity_filter.counterparty_filter) {
         (ComparisionType::Or, CounterpartyFilter::Both) => {
-            enforce_identity_filter2(receiver_identity, identity_filter, timestamp)
-            .or(enforce_identity_filter2(sender_identity, identity_filter, timestamp))
+            enforce_identity_filter2(destination_identity, identity_filter, timestamp)
+            .or(enforce_identity_filter2(source_identity, identity_filter, timestamp))
         }
         (_, CounterpartyFilter::Receiver) => {
-            enforce_identity_filter2(receiver_identity, identity_filter, timestamp)
+            enforce_identity_filter2(destination_identity, identity_filter, timestamp)
         }
         (_, CounterpartyFilter::Sender) => {
-            enforce_identity_filter2(sender_identity, identity_filter, timestamp)
+            enforce_identity_filter2(source_identity, identity_filter, timestamp)
         }
         (_, CounterpartyFilter::Both) => 
         {
-            enforce_identity_filter2(receiver_identity, identity_filter, timestamp)?;
-            enforce_identity_filter2(sender_identity, identity_filter, timestamp)
+            enforce_identity_filter2(destination_identity, identity_filter, timestamp)?;
+            enforce_identity_filter2(source_identity, identity_filter, timestamp)
         }
     }
 }
 
-pub fn enforce_identity_filter(receiver_identity: &[IdentityLevel], source_identity: &[IdentityLevel], identity_filter: IdentityFilter, timestamp: i64) -> Result<()> {
+pub fn enforce_identity_filter(destination_identity: &[IdentityLevel], source_identity: &[IdentityLevel], identity_filter: IdentityFilter, timestamp: i64) -> Result<()> {
     match identity_filter.comparision_type {
         ComparisionType::Or => {
             // if any level is in the identities array, return Ok
             if identity_filter.counterparty_filter == CounterpartyFilter::Receiver || identity_filter.counterparty_filter == CounterpartyFilter::Both {
-                for level in receiver_identity.iter() {
+                for level in destination_identity.iter() {
                     if level.expiry > timestamp && identity_filter.identity_levels.contains(&level.level) {
                         return Ok(());
                     }
@@ -89,7 +89,7 @@ pub fn enforce_identity_filter(receiver_identity: &[IdentityLevel], source_ident
         ComparisionType::And => {
             // if all levels are in the identities array, return Ok
             if identity_filter.counterparty_filter == CounterpartyFilter::Receiver || identity_filter.counterparty_filter == CounterpartyFilter::Both {
-                for level in receiver_identity.iter() {
+                for level in destination_identity.iter() {
                     if level.expiry > timestamp && !identity_filter.identity_levels.contains(&level.level) {
                         return Err(PolicyEngineErrors::IdentityFilterFailed.into());
                     }
@@ -107,7 +107,7 @@ pub fn enforce_identity_filter(receiver_identity: &[IdentityLevel], source_ident
         ComparisionType::Except => {
             // if any level is in the identities array, return Err
             if identity_filter.counterparty_filter == CounterpartyFilter::Receiver || identity_filter.counterparty_filter == CounterpartyFilter::Both {
-                for level in receiver_identity.iter() {
+                for level in destination_identity.iter() {
                     if level.expiry > timestamp && identity_filter.identity_levels.contains(&level.level) {
                         return Err(PolicyEngineErrors::IdentityFilterFailed.into());
                     }
@@ -267,9 +267,35 @@ pub fn get_extra_account_metas() -> Result<Vec<ExtraAccountMeta>> {
             false,
             true,
         )?,
-        // policy account
-        ExtraAccountMeta::new_with_seeds(&[Seed::AccountKey { index: 5 }], false, true)?,
         // instructions program
         ExtraAccountMeta::new_with_pubkey(&sysvar::instructions::id(), false, false)?,
+        // destination wallet identity
+        ExtraAccountMeta::new_external_pda_with_seeds(
+            6,
+            &[
+                Seed::AccountData {
+                    account_index: 2,
+                    data_index: 32,
+                    length: 32,
+                },
+                Seed::AccountKey { index: 1 },
+            ],
+            false,
+            false,
+        )?,
+        // source wallet identity
+        ExtraAccountMeta::new_external_pda_with_seeds(
+            6,
+            &[
+                Seed::AccountData {
+                    account_index: 0,
+                    data_index: 32,
+                    length: 32,
+                },
+                Seed::AccountKey { index: 1 },
+            ],
+            false,
+            false,
+        )?,
     ])
 }

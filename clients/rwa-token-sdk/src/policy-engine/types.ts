@@ -5,9 +5,6 @@ import { type PolicyEngineIdlTypes } from "../programs";
 export type PolicyEngineAccount =
   IdlAccounts<PolicyEngineIdlTypes>["policyEngineAccount"];
 
-/** Represents on chain policy account. */
-export type PolicyAccount = IdlAccounts<PolicyEngineIdlTypes>["policyAccount"];
-
 /** Represents on chain filter for identity used by the policy engine. */
 export type IdentityFilter = IdlTypes<PolicyEngineIdlTypes>["identityFilter"];
 

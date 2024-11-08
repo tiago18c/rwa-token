@@ -47,7 +47,7 @@ describe("test additional policies", async () => {
 		const txnId = await sendAndConfirmTransaction(
 			setup.provider.connection,
 			new Transaction().add(...setupAssetController.ixs),
-			[setup.payerKp, setup.authorityKp, ...setupAssetController.signers]
+			[setup.payerKp, ...setupAssetController.signers]
 		);
 		mint = setupAssetController.signers[0].publicKey.toString();
 		expect(txnId).toBeTruthy();
@@ -99,7 +99,7 @@ describe("test additional policies", async () => {
 		const holderLimit = 2;
 
 		test("attach HolderLimit policy", async () => {
-			const attachPolicy = await rwaClient.policyEngine.createPolicy({
+			const attachPolicy = await rwaClient.policyEngine.attachPolicy({
 				payer: setup.payer.toString(),
 				assetMint: mint,
 				authority: setup.authority.toString(),

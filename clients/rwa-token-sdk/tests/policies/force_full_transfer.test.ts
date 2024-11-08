@@ -47,7 +47,7 @@ describe("test additional policies", async () => {
 		const txnId = await sendAndConfirmTransaction(
 			setup.provider.connection,
 			new Transaction().add(...setupAssetController.ixs),
-			[setup.payerKp, setup.authorityKp, ...setupAssetController.signers]
+			[setup.payerKp, ...setupAssetController.signers]
 		);
 		mint = setupAssetController.signers[0].publicKey.toString();
 		expect(txnId).toBeTruthy();
@@ -98,7 +98,7 @@ describe("test additional policies", async () => {
 
 	describe("test ForceFullTransfer policy", async () => {
 		test("attach ForceFullTransfer policy", async () => {
-			const attachPolicy = await rwaClient.policyEngine.createPolicy({
+			const attachPolicy = await rwaClient.policyEngine.attachPolicy({
 				payer: setup.payer.toString(),
 				assetMint: mint,
 				authority: setup.authority.toString(),
@@ -130,7 +130,8 @@ describe("test additional policies", async () => {
 				setup.provider.connection,
 				new Transaction().add(...transferTokensIxs),
 				[setup.user1Kp],
-			)).rejects.toThrowError(/custom program error: 0x1781/); // ForceFullTransfer error
+				{skipPreflight: true}
+			)).rejects.toThrowError(/failed \(\{"err":\{"InstructionError":\[1,\{"Custom":6018\}\]\}\}\)/); // ForceFullTransfer error
 		});
 
 		test("perform full transfer", async () => {

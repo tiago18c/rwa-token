@@ -4,7 +4,7 @@ use anchor_spl::{
     token_interface::{mint_to, Mint, MintTo, Token2022, TokenAccount},
 };
 use identity_registry::{IdentityAccount, IdentityRegistryAccount};
-use policy_engine::{program::PolicyEngine, PolicyAccount, PolicyEngineAccount, TrackerAccount};
+use policy_engine::{program::PolicyEngine, PolicyEngineAccount, TrackerAccount};
 use rwa_utils::get_bump_in_seed_form;
 
 use crate::AssetControllerAccount;
@@ -43,7 +43,6 @@ pub struct IssueTokens<'info> {
     pub system_program: Program<'info, System>,
     pub policy_engine_program: Program<'info, PolicyEngine>,
     pub policy_engine: Box<Account<'info, PolicyEngineAccount>>,
-    pub policy_account: Box<Account<'info, PolicyAccount>>,
 }
 
 impl<'info> IssueTokens<'info> {
@@ -66,7 +65,6 @@ impl<'info> IssueTokens<'info> {
         let accounts = policy_engine::cpi::accounts::EnforcePolicyIssuanceAccounts {
             asset_mint: self.asset_mint.to_account_info(),
             policy_engine: self.policy_engine.to_account_info(),
-            policy_account: self.policy_account.to_account_info(),
             destination_account: self.token_account.to_account_info(),
             identity_registry: self.identity_registry.to_account_info(),
             identity_account: self.identity_account.to_account_info(),

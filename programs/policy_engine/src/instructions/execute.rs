@@ -1,5 +1,5 @@
 use crate::{
-    get_asset_controller_account_pda, id, program::PolicyEngine, verify_cpi_program_is_token22, verify_pda, PolicyAccount, PolicyEngineAccount, PolicyEngineErrors, Side, TrackerAccount
+    get_asset_controller_account_pda, id, program::PolicyEngine, verify_cpi_program_is_token22, verify_pda, PolicyEngineAccount, PolicyEngineErrors, Side, TrackerAccount
 };
 use anchor_lang::{
     prelude::*,
@@ -7,7 +7,7 @@ use anchor_lang::{
 };
 use anchor_spl::token_interface::{Mint, TokenAccount};
 use identity_registry::{
-    program::IdentityRegistry, IdentityAccount, NO_IDENTITY_LEVEL, NO_TRACKER_LEVEL, SKIP_POLICY_LEVEL
+    program::IdentityRegistry, IdentityAccount, NO_IDENTITY_LEVEL, NO_TRACKER_LEVEL, SKIP_POLICY_LEVEL, WalletIdentity
 };
 use rwa_utils::META_LIST_ACCOUNT_SEED;
 
@@ -49,12 +49,14 @@ pub struct ExecuteTransferHook<'info> {
     #[account(mut)]
     /// CHECK: internal ix checks
     pub source_tracker_account: UncheckedAccount<'info>,
-    #[account(mut)]
-    /// CHECK: internal ix checks
-    pub policy_account: UncheckedAccount<'info>,
     #[account(constraint = instructions_program.key() == sysvar::instructions::id())]
     /// CHECK: constraint check
     pub instructions_program: UncheckedAccount<'info>,
+
+    /// CHECK: internal ix checks
+    pub destination_wallet_identity: UncheckedAccount<'info>,
+    /// CHECK: internal ix checks
+    pub source_wallet_identity: UncheckedAccount<'info>,
 }
 
 pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
@@ -76,26 +78,12 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
         &crate::id(),
     )?;
 
-    verify_pda(
-        ctx.accounts.policy_account.key(),
-        &[&ctx.accounts.policy_engine_account.key().to_bytes()],
-        &crate::id(),
-    )?;
-
-    // if policy account hasnt been created, skip enforcing token hook logic
-    if ctx.accounts.policy_account.data_is_empty() {
-        return Ok(());
-    }
-
     let policy_engine_account = PolicyEngineAccount::deserialize(
         &mut &ctx.accounts.policy_engine_account.data.borrow()[8..],
     )?;
 
-    let policy_account =
-        PolicyAccount::deserialize(&mut &ctx.accounts.policy_account.data.borrow()[8..])?;
-
-    // go through with transfer if there aren't any policies attached
-    if policy_account.policies.is_empty() {
+    // if policy account hasnt been created, skip enforcing token hook logic
+    if policy_engine_account.policies.is_empty() {
         return Ok(());
     }
 
@@ -111,11 +99,26 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
         let destination_identity_account = IdentityAccount::deserialize(
             &mut &ctx.accounts.destination_identity_account.data.borrow()[8..],
         )?;
+
+        if destination_identity_account.owner != ctx.accounts.destination_account.owner {
+            //deserialize wallet identity
+            let destination_wallet_identity = WalletIdentity::deserialize(
+                &mut &ctx.accounts.destination_wallet_identity.data.borrow()[8..],
+            )?;
+
+            require!(
+                ctx.accounts.destination_account.owner == destination_wallet_identity.wallet,
+                PolicyEngineErrors::InvalidIdentityAccount
+            );
+        } 
         require!(
             ctx.accounts.destination_account.owner == destination_identity_account.owner || 
             ctx.accounts.destination_account.close_authority == COption::Some(ctx.accounts.destination_identity_account.key()), 
             PolicyEngineErrors::InvalidIdentityAccount
         );
+
+
+
         require!(
             destination_identity_account.identity_registry == ctx.accounts.identity_registry_account.key(),
             PolicyEngineErrors::InvalidIdentityAccount
@@ -130,11 +133,18 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
         let source_identity_account = IdentityAccount::deserialize(
             &mut &ctx.accounts.source_identity_account.data.borrow()[8..],
         )?;
-        require!(
-            ctx.accounts.source_account.owner == source_identity_account.owner || 
-            ctx.accounts.source_account.close_authority == COption::Some(ctx.accounts.source_identity_account.key()), 
-            PolicyEngineErrors::InvalidIdentityAccount
-        );
+        
+        if source_identity_account.owner != ctx.accounts.source_account.owner {
+            //deserialize wallet identity
+            let source_wallet_identity = WalletIdentity::deserialize(
+                &mut &ctx.accounts.source_wallet_identity.data.borrow()[8..],
+            )?;
+
+            require!(
+                ctx.accounts.source_account.owner == source_wallet_identity.wallet,
+                PolicyEngineErrors::InvalidIdentityAccount
+            );
+        } 
         require!(
             source_identity_account.identity_registry == ctx.accounts.identity_registry_account.key(),
             PolicyEngineErrors::InvalidIdentityAccount
@@ -150,8 +160,8 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
         return Ok(());
     }
 
-    let self_transfer = ctx.accounts.source_account.close_authority != COption::None 
-        && ctx.accounts.source_account.close_authority == ctx.accounts.destination_account.close_authority; 
+    let self_transfer = ctx.accounts.source_account.owner == ctx.accounts.destination_account.owner
+    || ctx.accounts.source_identity_account.key() == ctx.accounts.destination_identity_account.key(); 
 
     let source_tracker_account: Option<TrackerAccount> = if source_levels.contains(&NO_TRACKER_LEVEL) {
         None
@@ -216,7 +226,7 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
     };
 
     // evaluate policies
-    policy_account.enforce_policy(
+    policy_engine_account.enforce_policy(
         amount,
         Clock::get()?.unix_timestamp,
         &source_levels,
@@ -226,16 +236,6 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
         &destination_tracker_account,
         self_transfer,
     )?;
-
-
-        // new algo
-        // check if skip
-        // decode tracker accounts
-        // update tracker accounts
-        // enforce policy
-        // encode tracker accounts
-        // check by key where possible instead of pda
-        // consider making tracker accounts zero_copy
 
     Ok(())
 }

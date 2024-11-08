@@ -4,35 +4,30 @@ use crate::state::*;
 
 #[derive(Accounts)]
 #[instruction()]
-pub struct AttachToPolicyAccount<'info> {
+pub struct AttachToPolicyEngine<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
     #[account(
         constraint = policy_engine.authority == signer.key() || policy_engine.delegate == signer.key()
     )]
     pub signer: Signer<'info>,
-    #[account(mut)]
-    pub policy_engine: Box<Account<'info, PolicyEngineAccount>>,
-    #[account(
-        mut,
-        seeds = [policy_engine.key().as_ref()],
-        bump,
-        realloc = policy_account.to_account_info().data_len() + Policy::INIT_SPACE,
+    #[account(mut,
+        realloc = policy_engine.to_account_info().data_len() + Policy::INIT_SPACE,
         realloc::zero = false,
         realloc::payer = payer,
     )]
-    pub policy_account: Box<Account<'info, PolicyAccount>>,
+    pub policy_engine: Box<Account<'info, PolicyEngineAccount>>,
     pub system_program: Program<'info, System>,
 }
 
 pub fn handler(
-    ctx: Context<AttachToPolicyAccount>,
+    ctx: Context<AttachToPolicyEngine>,
     identity_filter: IdentityFilter,
     policy_type: PolicyType,
 ) -> Result<()> {
-    let policy_account_address = ctx.accounts.policy_account.key();
+    let policy_account_address = ctx.accounts.policy_engine.key();
     ctx.accounts
-        .policy_account
+        .policy_engine
         .attach(policy_account_address, policy_type, identity_filter)?;
     ctx.accounts.policy_engine.update_max_timeframe(policy_type);
     Ok(())

@@ -798,9 +798,6 @@ export type AssetController = {
         },
         {
           "name": "policyEngine"
-        },
-        {
-          "name": "policyAccount"
         }
       ],
       "args": [
@@ -1191,19 +1188,6 @@ export type AssetController = {
         36,
         125,
         78
-      ]
-    },
-    {
-      "name": "policyAccount",
-      "discriminator": [
-        218,
-        201,
-        183,
-        164,
-        156,
-        127,
-        81,
-        175
       ]
     },
     {
@@ -1656,39 +1640,6 @@ export type AssetController = {
       }
     },
     {
-      "name": "policyAccount",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "version",
-            "type": "u8"
-          },
-          {
-            "name": "policyEngine",
-            "docs": [
-              "Engine account that the policy belongs to"
-            ],
-            "type": "pubkey"
-          },
-          {
-            "name": "policies",
-            "docs": [
-              "Different policies that can be applied to the policy account",
-              "initial max len"
-            ],
-            "type": {
-              "vec": {
-                "defined": {
-                  "name": "policy"
-                }
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
       "name": "policyEngineAccount",
       "type": {
         "kind": "struct",
@@ -1734,6 +1685,19 @@ export type AssetController = {
               "enforce policy issuance"
             ],
             "type": "bool"
+          },
+          {
+            "name": "policies",
+            "docs": [
+              "initial max len"
+            ],
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "policy"
+                }
+              }
+            }
           }
         ]
       }

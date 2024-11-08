@@ -77,7 +77,7 @@ dependencies = [
 [[package]]
 name = "anchor-attribute-access-control"
 version = "0.30.1"
-source = "git+https://github.com/tiago18c/anchor?branch=default_state_extension#d8cfe9449fe27eeeef0b610fcb3241cbec4ff1c5"
+source = "git+https://github.com/bridgesplit/anchor#c770ad82089cc78b76a5759b022e08803af9caa4"
 dependencies = [
  "anchor-syn",
  "proc-macro2",
@@ -88,7 +88,7 @@ dependencies = [
 [[package]]
 name = "anchor-attribute-account"
 version = "0.30.1"
-source = "git+https://github.com/tiago18c/anchor?branch=default_state_extension#d8cfe9449fe27eeeef0b610fcb3241cbec4ff1c5"
+source = "git+https://github.com/bridgesplit/anchor#c770ad82089cc78b76a5759b022e08803af9caa4"
 dependencies = [
  "anchor-syn",
  "bs58",
@@ -100,7 +100,7 @@ dependencies = [
 [[package]]
 name = "anchor-attribute-constant"
 version = "0.30.1"
-source = "git+https://github.com/tiago18c/anchor?branch=default_state_extension#d8cfe9449fe27eeeef0b610fcb3241cbec4ff1c5"
+source = "git+https://github.com/bridgesplit/anchor#c770ad82089cc78b76a5759b022e08803af9caa4"
 dependencies = [
  "anchor-syn",
  "quote",
@@ -110,7 +110,7 @@ dependencies = [
 [[package]]
 name = "anchor-attribute-error"
 version = "0.30.1"
-source = "git+https://github.com/tiago18c/anchor?branch=default_state_extension#d8cfe9449fe27eeeef0b610fcb3241cbec4ff1c5"
+source = "git+https://github.com/bridgesplit/anchor#c770ad82089cc78b76a5759b022e08803af9caa4"
 dependencies = [
  "anchor-syn",
  "quote",
@@ -120,7 +120,7 @@ dependencies = [
 [[package]]
 name = "anchor-attribute-event"
 version = "0.30.1"
-source = "git+https://github.com/tiago18c/anchor?branch=default_state_extension#d8cfe9449fe27eeeef0b610fcb3241cbec4ff1c5"
+source = "git+https://github.com/bridgesplit/anchor#c770ad82089cc78b76a5759b022e08803af9caa4"
 dependencies = [
  "anchor-syn",
  "proc-macro2",
@@ -131,7 +131,7 @@ dependencies = [
 [[package]]
 name = "anchor-attribute-program"
 version = "0.30.1"
-source = "git+https://github.com/tiago18c/anchor?branch=default_state_extension#d8cfe9449fe27eeeef0b610fcb3241cbec4ff1c5"
+source = "git+https://github.com/bridgesplit/anchor#c770ad82089cc78b76a5759b022e08803af9caa4"
 dependencies = [
  "anchor-lang-idl",
  "anchor-syn",
@@ -147,7 +147,7 @@ dependencies = [
 [[package]]
 name = "anchor-derive-accounts"
 version = "0.30.1"
-source = "git+https://github.com/tiago18c/anchor?branch=default_state_extension#d8cfe9449fe27eeeef0b610fcb3241cbec4ff1c5"
+source = "git+https://github.com/bridgesplit/anchor#c770ad82089cc78b76a5759b022e08803af9caa4"
 dependencies = [
  "anchor-syn",
  "quote",
@@ -157,7 +157,7 @@ dependencies = [
 [[package]]
 name = "anchor-derive-serde"
 version = "0.30.1"
-source = "git+https://github.com/tiago18c/anchor?branch=default_state_extension#d8cfe9449fe27eeeef0b610fcb3241cbec4ff1c5"
+source = "git+https://github.com/bridgesplit/anchor#c770ad82089cc78b76a5759b022e08803af9caa4"
 dependencies = [
  "anchor-syn",
  "borsh-derive-internal",
@@ -169,7 +169,7 @@ dependencies = [
 [[package]]
 name = "anchor-derive-space"
 version = "0.30.1"
-source = "git+https://github.com/tiago18c/anchor?branch=default_state_extension#d8cfe9449fe27eeeef0b610fcb3241cbec4ff1c5"
+source = "git+https://github.com/bridgesplit/anchor#c770ad82089cc78b76a5759b022e08803af9caa4"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -179,7 +179,7 @@ dependencies = [
 [[package]]
 name = "anchor-lang"
 version = "0.30.1"
-source = "git+https://github.com/tiago18c/anchor?branch=default_state_extension#d8cfe9449fe27eeeef0b610fcb3241cbec4ff1c5"
+source = "git+https://github.com/bridgesplit/anchor#c770ad82089cc78b76a5759b022e08803af9caa4"
 dependencies = [
  "anchor-attribute-access-control",
  "anchor-attribute-account",
@@ -202,7 +202,7 @@ dependencies = [
 [[package]]
 name = "anchor-lang-idl"
 version = "0.1.1"
-source = "git+https://github.com/tiago18c/anchor?branch=default_state_extension#d8cfe9449fe27eeeef0b610fcb3241cbec4ff1c5"
+source = "git+https://github.com/bridgesplit/anchor#c770ad82089cc78b76a5759b022e08803af9caa4"
 dependencies = [
  "anchor-lang-idl-spec",
  "anyhow",
@@ -216,7 +216,7 @@ dependencies = [
 [[package]]
 name = "anchor-lang-idl-spec"
 version = "0.1.0"
-source = "git+https://github.com/tiago18c/anchor?branch=default_state_extension#d8cfe9449fe27eeeef0b610fcb3241cbec4ff1c5"
+source = "git+https://github.com/bridgesplit/anchor#c770ad82089cc78b76a5759b022e08803af9caa4"
 dependencies = [
  "anyhow",
  "serde",
@@ -225,7 +225,7 @@ dependencies = [
 [[package]]
 name = "anchor-spl"
 version = "0.30.1"
-source = "git+https://github.com/tiago18c/anchor?branch=default_state_extension#d8cfe9449fe27eeeef0b610fcb3241cbec4ff1c5"
+source = "git+https://github.com/bridgesplit/anchor#c770ad82089cc78b76a5759b022e08803af9caa4"
 dependencies = [
  "anchor-lang",
  "spl-associated-token-account",
@@ -239,7 +239,7 @@ dependencies = [
 [[package]]
 name = "anchor-syn"
 version = "0.30.1"
-source = "git+https://github.com/tiago18c/anchor?branch=default_state_extension#d8cfe9449fe27eeeef0b610fcb3241cbec4ff1c5"
+source = "git+https://github.com/bridgesplit/anchor#c770ad82089cc78b76a5759b022e08803af9caa4"
 dependencies = [
  "anyhow",
  "bs58",

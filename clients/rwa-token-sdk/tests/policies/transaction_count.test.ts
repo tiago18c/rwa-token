@@ -1,6 +1,7 @@
 import { BN, Wallet } from "@coral-xyz/anchor";
 import {
 	getPolicyAccountPda,
+	getPolicyEnginePda,
 	getPolicyEngineProgram,
 	getTransferTokensIxs,
 	RwaClient,
@@ -50,7 +51,7 @@ describe("test transaction count velocity policy", async () => {
 		const txnId = await sendAndConfirmTransaction(
 			setup.provider.connection,
 			new Transaction().add(...setupAssetController.ixs),
-			[setup.payerKp, setup.authorityKp, ...setupAssetController.signers]
+			[setup.payerKp, ...setupAssetController.signers]
 		);
 		mint = setupAssetController.signers[0].publicKey.toString();
 		expect(txnId).toBeTruthy();
@@ -101,7 +102,7 @@ describe("test transaction count velocity policy", async () => {
 	});
 
 	test("attach transaction count velocity policy", async () => {
-		const attachPolicy = await rwaClient.policyEngine.createPolicy({
+		const attachPolicy = await rwaClient.policyEngine.attachPolicy({
 			payer: setup.payer.toString(),
 			assetMint: mint,
 			authority: setup.authority.toString(),
@@ -123,7 +124,7 @@ describe("test transaction count velocity policy", async () => {
 		);
 		expect(txnId).toBeTruthy();
 
-		const policyAccount = await getPolicyEngineProgram(setup.provider).account.policyAccount.fetch(getPolicyAccountPda(mint));
+		const policyAccount = await getPolicyEngineProgram(setup.provider).account.policyEngineAccount.fetch(getPolicyEnginePda(mint));
 		expect(policyAccount.policies.length).toBe(1);
 	});
 

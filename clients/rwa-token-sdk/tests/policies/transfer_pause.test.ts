@@ -47,7 +47,7 @@ describe("test additional policies", async () => {
 		const txnId = await sendAndConfirmTransaction(
 			setup.provider.connection,
 			new Transaction().add(...setupAssetController.ixs),
-			[setup.payerKp, setup.authorityKp, ...setupAssetController.signers]
+			[setup.payerKp, ...setupAssetController.signers]
 		);
 		mint = setupAssetController.signers[0].publicKey.toString();
 		expect(txnId).toBeTruthy();
@@ -98,7 +98,7 @@ describe("test additional policies", async () => {
 
 	describe("test TransferPause policy", async () => {
 		test("attach TransferPause policy", async () => {
-			const attachPolicy = await rwaClient.policyEngine.createPolicy({
+			const attachPolicy = await rwaClient.policyEngine.attachPolicy({
 				payer: setup.payer.toString(),
 				assetMint: mint,
 				authority: setup.authority.toString(),
@@ -130,7 +130,7 @@ describe("test additional policies", async () => {
 				setup.provider.connection,
 				new Transaction().add(...transferTokensIxs),
 				[setup.user1Kp],
-			)).rejects.toThrowError(/custom program error: 0x1780/); // TransferPaused error
+			)).rejects.toThrowError(/custom program error: 0x1781/); // TransferPaused error
 		});
 	});
 });
