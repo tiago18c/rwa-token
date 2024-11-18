@@ -174,31 +174,7 @@ export type AssetController = {
           "signer": true
         },
         {
-          "name": "identityAccountOwner"
-        },
-        {
-          "name": "assetMint",
-          "relations": [
-            "identityRegistry"
-          ]
-        },
-        {
-          "name": "assetController",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "account",
-                "path": "assetMint"
-              }
-            ]
-          }
-        },
-        {
-          "name": "identityAccount",
-          "signer": true
-        },
-        {
-          "name": "identityRegistry"
+          "name": "assetMint"
         },
         {
           "name": "tokenAccount",
@@ -297,10 +273,6 @@ export type AssetController = {
         {
           "name": "associatedTokenProgram",
           "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
-        },
-        {
-          "name": "identityRegistryProgram",
-          "address": "idtynCMYbdisCTv4FrCWPSQboZb1uM4TV2cPi79yxQf"
         }
       ],
       "args": []
@@ -1448,7 +1420,7 @@ export type AssetController = {
             }
           },
           {
-            "name": "requireIdentityCreation",
+            "name": "allowMultipleWallets",
             "type": {
               "option": "bool"
             }
@@ -1483,6 +1455,32 @@ export type AssetController = {
       }
     },
     {
+      "name": "groupedHoldersLimit",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "max",
+            "type": "u64"
+          },
+          {
+            "name": "min",
+            "type": "u64"
+          },
+          {
+            "name": "currentHolders",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "levelHolder"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "identityAccount",
       "type": {
         "kind": "struct",
@@ -1509,7 +1507,7 @@ export type AssetController = {
             "type": "pubkey"
           },
           {
-            "name": "numTokenAccounts",
+            "name": "numWallets",
             "type": "u16"
           },
           {
@@ -1605,8 +1603,24 @@ export type AssetController = {
             "type": "pubkey"
           },
           {
-            "name": "requireIdentityCreation",
+            "name": "allowMultipleWallets",
             "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "levelHolder",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "level",
+            "type": "u8"
+          },
+          {
+            "name": "count",
+            "type": "u64"
           }
         ]
       }
@@ -1760,6 +1774,46 @@ export type AssetController = {
               {
                 "name": "limit",
                 "type": "u64"
+              }
+            ]
+          },
+          {
+            "name": "minMaxBalance",
+            "fields": [
+              {
+                "name": "min",
+                "type": "u64"
+              },
+              {
+                "name": "max",
+                "type": "u64"
+              }
+            ]
+          },
+          {
+            "name": "holdersLimit",
+            "fields": [
+              {
+                "name": "max",
+                "type": "u64"
+              },
+              {
+                "name": "min",
+                "type": "u64"
+              },
+              {
+                "name": "currentHolders",
+                "type": "u64"
+              }
+            ]
+          },
+          {
+            "name": "groupedHoldersLimit",
+            "fields": [
+              {
+                "defined": {
+                  "name": "groupedHoldersLimit"
+                }
               }
             ]
           },

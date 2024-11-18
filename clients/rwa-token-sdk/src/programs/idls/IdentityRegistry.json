@@ -74,41 +74,75 @@
       ]
     },
     {
-      "name": "attach_token_account_to_identity",
+      "name": "attach_wallet_to_identity",
       "docs": [
         "attach token account to identity account"
       ],
       "discriminator": [
-        15,
-        34,
-        253,
-        94,
-        151,
-        78,
-        242,
-        82
+        61,
+        129,
+        252,
+        190,
+        8,
+        202,
+        179,
+        90
       ],
       "accounts": [
         {
-          "name": "asset_controller",
+          "name": "payer",
           "writable": true,
           "signer": true
+        },
+        {
+          "name": "owner",
+          "signer": true,
+          "relations": [
+            "identity_account"
+          ]
         },
         {
           "name": "identity_account"
         },
         {
-          "name": "identity_registry"
+          "name": "identity_registry",
+          "relations": [
+            "identity_account"
+          ]
         },
         {
-          "name": "token_account",
-          "writable": true
+          "name": "asset_mint",
+          "relations": [
+            "identity_registry"
+          ]
         },
         {
-          "name": "asset_mint"
+          "name": "wallet_identity",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "wallet"
+              },
+              {
+                "kind": "account",
+                "path": "asset_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
         }
       ],
-      "args": []
+      "args": [
+        {
+          "name": "wallet",
+          "type": "pubkey"
+        }
+      ]
     },
     {
       "name": "create_identity_account",
@@ -237,7 +271,7 @@
           }
         },
         {
-          "name": "require_identity_creation",
+          "name": "allow_multiple_wallets",
           "type": {
             "option": "bool"
           }
@@ -277,57 +311,38 @@
       ]
     },
     {
-      "name": "detach_token_account_from_identity",
+      "name": "detach_wallet_from_identity",
       "docs": [
         "detach token account from identity account"
       ],
       "discriminator": [
-        235,
-        17,
-        27,
-        19,
-        210,
-        21,
-        24,
-        150
+        166,
+        70,
+        236,
+        254,
+        166,
+        116,
+        201,
+        50
       ],
       "accounts": [
         {
-          "name": "owner"
-        },
-        {
-          "name": "asset_controller",
+          "name": "owner",
           "writable": true,
-          "signer": true
+          "signer": true,
+          "relations": [
+            "identity_account"
+          ]
         },
         {
-          "name": "identity_account",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "account",
-                "path": "identity_registry"
-              },
-              {
-                "kind": "account",
-                "path": "owner"
-              }
-            ]
-          }
-        },
-        {
-          "name": "identity_registry"
-        },
-        {
-          "name": "token_account",
+          "name": "wallet_identity",
           "writable": true
         },
         {
-          "name": "asset_mint"
-        },
-        {
-          "name": "token_program",
-          "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+          "name": "identity_account",
+          "relations": [
+            "wallet_identity"
+          ]
         }
       ],
       "args": []
@@ -608,6 +623,19 @@
         125,
         78
       ]
+    },
+    {
+      "name": "WalletIdentity",
+      "discriminator": [
+        101,
+        142,
+        55,
+        104,
+        168,
+        77,
+        57,
+        85
+      ]
     }
   ],
   "errors": [
@@ -645,6 +673,11 @@
       "code": 6006,
       "name": "IdentityCreationRequired",
       "msg": "Identity creation must be enforced for this feature"
+    },
+    {
+      "code": 6007,
+      "name": "MultipleWalletsNotAllowed",
+      "msg": "Multiple wallets are not allowed"
     }
   ],
   "types": [
@@ -675,7 +708,7 @@
             "type": "pubkey"
           },
           {
-            "name": "num_token_accounts",
+            "name": "num_wallets",
             "type": "u16"
           },
           {
@@ -788,8 +821,24 @@
             "type": "pubkey"
           },
           {
-            "name": "require_identity_creation",
+            "name": "allow_multiple_wallets",
             "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "WalletIdentity",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "identity_account",
+            "type": "pubkey"
+          },
+          {
+            "name": "wallet",
+            "type": "pubkey"
           }
         ]
       }

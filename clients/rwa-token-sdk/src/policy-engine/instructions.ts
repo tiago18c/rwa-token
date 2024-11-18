@@ -57,6 +57,7 @@ export type AttachPolicyArgs = {
   payer: string;
   identityFilter: IdentityFilter;
   policyType: PolicyType;
+  additionalLevels?: number[];
 };
 
 /** Represents the arguments required to detach a policy from an asset. */
@@ -84,7 +85,7 @@ export async function getAttachToPolicyEngineIx(
 ): Promise<IxReturn> {
 	const policyProgram = getPolicyEngineProgram(provider);
 	const ix = await policyProgram.methods
-		.attachToPolicyEngine(args.identityFilter, args.policyType)
+		.attachToPolicyEngine(args.identityFilter, args.policyType, args.additionalLevels? args.additionalLevels : null)
 		.accountsStrict({
 			signer: new PublicKey(args.authority),
 			payer: args.payer,

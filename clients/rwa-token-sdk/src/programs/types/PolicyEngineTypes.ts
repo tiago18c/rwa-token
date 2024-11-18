@@ -64,6 +64,12 @@ export type PolicyEngine = {
               "name": "policyType"
             }
           }
+        },
+        {
+          "name": "additionalLevels",
+          "type": {
+            "option": "bytes"
+          }
         }
       ]
     },
@@ -443,6 +449,12 @@ export type PolicyEngine = {
         },
         {
           "name": "instructionsProgram"
+        },
+        {
+          "name": "destinationWalletIdentity"
+        },
+        {
+          "name": "sourceWalletIdentity"
         }
       ],
       "args": [
@@ -627,6 +639,16 @@ export type PolicyEngine = {
       "code": 6023,
       "name": "invalidIdentityAccount",
       "msg": "Invalid identity account"
+    },
+    {
+      "code": 6024,
+      "name": "holdersLimitExceeded",
+      "msg": "Holders limit exceeded"
+    },
+    {
+      "code": 6025,
+      "name": "minMaxBalanceExceeded",
+      "msg": "Min max balance exceeded"
     }
   ],
   "types": [
@@ -671,6 +693,32 @@ export type PolicyEngine = {
       }
     },
     {
+      "name": "groupedHoldersLimit",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "max",
+            "type": "u64"
+          },
+          {
+            "name": "min",
+            "type": "u64"
+          },
+          {
+            "name": "currentHolders",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "levelHolder"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "identityAccount",
       "type": {
         "kind": "struct",
@@ -697,7 +745,7 @@ export type PolicyEngine = {
             "type": "pubkey"
           },
           {
-            "name": "numTokenAccounts",
+            "name": "numWallets",
             "type": "u16"
           },
           {
@@ -793,8 +841,24 @@ export type PolicyEngine = {
             "type": "pubkey"
           },
           {
-            "name": "requireIdentityCreation",
+            "name": "allowMultipleWallets",
             "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "levelHolder",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "level",
+            "type": "u8"
+          },
+          {
+            "name": "count",
+            "type": "u64"
           }
         ]
       }
@@ -948,6 +1012,46 @@ export type PolicyEngine = {
               {
                 "name": "limit",
                 "type": "u64"
+              }
+            ]
+          },
+          {
+            "name": "minMaxBalance",
+            "fields": [
+              {
+                "name": "min",
+                "type": "u64"
+              },
+              {
+                "name": "max",
+                "type": "u64"
+              }
+            ]
+          },
+          {
+            "name": "holdersLimit",
+            "fields": [
+              {
+                "name": "max",
+                "type": "u64"
+              },
+              {
+                "name": "min",
+                "type": "u64"
+              },
+              {
+                "name": "currentHolders",
+                "type": "u64"
+              }
+            ]
+          },
+          {
+            "name": "groupedHoldersLimit",
+            "fields": [
+              {
+                "defined": {
+                  "name": "groupedHoldersLimit"
+                }
               }
             ]
           },

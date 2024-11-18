@@ -34,17 +34,6 @@ export const getPolicyEnginePda = (assetMint: string) =>
 	)[0];
 
 /**
- * Retrieves the policy account pda for a specific asset mint.
- * @param assetMint - The string representation of the asset's mint address.
- * @returns The policy accounts pda.
- */
-export const getPolicyAccountPda = (assetMint: string) =>
-	PublicKey.findProgramAddressSync(
-		[getPolicyEnginePda(assetMint).toBuffer()],
-		policyEngineProgramId
-	)[0];
-
-/**
  * Retrieves the tracker pda for a specific asset controller mint and owner.
  * @param assetMint - The string representation of the asset's mint address.
  * @param owner - The string representation of asset's owner.

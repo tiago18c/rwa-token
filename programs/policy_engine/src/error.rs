@@ -50,4 +50,10 @@ pub enum PolicyEngineErrors {
     ForbiddenIdentityGroup,
     #[msg("Invalid identity account")]
     InvalidIdentityAccount,
+    #[msg("Holders limit exceeded")]
+    HoldersLimitExceeded,
+    #[msg("Min max balance exceeded")]
+    MinMaxBalanceExceeded,
+    #[msg("Invalid policy engine account")]
+    InvalidPolicyEngineAccount,
 }

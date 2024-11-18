@@ -58,6 +58,12 @@
               "name": "PolicyType"
             }
           }
+        },
+        {
+          "name": "additional_levels",
+          "type": {
+            "option": "bytes"
+          }
         }
       ]
     },
@@ -437,6 +443,12 @@
         },
         {
           "name": "instructions_program"
+        },
+        {
+          "name": "destination_wallet_identity"
+        },
+        {
+          "name": "source_wallet_identity"
         }
       ],
       "args": [
@@ -621,6 +633,16 @@
       "code": 6023,
       "name": "InvalidIdentityAccount",
       "msg": "Invalid identity account"
+    },
+    {
+      "code": 6024,
+      "name": "HoldersLimitExceeded",
+      "msg": "Holders limit exceeded"
+    },
+    {
+      "code": 6025,
+      "name": "MinMaxBalanceExceeded",
+      "msg": "Min max balance exceeded"
     }
   ],
   "types": [
@@ -665,6 +687,32 @@
       }
     },
     {
+      "name": "GroupedHoldersLimit",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "max",
+            "type": "u64"
+          },
+          {
+            "name": "min",
+            "type": "u64"
+          },
+          {
+            "name": "current_holders",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "LevelHolder"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "IdentityAccount",
       "type": {
         "kind": "struct",
@@ -691,7 +739,7 @@
             "type": "pubkey"
           },
           {
-            "name": "num_token_accounts",
+            "name": "num_wallets",
             "type": "u16"
           },
           {
@@ -787,8 +835,24 @@
             "type": "pubkey"
           },
           {
-            "name": "require_identity_creation",
+            "name": "allow_multiple_wallets",
             "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "LevelHolder",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "level",
+            "type": "u8"
+          },
+          {
+            "name": "count",
+            "type": "u64"
           }
         ]
       }
@@ -942,6 +1006,46 @@
               {
                 "name": "limit",
                 "type": "u64"
+              }
+            ]
+          },
+          {
+            "name": "MinMaxBalance",
+            "fields": [
+              {
+                "name": "min",
+                "type": "u64"
+              },
+              {
+                "name": "max",
+                "type": "u64"
+              }
+            ]
+          },
+          {
+            "name": "HoldersLimit",
+            "fields": [
+              {
+                "name": "max",
+                "type": "u64"
+              },
+              {
+                "name": "min",
+                "type": "u64"
+              },
+              {
+                "name": "current_holders",
+                "type": "u64"
+              }
+            ]
+          },
+          {
+            "name": "GroupedHoldersLimit",
+            "fields": [
+              {
+                "defined": {
+                  "name": "GroupedHoldersLimit"
+                }
               }
             ]
           },

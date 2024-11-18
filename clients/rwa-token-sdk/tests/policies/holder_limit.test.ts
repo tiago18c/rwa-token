@@ -108,11 +108,13 @@ describe("test additional policies", async () => {
 					comparisionType: { or: {} },
 				},
 				policyType: { 
-					holderLimit: { 
-						limit: new BN(holderLimit),
+					holdersLimit: { 
+						min: new BN(0),
+						max: new BN(holderLimit),
 						currentHolders: new BN(1) // Assuming user1 is the only holder at this point
 					} 
 				},
+				additionalLevels: undefined,
 			});
 			const txnId = await sendAndConfirmTransaction(
 				setup.provider.connection,
@@ -168,7 +170,7 @@ describe("test additional policies", async () => {
 				setup.provider.connection,
 				new Transaction().add(...transferTokensIxs),
 				[setup.user1Kp],
-			)).rejects.toThrowError(/custom program error: 0x1782/); // HolderLimitExceeded error
+			)).rejects.toThrowError(/custom program error: 0x1788/); // HolderLimitExceeded error
 		});
 	});
 });

@@ -3,7 +3,7 @@ use anchor_lang::prelude::*;
 use crate::state::*;
 
 #[derive(Accounts)]
-#[instruction()]
+#[instruction(hash: String)]
 pub struct DetachFromPolicyEngine<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -12,7 +12,7 @@ pub struct DetachFromPolicyEngine<'info> {
     )]
     pub signer: Signer<'info>,
     #[account(mut,
-        realloc = policy_engine.to_account_info().data_len() - Policy::INIT_SPACE,
+        realloc = policy_engine.to_account_info().data_len() - policy_engine.get_policy_space(&hash)?,
         realloc::zero = false,
         realloc::payer = payer,
     )]

@@ -15,5 +15,8 @@ export type IdentityFilterComparisonType =
 /** Represents on chain policy. */
 export type PolicyType = IdlTypes<PolicyEngineIdlTypes>["policyType"];
 
+/** Represents on chain policy. */
+export type Policy = IdlTypes<PolicyEngineIdlTypes>["policy"];
+
 /** Represents on chain tracker account pda. */
 export type TrackerAccount = IdlAccounts<PolicyEngineIdlTypes>["trackerAccount"];

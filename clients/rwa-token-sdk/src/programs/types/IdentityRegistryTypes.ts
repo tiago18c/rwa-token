@@ -80,41 +80,75 @@ export type IdentityRegistry = {
       ]
     },
     {
-      "name": "attachTokenAccountToIdentity",
+      "name": "attachWalletToIdentity",
       "docs": [
         "attach token account to identity account"
       ],
       "discriminator": [
-        15,
-        34,
-        253,
-        94,
-        151,
-        78,
-        242,
-        82
+        61,
+        129,
+        252,
+        190,
+        8,
+        202,
+        179,
+        90
       ],
       "accounts": [
         {
-          "name": "assetController",
+          "name": "payer",
           "writable": true,
           "signer": true
+        },
+        {
+          "name": "owner",
+          "signer": true,
+          "relations": [
+            "identityAccount"
+          ]
         },
         {
           "name": "identityAccount"
         },
         {
-          "name": "identityRegistry"
+          "name": "identityRegistry",
+          "relations": [
+            "identityAccount"
+          ]
         },
         {
-          "name": "tokenAccount",
-          "writable": true
+          "name": "assetMint",
+          "relations": [
+            "identityRegistry"
+          ]
         },
         {
-          "name": "assetMint"
+          "name": "walletIdentity",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "wallet"
+              },
+              {
+                "kind": "account",
+                "path": "assetMint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
         }
       ],
-      "args": []
+      "args": [
+        {
+          "name": "wallet",
+          "type": "pubkey"
+        }
+      ]
     },
     {
       "name": "createIdentityAccount",
@@ -243,7 +277,7 @@ export type IdentityRegistry = {
           }
         },
         {
-          "name": "requireIdentityCreation",
+          "name": "allowMultipleWallets",
           "type": {
             "option": "bool"
           }
@@ -283,57 +317,38 @@ export type IdentityRegistry = {
       ]
     },
     {
-      "name": "detachTokenAccountFromIdentity",
+      "name": "detachWalletFromIdentity",
       "docs": [
         "detach token account from identity account"
       ],
       "discriminator": [
-        235,
-        17,
-        27,
-        19,
-        210,
-        21,
-        24,
-        150
+        166,
+        70,
+        236,
+        254,
+        166,
+        116,
+        201,
+        50
       ],
       "accounts": [
         {
-          "name": "owner"
-        },
-        {
-          "name": "assetController",
+          "name": "owner",
           "writable": true,
-          "signer": true
+          "signer": true,
+          "relations": [
+            "identityAccount"
+          ]
         },
         {
-          "name": "identityAccount",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "account",
-                "path": "identityRegistry"
-              },
-              {
-                "kind": "account",
-                "path": "owner"
-              }
-            ]
-          }
-        },
-        {
-          "name": "identityRegistry"
-        },
-        {
-          "name": "tokenAccount",
+          "name": "walletIdentity",
           "writable": true
         },
         {
-          "name": "assetMint"
-        },
-        {
-          "name": "tokenProgram",
-          "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+          "name": "identityAccount",
+          "relations": [
+            "walletIdentity"
+          ]
         }
       ],
       "args": []
@@ -614,6 +629,19 @@ export type IdentityRegistry = {
         125,
         78
       ]
+    },
+    {
+      "name": "walletIdentity",
+      "discriminator": [
+        101,
+        142,
+        55,
+        104,
+        168,
+        77,
+        57,
+        85
+      ]
     }
   ],
   "errors": [
@@ -651,6 +679,11 @@ export type IdentityRegistry = {
       "code": 6006,
       "name": "identityCreationRequired",
       "msg": "Identity creation must be enforced for this feature"
+    },
+    {
+      "code": 6007,
+      "name": "multipleWalletsNotAllowed",
+      "msg": "Multiple wallets are not allowed"
     }
   ],
   "types": [
@@ -681,7 +714,7 @@ export type IdentityRegistry = {
             "type": "pubkey"
           },
           {
-            "name": "numTokenAccounts",
+            "name": "numWallets",
             "type": "u16"
           },
           {
@@ -794,8 +827,24 @@ export type IdentityRegistry = {
             "type": "pubkey"
           },
           {
-            "name": "requireIdentityCreation",
+            "name": "allowMultipleWallets",
             "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "walletIdentity",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "identityAccount",
+            "type": "pubkey"
+          },
+          {
+            "name": "wallet",
+            "type": "pubkey"
           }
         ]
       }

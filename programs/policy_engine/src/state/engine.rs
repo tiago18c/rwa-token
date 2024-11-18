@@ -83,13 +83,51 @@ pub struct Policy {
     pub policy_type: PolicyType,
 }
 
+impl Policy {
+    pub fn new(hash: String, identity_filter: IdentityFilter, policy_type: PolicyType, additional_levels: Option<Vec<u8>>) -> Self {
+        let mut policy = Policy {
+            hash,
+            identity_filter,
+            policy_type,
+        };
+
+        match &mut policy.policy_type {
+            PolicyType::GroupedHoldersLimit(holders) => {
+                holders.current_holders = additional_levels.unwrap().iter().map(|level| LevelHolder {level: *level, count: 0}).collect();
+            }
+            _ => {}
+        }
+
+        policy
+    }
+
+    pub fn space() -> usize {
+        Policy::INIT_SPACE
+    }
+
+    pub fn get_new_space(policy_type: &PolicyType, additional_levels: &Option<Vec<u8>>) -> usize {
+        let space = match policy_type {
+            PolicyType::GroupedHoldersLimit(_) => Self::INIT_SPACE + additional_levels.as_ref().unwrap().len() * LevelHolder::INIT_SPACE,
+            _ => Self::INIT_SPACE,
+        };
+        msg!("space: {}", space);
+        space
+    }
+
+    pub fn get_space(&self) -> usize {
+        match &self.policy_type {
+            PolicyType::GroupedHoldersLimit(holders) => Self::INIT_SPACE + holders.current_holders.len() * LevelHolder::INIT_SPACE,
+            _ => Self::INIT_SPACE,
+        }
+    }
+}
+
 #[derive(
     AnchorSerialize,
     AnchorDeserialize,
     Clone,
     InitSpace,
     PartialEq,
-    Copy,
     Debug,
     Serialize,
     Deserialize,
@@ -101,9 +139,65 @@ pub enum PolicyType {
     TransactionCountVelocity { limit: u64, timeframe: i64 },
     MaxBalance { limit: u64 },
     MinBalance { limit: u64 },
+    MinMaxBalance { min: u64, max: u64 },
+    HoldersLimit { max: u64, min: u64, current_holders: u64 },
+    GroupedHoldersLimit (GroupedHoldersLimit),
     TransferPause,
     ForbiddenIdentityGroup,
     ForceFullTransfer,
+}
+
+
+#[derive(
+    AnchorSerialize,
+    AnchorDeserialize,
+    Clone,
+    InitSpace,
+    PartialEq,
+    Debug,
+    Serialize,
+    Deserialize,
+)]
+pub struct GroupedHoldersLimit {
+    pub max: u64,
+    pub min: u64,
+    #[max_len(0)]
+    pub current_holders: Vec<LevelHolder>,
+}
+
+impl GroupedHoldersLimit {
+    pub fn increment_holders(&mut self, destination_levels: &[IdentityLevel], timestamp: i64) -> Result<()> {
+        for h in self.current_holders.iter_mut() {
+            if destination_levels.iter().any(|l| l.level == h.level && l.expiry > timestamp) {
+                h.count += 1;
+
+                if h.count > self.max {
+                    return Err(PolicyEngineErrors::HoldersLimitExceeded.into());
+                }
+            }
+        };
+        Ok(())
+    }
+
+    pub fn decrement_holders(&mut self, source_levels: &[IdentityLevel], timestamp: i64) -> Result<()> {
+        for h in self.current_holders.iter_mut() {
+            if source_levels.iter().any(|l| l.level == h.level && l.expiry > timestamp) {
+                h.count -= 1;
+
+                if h.count < self.min {
+                    return Err(PolicyEngineErrors::HoldersLimitExceeded.into());
+                }
+            }
+        };
+        Ok(())
+    }
+
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace, Debug, Serialize, Deserialize, PartialEq)]
+pub struct LevelHolder {
+    pub level: u8,
+    pub count: u64,
 }
 
 pub fn get_policy_engine_pda(asset_mint: Pubkey) -> Pubkey {
@@ -125,23 +219,23 @@ impl PolicyEngineAccount {
     }
 
     /// update max timeframe if new value is greater than current
-    pub fn update_max_timeframe(&mut self, policy_type: PolicyType) {
+    pub fn update_max_timeframe(&mut self, policy_type: &PolicyType) {
         let mut max_timeframe = self.max_timeframe;
         match policy_type {
             PolicyType::TransactionAmountVelocity {
                 limit: _,
                 timeframe,
             } => {
-                if timeframe > max_timeframe {
-                    max_timeframe = timeframe;
+                if *timeframe > max_timeframe {
+                    max_timeframe = *timeframe;
                 }
             }
             PolicyType::TransactionCountVelocity {
                 limit: _,
                 timeframe,
             } => {
-                if timeframe > max_timeframe {
-                    max_timeframe = timeframe;
+                if *timeframe > max_timeframe {
+                    max_timeframe = *timeframe;
                 }
             }
             _ => {}
@@ -151,8 +245,8 @@ impl PolicyEngineAccount {
     
     pub fn hash_policy(
         policy_account: Pubkey,
-        policy_type: PolicyType,
-        identity_filter: IdentityFilter,
+        policy_type: &PolicyType,
+        identity_filter: &IdentityFilter,
     ) -> String {
         let hash = format!("{:?}{:?}{:?}", policy_account, policy_type, identity_filter);
         sha256::digest(hash.as_bytes())
@@ -163,32 +257,29 @@ impl PolicyEngineAccount {
         policy_account: Pubkey,
         policy_type: PolicyType,
         identity_filter: IdentityFilter,
+        additional_levels: Option<Vec<u8>>,
     ) -> Result<()> {
-        let hash = Self::hash_policy(policy_account, policy_type, identity_filter);
+        let hash = Self::hash_policy(policy_account, &policy_type, &identity_filter);
         if self.policies.iter().any(|policy| policy.hash == hash) {
             return Err(PolicyEngineErrors::PolicyAlreadyExists.into());
         }
-        self.policies.push(Policy {
-            hash,
-            policy_type,
-            identity_filter,
-        });
+        self.policies.push(Policy::new(hash, identity_filter, policy_type, additional_levels));
         Ok(())
     }
 
-    pub fn detach(&mut self, hash: String) -> Result<PolicyType> {
-        if self.policies.iter().all(|policy| policy.hash != hash) {
+    pub fn get_policy_space(&self, hash: &String) -> Result<usize> {
+        let policy = self.policies.iter().find(|policy| &policy.hash == hash);
+        if policy.is_none() {
             return Err(PolicyEngineErrors::PolicyNotFound.into());
         }
-        // remove and return the policy type
-        let policy_type = self
-            .policies
-            .iter()
-            .find(|policy| policy.hash == hash)
-            .unwrap() // safe to unwrap as we checked the policy exists
-            .policy_type;
-        self.policies.retain(|policy| policy.hash != hash);
-        Ok(policy_type)
+        Ok(policy.unwrap().get_space())
+    }
+
+    pub fn detach(&mut self, hash: String) -> Result<PolicyType> {
+        if let Some(index) = self.policies.iter().position(|policy| policy.hash == hash) {
+            return Ok(self.policies.remove(index).policy_type)
+        }
+        Err(PolicyEngineErrors::PolicyNotFound.into())
     }
 
     pub fn enforce_policy_issuance(&self, amount: u64, timestamp: i64, identity: &[IdentityLevel], tracker_account: Option<&TrackerAccount>) -> Result<()> {
@@ -265,9 +356,10 @@ impl PolicyEngineAccount {
         timestamp: i64,
         source_identity: &[IdentityLevel],
         destination_identity: &[IdentityLevel],
+        source_tracker_account: &Option<Box<TrackerAccount>>,
+        destination_tracker_account: &Option<Box<TrackerAccount>>,
         source_balance: u64,
-        source_tracker_account: &Option<TrackerAccount>,
-        destination_tracker_account: &Option<TrackerAccount>,
+        destination_balance: u64,
         self_transfer: bool,
     ) -> Result<()> {
         for policy in self.policies.iter() {
@@ -309,19 +401,15 @@ impl PolicyEngineAccount {
                 }
                 PolicyType::MaxBalance { limit } => {
                     if !self_transfer && enforce_transfer_identity_filter(destination_identity, source_identity, policy.identity_filter, timestamp).is_ok() {
-                        if let Some(dst_tracker) = destination_tracker_account {
-                            if dst_tracker.total_amount > *limit {
-                                return Err(PolicyEngineErrors::MaxBalanceExceeded.into());
-                            }
+                        if destination_balance > *limit {
+                            return Err(PolicyEngineErrors::MaxBalanceExceeded.into());
                         }
                     }
                 }
                 PolicyType::MinBalance { limit } => {
                     if !self_transfer && enforce_transfer_identity_filter( destination_identity,source_identity, policy.identity_filter, timestamp).is_ok() {
-                        if let Some(src_tracker) = source_tracker_account {
-                            if src_tracker.total_amount < *limit {
-                                return Err(PolicyEngineErrors::MinBalanceExceeded.into());
-                            }
+                        if source_balance < *limit {
+                            return Err(PolicyEngineErrors::MinBalanceExceeded.into());
                         }
                     }
                 }
@@ -343,6 +431,54 @@ impl PolicyEngineAccount {
                         return Err(PolicyEngineErrors::ForbiddenIdentityGroup.into());
                     }
                 }
+                PolicyType::MinMaxBalance { min, max } => {
+                    if enforce_transfer_identity_filter(destination_identity, source_identity, policy.identity_filter, timestamp).is_ok() {
+                        if source_balance < *min || destination_balance > *max {
+                            return Err(PolicyEngineErrors::MinMaxBalanceExceeded.into());
+                        }
+                    }
+                }
+                _ => {}
+            }
+        }
+        Ok(())
+    }
+
+    pub fn decrease_holders_count(&mut self, identity: &[IdentityLevel], timestamp: i64) -> Result<()> {
+        for policy in self.policies.iter_mut() {
+            match &mut policy.policy_type {
+                PolicyType::HoldersLimit { max, min, current_holders } => {
+                    if enforce_identity_filter2(identity, policy.identity_filter, timestamp).is_ok() {
+                        if current_holders == min {
+                            return Err(PolicyEngineErrors::HoldersLimitExceeded.into());
+                        }
+                        *current_holders -= 1;
+                    }
+                }
+                PolicyType::GroupedHoldersLimit(holders) => {
+                    holders.decrement_holders(identity, timestamp)?;
+                }
+                _ => {}
+            }
+        }
+        Ok(())
+    }
+
+    pub fn increase_holders_count(&mut self, identity: &[IdentityLevel], timestamp: i64) -> Result<()> {
+        for policy in self.policies.iter_mut() {
+            match &mut policy.policy_type {
+                PolicyType::HoldersLimit { max, min, current_holders } => {
+                    if enforce_identity_filter2(identity, policy.identity_filter, timestamp).is_ok() {
+                        if current_holders == max {
+                            return Err(PolicyEngineErrors::HoldersLimitExceeded.into());
+                        }
+                        *current_holders += 1;
+                    }
+                }
+                PolicyType::GroupedHoldersLimit(holders) => {
+                    holders.increment_holders(identity, timestamp)?;
+                }
+                _ => {}
             }
         }
         Ok(())

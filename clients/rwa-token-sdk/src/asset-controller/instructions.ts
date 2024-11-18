@@ -53,7 +53,7 @@ export type CreateAssetControllerIx = {
   uri: string;
   symbol: string;
   interestRate?: number;
-  requireIdentityCreation?: boolean;
+  allowMultipleWallets?: boolean;
   enforcePolicyIssuance?: boolean;
 } & CommonArgs;
 
@@ -75,7 +75,7 @@ export async function getCreateAssetControllerIx(
 			symbol: args.symbol,
 			delegate: args.delegate ? new PublicKey(args.delegate) : null,
 			interestRate: args.interestRate ? new BN(args.interestRate) : null,
-			requireIdentityCreation: args.requireIdentityCreation ? args.requireIdentityCreation : null,
+			allowMultipleWallets: args.allowMultipleWallets ? args.allowMultipleWallets : null,
 			enforcePolicyIssuance: args.enforcePolicyIssuance ? args.enforcePolicyIssuance : false,
 		})
 		.accountsStrict({
@@ -231,7 +231,7 @@ export async function getTransferTokensIxs(
 	const remainingAccounts = [
 		{
 			pubkey: getPolicyEnginePda(args.assetMint),
-			isWritable: false,
+			isWritable: true,
 			isSigner: false,
 		},
 		{
@@ -648,7 +648,7 @@ export async function getRevokeTokensIx(
 	const remainingAccounts = [
 		{
 			pubkey: getPolicyEnginePda(args.assetMint),
-			isWritable: false,
+			isWritable: true,
 			isSigner: false,
 		},
 		{

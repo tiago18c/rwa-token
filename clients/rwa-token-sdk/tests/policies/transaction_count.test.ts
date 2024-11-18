@@ -1,6 +1,5 @@
 import { BN, Wallet } from "@coral-xyz/anchor";
 import {
-	getPolicyAccountPda,
 	getPolicyEnginePda,
 	getPolicyEngineProgram,
 	getTransferTokensIxs,

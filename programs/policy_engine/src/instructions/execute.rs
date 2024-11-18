@@ -35,6 +35,7 @@ pub struct ExecuteTransferHook<'info> {
     )]
     pub extra_metas_account: UncheckedAccount<'info>,
     /// CHECK: internal ix checks
+    #[account(mut)]
     pub policy_engine_account: UncheckedAccount<'info>,
     pub identity_registry: Program<'info, IdentityRegistry>,
     /// CHECK: internal ix checks
@@ -71,16 +72,18 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
         amount,
         asset_mint,
     )?;
-    
-    verify_pda(
-        ctx.accounts.policy_engine_account.key(),
-        &[&asset_mint.to_bytes()],
-        &crate::id(),
-    )?;
 
-    let policy_engine_account = PolicyEngineAccount::deserialize(
+    require!(
+        ctx.accounts.policy_engine_account.owner == &crate::id() 
+        && ctx.accounts.policy_engine_account.data.borrow()[..8] == *PolicyEngineAccount::DISCRIMINATOR, 
+        PolicyEngineErrors::InvalidPolicyEngineAccount
+    );
+
+    let mut policy_engine_account = Box::new(PolicyEngineAccount::deserialize(
         &mut &ctx.accounts.policy_engine_account.data.borrow()[8..],
-    )?;
+    )?);
+
+    require!(policy_engine_account.asset_mint == asset_mint, PolicyEngineErrors::InvalidPolicyEngineAccount);
 
     // if policy account hasnt been created, skip enforcing token hook logic
     if policy_engine_account.policies.is_empty() {
@@ -96,9 +99,9 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
 
     let destination_levels = if ctx.accounts.destination_identity_account.owner.key() == identity_registry::id() 
     && ctx.accounts.destination_identity_account.data.borrow()[..8] == *IdentityAccount::DISCRIMINATOR {
-        let destination_identity_account = IdentityAccount::deserialize(
+        let destination_identity_account = Box::new(IdentityAccount::deserialize(
             &mut &ctx.accounts.destination_identity_account.data.borrow()[8..],
-        )?;
+        )?);
 
         if destination_identity_account.owner != ctx.accounts.destination_account.owner {
             //deserialize wallet identity
@@ -111,13 +114,6 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
                 PolicyEngineErrors::InvalidIdentityAccount
             );
         } 
-        require!(
-            ctx.accounts.destination_account.owner == destination_identity_account.owner || 
-            ctx.accounts.destination_account.close_authority == COption::Some(ctx.accounts.destination_identity_account.key()), 
-            PolicyEngineErrors::InvalidIdentityAccount
-        );
-
-
 
         require!(
             destination_identity_account.identity_registry == ctx.accounts.identity_registry_account.key(),
@@ -130,9 +126,9 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
 
     let source_levels = if ctx.accounts.source_identity_account.owner.key() == identity_registry::id() 
     && ctx.accounts.source_identity_account.data.borrow()[..8] == *IdentityAccount::DISCRIMINATOR {
-        let source_identity_account = IdentityAccount::deserialize(
+        let source_identity_account = Box::new(IdentityAccount::deserialize(
             &mut &ctx.accounts.source_identity_account.data.borrow()[8..],
-        )?;
+        )?);
         
         if source_identity_account.owner != ctx.accounts.source_account.owner {
             //deserialize wallet identity
@@ -163,7 +159,7 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
     let self_transfer = ctx.accounts.source_account.owner == ctx.accounts.destination_account.owner
     || ctx.accounts.source_identity_account.key() == ctx.accounts.destination_identity_account.key(); 
 
-    let source_tracker_account: Option<TrackerAccount> = if source_levels.contains(&NO_TRACKER_LEVEL) {
+    let source_tracker_account: Option<Box<TrackerAccount>> = if source_levels.contains(&NO_TRACKER_LEVEL) {
         None
     } else {
         require!(
@@ -171,9 +167,9 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
             && ctx.accounts.source_tracker_account.data_len() == TrackerAccount::INIT_SPACE + 8,
             PolicyEngineErrors::TrackerAccountOwnerMismatch
         );
-        let mut source_tracker_account = TrackerAccount::deserialize(
+        let mut source_tracker_account = Box::new(TrackerAccount::deserialize(
             &mut &ctx.accounts.source_tracker_account.data.borrow()[8..],
-        )?;
+        )?);
         require!(
             source_tracker_account.identity_account == ctx.accounts.source_identity_account.key(),
             PolicyEngineErrors::TrackerAccountOwnerMismatch
@@ -193,8 +189,8 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
         }
         Some(source_tracker_account)
     };
-    
-    let destination_tracker_account: Option<TrackerAccount> = if destination_levels.contains(&NO_TRACKER_LEVEL) {
+
+    let destination_tracker_account: Option<Box<TrackerAccount>> = if destination_levels.contains(&NO_TRACKER_LEVEL) {
         None
     } else {
         require!(
@@ -202,9 +198,9 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
             && ctx.accounts.destination_tracker_account.data_len() == TrackerAccount::INIT_SPACE + 8,
             PolicyEngineErrors::TrackerAccountOwnerMismatch
         );
-        let mut destination_tracker_account = TrackerAccount::deserialize(
+        let mut destination_tracker_account = Box::new(TrackerAccount::deserialize(
             &mut &ctx.accounts.destination_tracker_account.data.borrow()[8..],
-        )?;
+        )?);
         require!(
             destination_tracker_account.identity_account == ctx.accounts.destination_identity_account.key(),
             PolicyEngineErrors::TrackerAccountOwnerMismatch
@@ -225,17 +221,42 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
         Some(destination_tracker_account)
     };
 
+    let source_balance = if let Some(sta) = &source_tracker_account { sta.total_amount } else { ctx.accounts.source_account.amount };
+    let destination_balance = if let Some(dta) = &destination_tracker_account { dta.total_amount } else { ctx.accounts.destination_account.amount };
+
+    let timestamp = Clock::get()?.unix_timestamp;
+
+
+    if !self_transfer {
+        if source_balance == 0 {
+            // source has 0 balance
+
+            policy_engine_account.decrease_holders_count(&source_levels, timestamp)?;
+        } 
+
+        if destination_balance == amount {
+            // destination has 0 balance
+            policy_engine_account.decrease_holders_count(&destination_levels, timestamp)?;
+        }
+
+        let data = policy_engine_account.try_to_vec()?;
+        let len = data.len();
+        ctx.accounts.policy_engine_account.data.borrow_mut()[8..8 + len].copy_from_slice(&data);
+    }
+
     // evaluate policies
     policy_engine_account.enforce_policy(
         amount,
-        Clock::get()?.unix_timestamp,
+        timestamp,
         &source_levels,
         &destination_levels,
-        ctx.accounts.source_account.amount,
         &source_tracker_account,
         &destination_tracker_account,
+        source_balance,
+        destination_balance,
         self_transfer,
     )?;
+
 
     Ok(())
 }

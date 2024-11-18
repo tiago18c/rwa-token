@@ -1,7 +1,7 @@
 
 import { BN, Wallet } from "@coral-xyz/anchor";
 import {
-	getPolicyAccountPda, getPolicyEnginePda, getPolicyEngineProgram, getTransferTokensIxs, 
+	getPolicyEnginePda, getPolicyEngineProgram, getTransferTokensIxs, 
 	RwaClient,
 } from "../src";
 import { setupTests } from "./setup";

@@ -210,7 +210,7 @@ pub fn get_meta_list_size() -> Result<usize> {
 pub fn get_extra_account_metas() -> Result<Vec<ExtraAccountMeta>> {
     Ok(vec![
         // policy engine account
-        ExtraAccountMeta::new_with_seeds(&[Seed::AccountKey { index: 1 }], false, false)?,
+        ExtraAccountMeta::new_with_seeds(&[Seed::AccountKey { index: 1 }], false, true)?,
         // identity program
         ExtraAccountMeta::new_with_pubkey(&identity_registry::id(), false, false)?,
         // identity registry account
