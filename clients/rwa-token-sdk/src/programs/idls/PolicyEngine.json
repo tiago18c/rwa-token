@@ -418,7 +418,8 @@
           }
         },
         {
-          "name": "policy_engine_account"
+          "name": "policy_engine_account",
+          "writable": true
         },
         {
           "name": "identity_registry",
@@ -643,6 +644,11 @@
       "code": 6025,
       "name": "MinMaxBalanceExceeded",
       "msg": "Min max balance exceeded"
+    },
+    {
+      "code": 6026,
+      "name": "InvalidPolicyEngineAccount",
+      "msg": "Invalid policy engine account"
     }
   ],
   "types": [

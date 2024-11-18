@@ -1,10 +1,8 @@
 pub mod account;
-pub mod metadata;
 pub mod registry;
 pub mod wallet_identity;
 
 pub use account::*;
-pub use metadata::*;
 pub use registry::*;
 pub use wallet_identity::*;
 

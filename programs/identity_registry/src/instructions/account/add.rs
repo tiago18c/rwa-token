@@ -24,28 +24,10 @@ pub struct AddLevelToIdentityAccount<'info> {
         constraint = level != 0,
     )]
     pub identity_account: Box<Account<'info, IdentityAccount>>,
-    #[account(
-        init_if_needed,
-        payer = payer,
-        space = 8 + IdentityMetadataAccount::INIT_SPACE,
-        seeds = [&[level], identity_account.identity_registry.as_ref()],
-        bump,
-    )]
-    pub identity_metadata_account: Box<Account<'info, IdentityMetadataAccount>>,
     pub system_program: Program<'info, System>,
 }
 
 pub fn handler(ctx: Context<AddLevelToIdentityAccount>, level: u8, expiry: i64) -> Result<()> {
-    // init limit account if level is not present
-    if ctx.accounts.identity_metadata_account.level == 0 {
-        ctx.accounts.identity_metadata_account.new(
-            ctx.accounts.identity_registry.key(),
-            level,
-            u64::MAX,
-            0,
-        );
-    }
     ctx.accounts.identity_account.add_level(level, expiry)?;
-    ctx.accounts.identity_metadata_account.add_user()?;
     Ok(())
 }

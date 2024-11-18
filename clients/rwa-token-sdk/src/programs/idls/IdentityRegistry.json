@@ -54,10 +54,6 @@
           }
         },
         {
-          "name": "identity_metadata_account",
-          "writable": true
-        },
-        {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
         }
@@ -188,10 +184,6 @@
               }
             ]
           }
-        },
-        {
-          "name": "identity_metadata_account",
-          "writable": true
         },
         {
           "name": "system_program",
@@ -348,62 +340,6 @@
       "args": []
     },
     {
-      "name": "edit_identity_metdata",
-      "docs": [
-        "edit identity metadata"
-      ],
-      "discriminator": [
-        140,
-        213,
-        200,
-        29,
-        44,
-        134,
-        114,
-        206
-      ],
-      "accounts": [
-        {
-          "name": "payer",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "signer",
-          "signer": true
-        },
-        {
-          "name": "identity_registry"
-        },
-        {
-          "name": "identity_metadata_account",
-          "writable": true
-        },
-        {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
-        }
-      ],
-      "args": [
-        {
-          "name": "level",
-          "type": "u8"
-        },
-        {
-          "name": "max_allowed",
-          "type": {
-            "option": "u64"
-          }
-        },
-        {
-          "name": "min_allowed",
-          "type": {
-            "option": "u64"
-          }
-        }
-      ]
-    },
-    {
       "name": "refresh_level_to_identity_account",
       "docs": [
         "add level to identity account"
@@ -506,10 +442,6 @@
           }
         },
         {
-          "name": "identity_metadata_account",
-          "writable": true
-        },
-        {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
         }
@@ -596,19 +528,6 @@
         206,
         116,
         158
-      ]
-    },
-    {
-      "name": "IdentityMetadataAccount",
-      "discriminator": [
-        170,
-        131,
-        34,
-        74,
-        232,
-        122,
-        201,
-        9
       ]
     },
     {
@@ -736,56 +655,6 @@
           {
             "name": "expiry",
             "type": "i64"
-          }
-        ]
-      }
-    },
-    {
-      "name": "IdentityMetadataAccount",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "version",
-            "docs": [
-              "version of the account"
-            ],
-            "type": "u8"
-          },
-          {
-            "name": "identity_registry",
-            "docs": [
-              "identity registry to which the account belongs"
-            ],
-            "type": "pubkey"
-          },
-          {
-            "name": "level",
-            "docs": [
-              "identity level"
-            ],
-            "type": "u8"
-          },
-          {
-            "name": "current_users",
-            "docs": [
-              "current number of users"
-            ],
-            "type": "u64"
-          },
-          {
-            "name": "max_users",
-            "docs": [
-              "max number of users"
-            ],
-            "type": "u64"
-          },
-          {
-            "name": "min_users",
-            "docs": [
-              "min number of users"
-            ],
-            "type": "u64"
           }
         ]
       }

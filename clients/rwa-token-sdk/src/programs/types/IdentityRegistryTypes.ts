@@ -60,10 +60,6 @@ export type IdentityRegistry = {
           }
         },
         {
-          "name": "identityMetadataAccount",
-          "writable": true
-        },
-        {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
         }
@@ -194,10 +190,6 @@ export type IdentityRegistry = {
               }
             ]
           }
-        },
-        {
-          "name": "identityMetadataAccount",
-          "writable": true
         },
         {
           "name": "systemProgram",
@@ -354,62 +346,6 @@ export type IdentityRegistry = {
       "args": []
     },
     {
-      "name": "editIdentityMetdata",
-      "docs": [
-        "edit identity metadata"
-      ],
-      "discriminator": [
-        140,
-        213,
-        200,
-        29,
-        44,
-        134,
-        114,
-        206
-      ],
-      "accounts": [
-        {
-          "name": "payer",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "signer",
-          "signer": true
-        },
-        {
-          "name": "identityRegistry"
-        },
-        {
-          "name": "identityMetadataAccount",
-          "writable": true
-        },
-        {
-          "name": "systemProgram",
-          "address": "11111111111111111111111111111111"
-        }
-      ],
-      "args": [
-        {
-          "name": "level",
-          "type": "u8"
-        },
-        {
-          "name": "maxAllowed",
-          "type": {
-            "option": "u64"
-          }
-        },
-        {
-          "name": "minAllowed",
-          "type": {
-            "option": "u64"
-          }
-        }
-      ]
-    },
-    {
       "name": "refreshLevelToIdentityAccount",
       "docs": [
         "add level to identity account"
@@ -512,10 +448,6 @@ export type IdentityRegistry = {
           }
         },
         {
-          "name": "identityMetadataAccount",
-          "writable": true
-        },
-        {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
         }
@@ -602,19 +534,6 @@ export type IdentityRegistry = {
         206,
         116,
         158
-      ]
-    },
-    {
-      "name": "identityMetadataAccount",
-      "discriminator": [
-        170,
-        131,
-        34,
-        74,
-        232,
-        122,
-        201,
-        9
       ]
     },
     {
@@ -742,56 +661,6 @@ export type IdentityRegistry = {
           {
             "name": "expiry",
             "type": "i64"
-          }
-        ]
-      }
-    },
-    {
-      "name": "identityMetadataAccount",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "version",
-            "docs": [
-              "version of the account"
-            ],
-            "type": "u8"
-          },
-          {
-            "name": "identityRegistry",
-            "docs": [
-              "identity registry to which the account belongs"
-            ],
-            "type": "pubkey"
-          },
-          {
-            "name": "level",
-            "docs": [
-              "identity level"
-            ],
-            "type": "u8"
-          },
-          {
-            "name": "currentUsers",
-            "docs": [
-              "current number of users"
-            ],
-            "type": "u64"
-          },
-          {
-            "name": "maxUsers",
-            "docs": [
-              "max number of users"
-            ],
-            "type": "u64"
-          },
-          {
-            "name": "minUsers",
-            "docs": [
-              "min number of users"
-            ],
-            "type": "u64"
           }
         ]
       }

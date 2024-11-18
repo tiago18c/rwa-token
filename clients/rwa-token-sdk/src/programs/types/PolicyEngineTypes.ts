@@ -424,7 +424,8 @@ export type PolicyEngine = {
           }
         },
         {
-          "name": "policyEngineAccount"
+          "name": "policyEngineAccount",
+          "writable": true
         },
         {
           "name": "identityRegistry",
@@ -649,6 +650,11 @@ export type PolicyEngine = {
       "code": 6025,
       "name": "minMaxBalanceExceeded",
       "msg": "Min max balance exceeded"
+    },
+    {
+      "code": 6026,
+      "name": "invalidPolicyEngineAccount",
+      "msg": "Invalid policy engine account"
     }
   ],
   "types": [
