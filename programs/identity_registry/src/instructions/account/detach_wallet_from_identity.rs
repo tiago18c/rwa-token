@@ -1,10 +1,5 @@
-use crate::{state::*, IdentityAccount, IdentityRegistryAccount, IdentityRegistryErrors};
-use anchor_lang::{prelude::*, solana_program::program_option::COption};
-use anchor_spl::{
-    token_2022::{freeze_account, set_authority, spl_token_2022, FreezeAccount, SetAuthority},
-    token_interface::{Mint, Token2022, TokenAccount},
-};
-use rwa_utils::get_bump_in_seed_form;
+use crate::{state::*, IdentityAccount};
+use anchor_lang::prelude::*;
 
 #[derive(Accounts)]
 pub struct DetachWalletFromIdentity<'info> {

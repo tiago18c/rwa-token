@@ -1,12 +1,9 @@
-use anchor_lang::{prelude::*, solana_program::program_option::COption};
+use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
     token_interface::{close_account, CloseAccount, Mint, Token2022, TokenAccount},
 };
-use identity_registry::{program::IdentityRegistry, IdentityAccount, IdentityRegistryAccount};
-use rwa_utils::get_bump_in_seed_form;
 
-use crate::AssetControllerAccount;
 
 #[derive(Accounts)]
 #[instruction()]

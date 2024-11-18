@@ -8,7 +8,6 @@ use anchor_spl::{
         get_mint_extension_data, token_metadata_initialize, Mint, Token2022,
         TokenMetadataInitialize,
     },
-    token_2022::spl_token_2022::state::AccountState,
 };
 use data_registry::{
     cpi::{accounts::CreateDataRegistry, create_data_registry},

@@ -1,4 +1,4 @@
-use crate::{policy_engine, state::*, PolicyEngineErrors};
+use crate::{state::*, PolicyEngineErrors};
 use anchor_lang::{
     prelude::*,
     solana_program::sysvar::{self, instructions::get_instruction_relative},

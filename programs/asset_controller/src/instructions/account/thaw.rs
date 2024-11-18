@@ -1,5 +1,5 @@
-use crate::{state::*, AssetControllerErrors};
-use anchor_lang::{prelude::*, solana_program::program_option::COption};
+use crate::state::*;
+use anchor_lang::prelude::*;
 use anchor_spl::{
     token_2022::{thaw_account, ThawAccount},
     token_interface::{Mint, Token2022, TokenAccount},

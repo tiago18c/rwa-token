@@ -356,7 +356,7 @@ impl PolicyEngineAccount {
         timestamp: i64,
         source_identity: &[IdentityLevel],
         destination_identity: &[IdentityLevel],
-        source_tracker_account: &Option<Box<TrackerAccount>>,
+        _source_tracker_account: &Option<Box<TrackerAccount>>,
         destination_tracker_account: &Option<Box<TrackerAccount>>,
         source_balance: u64,
         destination_balance: u64,
@@ -447,7 +447,7 @@ impl PolicyEngineAccount {
     pub fn decrease_holders_count(&mut self, identity: &[IdentityLevel], timestamp: i64) -> Result<()> {
         for policy in self.policies.iter_mut() {
             match &mut policy.policy_type {
-                PolicyType::HoldersLimit { max, min, current_holders } => {
+                PolicyType::HoldersLimit { max: _, min, current_holders } => {
                     if enforce_identity_filter2(identity, policy.identity_filter, timestamp).is_ok() {
                         if current_holders == min {
                             return Err(PolicyEngineErrors::HoldersLimitExceeded.into());
@@ -467,7 +467,7 @@ impl PolicyEngineAccount {
     pub fn increase_holders_count(&mut self, identity: &[IdentityLevel], timestamp: i64) -> Result<()> {
         for policy in self.policies.iter_mut() {
             match &mut policy.policy_type {
-                PolicyType::HoldersLimit { max, min, current_holders } => {
+                PolicyType::HoldersLimit { max, min: _, current_holders } => {
                     if enforce_identity_filter2(identity, policy.identity_filter, timestamp).is_ok() {
                         if current_holders == max {
                             return Err(PolicyEngineErrors::HoldersLimitExceeded.into());

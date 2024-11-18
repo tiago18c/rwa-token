@@ -1,9 +1,8 @@
 use crate::{state::*, IdentityAccount, IdentityRegistryAccount, IdentityRegistryErrors};
-use anchor_lang::{prelude::*, solana_program::program_option::COption};
-use anchor_spl::{
-    token_2022::{freeze_account, FreezeAccount},
-    token_interface::{Mint, Token2022, TokenAccount},
-};
+use anchor_lang::prelude::*;
+use anchor_spl::
+    token_interface::Mint
+;
 
 #[derive(Accounts)]
 #[instruction(wallet: Pubkey)]

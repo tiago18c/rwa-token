@@ -1,5 +1,3 @@
-use std::u64;
-
 use crate::state::*;
 use anchor_lang::prelude::*;
 
