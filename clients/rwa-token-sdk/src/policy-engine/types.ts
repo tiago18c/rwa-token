@@ -1,6 +1,14 @@
 import { type IdlAccounts, type IdlTypes } from "@coral-xyz/anchor";
 import { type PolicyEngineIdlTypes } from "../programs";
 
+/** Represents on chain policy. */
+export type PolicyType = IdlTypes<PolicyEngineIdlTypes>["policyType"];
+
+/** Represents on chain policy. */
+export type Policy = IdlTypes<PolicyEngineIdlTypes>["policy"];
+
+export type LevelHolder = IdlTypes<PolicyEngineIdlTypes>["levelHolder"];
+
 /** Represents on chain policy engine account. */
 export type PolicyEngineAccount =
   IdlAccounts<PolicyEngineIdlTypes>["policyEngineAccount"];
@@ -12,11 +20,6 @@ export type IdentityFilter = IdlTypes<PolicyEngineIdlTypes>["identityFilter"];
 export type IdentityFilterComparisonType =
   IdlTypes<PolicyEngineIdlTypes>["identityFilter"]["comparisionType"];
 
-/** Represents on chain policy. */
-export type PolicyType = IdlTypes<PolicyEngineIdlTypes>["policyType"];
-
-/** Represents on chain policy. */
-export type Policy = IdlTypes<PolicyEngineIdlTypes>["policy"];
 
 /** Represents on chain tracker account pda. */
 export type TrackerAccount = IdlAccounts<PolicyEngineIdlTypes>["trackerAccount"];

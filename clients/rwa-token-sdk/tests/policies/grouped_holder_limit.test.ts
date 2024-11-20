@@ -1,6 +1,10 @@
 import { BN, Wallet } from "@coral-xyz/anchor";
 import {
+	getPolicyEngineAccount,
+	getPolicyEngineProgram,
 	getTransferTokensIxs,
+	LevelHolder,
+	Policy,
 	RwaClient,
 } from "../../src";
 import { setupTests } from "../setup";
@@ -40,6 +44,7 @@ describe("test additional policies", async () => {
 			name: "Test Asset",
 			uri: "https://test.com",
 			symbol: "TST",
+			enforcePolicyIssuance: true,
 		};
 		const setupAssetController = await rwaClient.assetController.setupNewRegistry(
 			createAssetControllerArgs
@@ -57,48 +62,52 @@ describe("test additional policies", async () => {
 			payer: setup.payer.toString(),
 			owner: setup.user1.toString(),
 			assetMint: mint,
-			levels: [1],
-			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60)],
+			levels: [1,2],
+			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60), new BN(Date.now() / 1000 + 24 * 60 * 60)],
 			signer: setup.authorityKp.publicKey.toString()
 		});
 		await sendAndConfirmTransaction(
 			setup.provider.connection,
 			new Transaction().add(...setupUser1.ixs),
-			[setup.payerKp, setup.authorityKp, ...setupUser1.signers]
+			[setup.payerKp, setup.authorityKp, ...setupUser1.signers],
+			{ skipPreflight: true }
 		);
 
 		const setupUser2 = await rwaClient.identityRegistry.setupUserIxns({
 			payer: setup.payer.toString(),
 			owner: setup.user2.toString(),
 			assetMint: mint,
-			levels: [1],
-			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60)],
+			levels: [1,2],
+			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60), new BN(Date.now() / 1000 + 24 * 60 * 60)],
 			signer: setup.authorityKp.publicKey.toString()
 		});
 		await sendAndConfirmTransaction(
 			setup.provider.connection,
 			new Transaction().add(...setupUser2.ixs),
-			[setup.payerKp, setup.authorityKp, ...setupUser2.signers]
+			[setup.payerKp, setup.authorityKp, ...setupUser2.signers],
+			{ skipPreflight: true }
 		);
 
-		// Issue tokens to user1
-		const issueTokens = await rwaClient.assetController.issueTokenIxns({
-			authority: setup.authority.toString(),
+		const setupUser3 = await rwaClient.identityRegistry.setupUserIxns({
 			payer: setup.payer.toString(),
-			owner: setup.user1.toString(),
+			owner: setup.user3.toString(),
 			assetMint: mint,
-			amount: 1000000,
+			levels: [1,2],
+			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60), new BN(Date.now() / 1000 + 24 * 60 * 60)],
+			signer: setup.authorityKp.publicKey.toString()
 		});
 		await sendAndConfirmTransaction(
 			setup.provider.connection,
-			new Transaction().add(...issueTokens),
-			[setup.payerKp, setup.authorityKp]
+			new Transaction().add(...setupUser3.ixs),
+			[setup.payerKp, setup.authorityKp, ...setupUser3.signers],
+			{ skipPreflight: true }
 		);
-	});
-	describe("test HolderLimit policy", async () => {
-		const holderLimit = 2;
 
-		test("attach HolderLimit policy", async () => {
+	});
+	describe("test GroupedHolderLimit policy", async () => {
+		const holderLimit = 3;
+
+		test("attach GroupedHolderLimit policy", async () => {
 			const attachPolicy = await rwaClient.policyEngine.attachPolicy({
 				payer: setup.payer.toString(),
 				assetMint: mint,
@@ -108,19 +117,38 @@ describe("test additional policies", async () => {
 					comparisionType: { or: {} },
 				},
 				policyType: { 
-					holdersLimit: { 
+					groupedHoldersLimit: { 
 						min: new BN(2),
 						max: new BN(holderLimit),
-						currentHolders: new BN(1) // Assuming user1 is the only holder at this point
-					} 
+						currentHolders:  [{level: 1, count: new BN(0)}, {level: 2, count: new BN(0)}] 
+					}
 				},
 			});
 			const txnId = await sendAndConfirmTransaction(
 				setup.provider.connection,
 				new Transaction().add(...attachPolicy.ixs),
-				[setup.payerKp, setup.authorityKp, ...attachPolicy.signers]
+				[setup.payerKp, setup.authorityKp, ...attachPolicy.signers],
+				{ skipPreflight: true }
 			);
 			expect(txnId).toBeTruthy();
+		});
+
+		test("issue tokens to user 1", async () => {
+			
+			// Issue tokens to user1
+			const issueTokens = await rwaClient.assetController.issueTokenIxns({
+				authority: setup.authority.toString(),
+				payer: setup.payer.toString(),
+				owner: setup.user1.toString(),
+				assetMint: mint,
+				amount: 1000000,
+			});
+			await sendAndConfirmTransaction(
+				setup.provider.connection,
+				new Transaction().add(...issueTokens),
+				[setup.payerKp, setup.authorityKp],
+				{ skipPreflight: true }
+				);
 		});
 
 		test("transfer to new holder within limit", async () => {
@@ -139,15 +167,31 @@ describe("test additional policies", async () => {
 				[setup.user1Kp],
 			);
 			expect(txnId).toBeTruthy();
+
+			const transferTokensIxs2 = await getTransferTokensIxs({
+				from: setup.user1.toString(),
+				to: setup.user3.toString(),
+				assetMint: mint,
+				amount: 10,
+				decimals,
+				createTa: true,
+			}, rwaClient.provider);
+            
+			const txnId2 = await sendAndConfirmTransaction(
+				setup.provider.connection,
+				new Transaction().add(...transferTokensIxs2),
+				[setup.user1Kp],
+			);
+			expect(txnId2).toBeTruthy();
 		});
 
 		test("attempt transfer to new holder exceeding limit", async () => {
 			const setupUser3 = await rwaClient.identityRegistry.setupUserIxns({
 				payer: setup.payer.toString(),
-				owner: setup.user3.toString(),
+				owner: setup.user4.toString(),
 				assetMint: mint,
-				levels: [1],
-				expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60)],
+				levels: [1,2,3],
+				expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60), new BN(Date.now() / 1000 + 24 * 60 * 60), new BN(Date.now() / 1000 + 24 * 60 * 60)],
 				signer: setup.authorityKp.publicKey.toString()
 			});
 			await sendAndConfirmTransaction(
@@ -158,7 +202,7 @@ describe("test additional policies", async () => {
 
 			const transferTokensIxs = await getTransferTokensIxs({
 				from: setup.user1.toString(),
-				to: setup.user3.toString(),
+				to: setup.user4.toString(),
 				assetMint: mint,
 				amount: 10,
 				decimals,
@@ -177,7 +221,7 @@ describe("test additional policies", async () => {
 				from: setup.user2.toString(),
 				to: setup.user1.toString(),
 				assetMint: mint,
-				amount: 9,
+				amount: 10,
 				decimals,
 				createTa: true,
 			}, rwaClient.provider);
@@ -192,18 +236,33 @@ describe("test additional policies", async () => {
 
 		test("attempt to transfer back exceeding lower limit", async () => {
 			const transferTokensIxs = await getTransferTokensIxs({
-				from: setup.user2.toString(),
+				from: setup.user3.toString(),
+				to: setup.user1.toString(),
+				assetMint: mint,
+				amount: 9,
+				decimals,
+				createTa: true,
+			}, rwaClient.provider);
+
+			const txnId = await sendAndConfirmTransaction(
+				setup.provider.connection,
+				new Transaction().add(...transferTokensIxs),
+				[setup.user3Kp],
+			);
+			expect(txnId).toBeTruthy();
+
+			const transferTokensIxs2 = await getTransferTokensIxs({
+				from: setup.user3.toString(),
 				to: setup.user1.toString(),
 				assetMint: mint,
 				amount: 1,
 				decimals,
 				createTa: true,
 			}, rwaClient.provider);
-
 			await expect(sendAndConfirmTransaction(
 				setup.provider.connection,
-				new Transaction().add(...transferTokensIxs),
-				[setup.user2Kp],
+				new Transaction().add(...transferTokensIxs2),
+				[setup.user3Kp],
 			)).rejects.toThrowError(/custom program error: 0x1788/); // HolderLimitExceeded error
 		});	
 	});

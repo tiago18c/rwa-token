@@ -19,7 +19,7 @@ pub struct EnforcePolicyIssuanceAccounts<'info> {
         mint::authority = asset_controller
     )]
     pub asset_mint: Box<InterfaceAccount<'info, Mint>>,
-    #[account(has_one = asset_mint)]
+    #[account(mut, has_one = asset_mint)]
     pub policy_engine: Box<Account<'info, PolicyEngineAccount>>,
     // can be any token account, user must make sure it is an associated token account with relevant identity permissions
     #[account(mut,
@@ -50,6 +50,10 @@ pub fn handler(ctx: Context<EnforcePolicyIssuanceAccounts>, amount: u64) -> Resu
 
     if !ctx.accounts.policy_engine.enforce_policy_issuance {
         return Ok(());
+    }
+
+    if tracker_account.total_amount == amount {
+        ctx.accounts.policy_engine.increase_holders_count(&ctx.accounts.identity_account.levels, Clock::get()?.unix_timestamp)?;
     }
 
     // evaluate policies

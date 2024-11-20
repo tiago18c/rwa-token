@@ -228,20 +228,23 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
 
 
     if !self_transfer {
-        if source_balance == 0 {
+        let changed = if source_balance == 0 && destination_balance != amount {
             // source has 0 balance
-
             policy_engine_account.decrease_holders_count(&source_levels, timestamp)?;
-        } 
-
-        if destination_balance == amount {
+            true
+        } else if destination_balance == amount && source_balance != 0 {
             // destination has 0 balance
-            policy_engine_account.decrease_holders_count(&destination_levels, timestamp)?;
-        }
+            policy_engine_account.increase_holders_count(&destination_levels, timestamp)?;
+            true
+        } else {
+            false
+        };
 
-        let data = policy_engine_account.try_to_vec()?;
-        let len = data.len();
-        ctx.accounts.policy_engine_account.data.borrow_mut()[8..8 + len].copy_from_slice(&data);
+        if changed {
+            let data = policy_engine_account.try_to_vec()?;
+            let len = data.len();
+            ctx.accounts.policy_engine_account.data.borrow_mut()[8..8 + len].copy_from_slice(&data);
+        }
     }
 
     // evaluate policies

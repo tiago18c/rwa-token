@@ -9,6 +9,7 @@ export async function setupTests() {
 	const user1Kp = new Keypair();
 	const user2Kp = new Keypair();
 	const user3Kp = new Keypair();
+	const user4Kp = new Keypair();
 	const provider = getProvider();
 
 
@@ -20,6 +21,7 @@ export async function setupTests() {
 		provider.connection.requestAirdrop(user1Kp.publicKey, LAMPORTS_PER_SOL),
 		provider.connection.requestAirdrop(user2Kp.publicKey, LAMPORTS_PER_SOL),
 		provider.connection.requestAirdrop(user3Kp.publicKey, LAMPORTS_PER_SOL),
+		provider.connection.requestAirdrop(user4Kp.publicKey, LAMPORTS_PER_SOL),
 	]);
 
 	await Promise.all(txns.map((txn) => provider.connection.confirmTransaction(txn, "finalized")));
@@ -39,5 +41,7 @@ export async function setupTests() {
 		user2: user2Kp.publicKey,
 		user3Kp,
 		user3: user3Kp.publicKey,
+		user4Kp,
+		user4: user4Kp.publicKey,
 	};
 }

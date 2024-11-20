@@ -769,7 +769,8 @@ export type AssetController = {
           "address": "po1cPf1eyUJJPqULw4so3T4JU9pdFn83CDyuLEKFAau"
         },
         {
-          "name": "policyEngine"
+          "name": "policyEngine",
+          "writable": true
         }
       ],
       "args": [
@@ -1455,32 +1456,6 @@ export type AssetController = {
       }
     },
     {
-      "name": "groupedHoldersLimit",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "max",
-            "type": "u64"
-          },
-          {
-            "name": "min",
-            "type": "u64"
-          },
-          {
-            "name": "currentHolders",
-            "type": {
-              "vec": {
-                "defined": {
-                  "name": "levelHolder"
-                }
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
       "name": "identityAccount",
       "type": {
         "kind": "struct",
@@ -1811,8 +1786,21 @@ export type AssetController = {
             "name": "groupedHoldersLimit",
             "fields": [
               {
-                "defined": {
-                  "name": "groupedHoldersLimit"
+                "name": "max",
+                "type": "u64"
+              },
+              {
+                "name": "min",
+                "type": "u64"
+              },
+              {
+                "name": "currentHolders",
+                "type": {
+                  "vec": {
+                    "defined": {
+                      "name": "levelHolder"
+                    }
+                  }
                 }
               }
             ]

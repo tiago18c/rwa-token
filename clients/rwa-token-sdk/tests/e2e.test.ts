@@ -267,7 +267,7 @@ describe("e2e tests", async () => {
 		const txnId = await sendAndConfirmTransaction(
 			rwaClient.provider.connection,
 			new Transaction().add(...issueIx).add(...issue2Ix),
-			[setup.payerKp, setup.authorityKp]
+			[setup.payerKp, setup.authorityKp],
 		);
 		expect(txnId).toBeTruthy();
 	});

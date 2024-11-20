@@ -64,12 +64,6 @@ export type PolicyEngine = {
               "name": "policyType"
             }
           }
-        },
-        {
-          "name": "additionalLevels",
-          "type": {
-            "option": "bytes"
-          }
         }
       ]
     },
@@ -330,7 +324,8 @@ export type PolicyEngine = {
           ]
         },
         {
-          "name": "policyEngine"
+          "name": "policyEngine",
+          "writable": true
         },
         {
           "name": "destinationAccount",
@@ -699,32 +694,6 @@ export type PolicyEngine = {
       }
     },
     {
-      "name": "groupedHoldersLimit",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "max",
-            "type": "u64"
-          },
-          {
-            "name": "min",
-            "type": "u64"
-          },
-          {
-            "name": "currentHolders",
-            "type": {
-              "vec": {
-                "defined": {
-                  "name": "levelHolder"
-                }
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
       "name": "identityAccount",
       "type": {
         "kind": "struct",
@@ -1055,8 +1024,21 @@ export type PolicyEngine = {
             "name": "groupedHoldersLimit",
             "fields": [
               {
-                "defined": {
-                  "name": "groupedHoldersLimit"
+                "name": "max",
+                "type": "u64"
+              },
+              {
+                "name": "min",
+                "type": "u64"
+              },
+              {
+                "name": "currentHolders",
+                "type": {
+                  "vec": {
+                    "defined": {
+                      "name": "levelHolder"
+                    }
+                  }
                 }
               }
             ]

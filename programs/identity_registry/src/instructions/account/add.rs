@@ -16,7 +16,7 @@ pub struct AddLevelToIdentityAccount<'info> {
         mut,
         seeds = [identity_registry.key().as_ref(), identity_account.owner.as_ref()],
         bump,
-        realloc = identity_account.to_account_info().data_len() + 1, // u8
+        realloc = identity_account.to_account_info().data_len() + IdentityLevel::INIT_SPACE, 
         realloc::zero = false,
         realloc::payer = payer,
         constraint = level != 0,

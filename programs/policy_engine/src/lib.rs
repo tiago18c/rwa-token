@@ -36,9 +36,8 @@ pub mod policy_engine {
         ctx: Context<AttachToPolicyEngine>,
         identity_filter: IdentityFilter,
         policy_type: PolicyType,
-        additional_levels: Option<Vec<u8>>,
     ) -> Result<()> {
-        instructions::engine::attach::handler(ctx, identity_filter, policy_type, additional_levels)
+        instructions::engine::attach::handler(ctx, identity_filter, policy_type)
     }
 
     /// remove policy

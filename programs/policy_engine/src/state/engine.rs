@@ -75,7 +75,7 @@ pub struct PolicyEngineAccount {
 }
 
 
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace, Debug)]
 pub struct Policy {
     #[max_len(64)]
     pub hash: String,
@@ -84,39 +84,28 @@ pub struct Policy {
 }
 
 impl Policy {
-    pub fn new(hash: String, identity_filter: IdentityFilter, policy_type: PolicyType, additional_levels: Option<Vec<u8>>) -> Self {
-        let mut policy = Policy {
+    pub fn new(hash: String, identity_filter: IdentityFilter, policy_type: PolicyType) -> Self {
+        Policy {
             hash,
             identity_filter,
             policy_type,
-        };
-
-        match &mut policy.policy_type {
-            PolicyType::GroupedHoldersLimit(holders) => {
-                holders.current_holders = additional_levels.unwrap().iter().map(|level| LevelHolder {level: *level, count: 0}).collect();
-            }
-            _ => {}
         }
-
-        policy
     }
 
     pub fn space() -> usize {
         Policy::INIT_SPACE
     }
 
-    pub fn get_new_space(policy_type: &PolicyType, additional_levels: &Option<Vec<u8>>) -> usize {
-        let space = match policy_type {
-            PolicyType::GroupedHoldersLimit(_) => Self::INIT_SPACE + additional_levels.as_ref().unwrap().len() * LevelHolder::INIT_SPACE,
+    pub fn get_new_space(policy_type: &PolicyType) -> usize {
+        match policy_type {
+            PolicyType::GroupedHoldersLimit{max: _, min: _, current_holders} => Self::INIT_SPACE + current_holders.len() * LevelHolder::INIT_SPACE,
             _ => Self::INIT_SPACE,
-        };
-        msg!("space: {}", space);
-        space
+        }
     }
 
     pub fn get_space(&self) -> usize {
         match &self.policy_type {
-            PolicyType::GroupedHoldersLimit(holders) => Self::INIT_SPACE + holders.current_holders.len() * LevelHolder::INIT_SPACE,
+            PolicyType::GroupedHoldersLimit{max: _, min: _, current_holders} => Self::INIT_SPACE + current_holders.len() * LevelHolder::INIT_SPACE,
             _ => Self::INIT_SPACE,
         }
     }
@@ -141,57 +130,10 @@ pub enum PolicyType {
     MinBalance { limit: u64 },
     MinMaxBalance { min: u64, max: u64 },
     HoldersLimit { max: u64, min: u64, current_holders: u64 },
-    GroupedHoldersLimit (GroupedHoldersLimit),
+    GroupedHoldersLimit { max: u64, min: u64, #[max_len(0)] current_holders: Vec<LevelHolder> },
     TransferPause,
     ForbiddenIdentityGroup,
     ForceFullTransfer,
-}
-
-
-#[derive(
-    AnchorSerialize,
-    AnchorDeserialize,
-    Clone,
-    InitSpace,
-    PartialEq,
-    Debug,
-    Serialize,
-    Deserialize,
-)]
-pub struct GroupedHoldersLimit {
-    pub max: u64,
-    pub min: u64,
-    #[max_len(0)]
-    pub current_holders: Vec<LevelHolder>,
-}
-
-impl GroupedHoldersLimit {
-    pub fn increment_holders(&mut self, destination_levels: &[IdentityLevel], timestamp: i64) -> Result<()> {
-        for h in self.current_holders.iter_mut() {
-            if destination_levels.iter().any(|l| l.level == h.level && l.expiry > timestamp) {
-                h.count += 1;
-
-                if h.count > self.max {
-                    return Err(PolicyEngineErrors::HoldersLimitExceeded.into());
-                }
-            }
-        };
-        Ok(())
-    }
-
-    pub fn decrement_holders(&mut self, source_levels: &[IdentityLevel], timestamp: i64) -> Result<()> {
-        for h in self.current_holders.iter_mut() {
-            if source_levels.iter().any(|l| l.level == h.level && l.expiry > timestamp) {
-                h.count -= 1;
-
-                if h.count < self.min {
-                    return Err(PolicyEngineErrors::HoldersLimitExceeded.into());
-                }
-            }
-        };
-        Ok(())
-    }
-
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace, Debug, Serialize, Deserialize, PartialEq)]
@@ -257,13 +199,12 @@ impl PolicyEngineAccount {
         policy_account: Pubkey,
         policy_type: PolicyType,
         identity_filter: IdentityFilter,
-        additional_levels: Option<Vec<u8>>,
     ) -> Result<()> {
         let hash = Self::hash_policy(policy_account, &policy_type, &identity_filter);
         if self.policies.iter().any(|policy| policy.hash == hash) {
             return Err(PolicyEngineErrors::PolicyAlreadyExists.into());
         }
-        self.policies.push(Policy::new(hash, identity_filter, policy_type, additional_levels));
+        self.policies.push(Policy::new(hash, identity_filter, policy_type));
         Ok(())
     }
 
@@ -455,8 +396,16 @@ impl PolicyEngineAccount {
                         *current_holders -= 1;
                     }
                 }
-                PolicyType::GroupedHoldersLimit(holders) => {
-                    holders.decrement_holders(identity, timestamp)?;
+                PolicyType::GroupedHoldersLimit{max: _, min, current_holders} => {
+                    for h in current_holders.iter_mut() {
+                        if identity.iter().any(|l| l.level == h.level && l.expiry > timestamp) {
+                            h.count -= 1;
+            
+                            if h.count < *min {
+                                return Err(PolicyEngineErrors::HoldersLimitExceeded.into());
+                            }
+                        }
+                    }
                 }
                 _ => {}
             }
@@ -475,8 +424,15 @@ impl PolicyEngineAccount {
                         *current_holders += 1;
                     }
                 }
-                PolicyType::GroupedHoldersLimit(holders) => {
-                    holders.increment_holders(identity, timestamp)?;
+                PolicyType::GroupedHoldersLimit{max, min: _, current_holders} => {
+                    for h in current_holders.iter_mut() {
+                        if identity.iter().any(|l| l.level == h.level && l.expiry > timestamp) {
+                            h.count += 1;
+                            if h.count > *max {
+                                return Err(PolicyEngineErrors::HoldersLimitExceeded.into());
+                            }
+                        }
+                    }
                 }
                 _ => {}
             }

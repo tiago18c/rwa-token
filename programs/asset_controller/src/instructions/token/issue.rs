@@ -42,6 +42,7 @@ pub struct IssueTokens<'info> {
     pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
     pub policy_engine_program: Program<'info, PolicyEngine>,
+    #[account(mut)]
     pub policy_engine: Box<Account<'info, PolicyEngineAccount>>,
 }
 
