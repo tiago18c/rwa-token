@@ -11,9 +11,7 @@ import { GetProgramAccountsFilter, PublicKey } from "@solana/web3.js";
 export async function getDataRegistryAccount(assetMint: string, provider: AnchorProvider): Promise<DataRegistryAccount | undefined> {
 	const dataRegistryProgram = getDataRegistryProgram(provider);
 	const dataRegistryPda = getDataRegistryPda(assetMint);
-	return dataRegistryProgram.account.dataRegistryAccount.fetch(dataRegistryPda)
-		.then(account => account)
-		.catch(() => undefined);
+	return dataRegistryProgram.account.dataRegistryAccount.fetch(dataRegistryPda);
 }
 
 export interface DataRegistryFilter {

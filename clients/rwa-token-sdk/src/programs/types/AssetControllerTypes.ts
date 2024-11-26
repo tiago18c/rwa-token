@@ -898,6 +898,62 @@ export type AssetController = {
       ]
     },
     {
+      "name": "seizeTokens",
+      "docs": [
+        "seize shares of the rwa asset"
+      ],
+      "discriminator": [
+        79,
+        30,
+        69,
+        54,
+        78,
+        1,
+        16,
+        23
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "assetMint",
+          "writable": true
+        },
+        {
+          "name": "assetController",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "assetMint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "destinationTokenAccount",
+          "writable": true
+        },
+        {
+          "name": "sourceTokenAccount",
+          "writable": true
+        },
+        {
+          "name": "tokenProgram",
+          "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
       "name": "thawTokenAccount",
       "docs": [
         "thaw token account"

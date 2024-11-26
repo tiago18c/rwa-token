@@ -15,6 +15,7 @@ import {
 	VoidTokensArgs,
 	getIdentityAccount,
 	getPolicyEngineAccount,
+	getSeizeTokensIx,
 } from "../src";
 import { setupTests } from "./setup";
 import {
@@ -299,6 +300,23 @@ describe("e2e tests", async () => {
 		const txnId = await sendAndConfirmTransaction(
 			rwaClient.provider.connection,
 			new Transaction().add(...revokeIx),
+			[setup.payerKp, setup.authorityKp],
+			{skipPreflight: true}
+		);
+		expect(txnId).toBeTruthy();
+	});
+
+	test("seize tokens", async () => {
+		const seizeIx = await getSeizeTokensIx({
+			from: setup.user1.toString(),
+			to: setup.authority.toString(),
+			assetMint: mint,
+			amount: 100,
+			authority: setup.authority.toString(),
+		}, rwaClient.provider);
+		const txnId = await sendAndConfirmTransaction(
+			rwaClient.provider.connection,
+			new Transaction().add(...seizeIx),
 			[setup.payerKp, setup.authorityKp],
 			{skipPreflight: true}
 		);

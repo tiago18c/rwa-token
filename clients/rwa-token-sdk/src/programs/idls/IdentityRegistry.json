@@ -91,11 +91,8 @@
           "signer": true
         },
         {
-          "name": "owner",
-          "signer": true,
-          "relations": [
-            "identity_account"
-          ]
+          "name": "authority",
+          "signer": true
         },
         {
           "name": "identity_account"
@@ -319,11 +316,16 @@
       ],
       "accounts": [
         {
-          "name": "owner",
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "authority",
           "writable": true,
           "signer": true,
           "relations": [
-            "identity_account"
+            "identity_registry"
           ]
         },
         {
@@ -335,6 +337,9 @@
           "relations": [
             "wallet_identity"
           ]
+        },
+        {
+          "name": "identity_registry"
         }
       ],
       "args": []

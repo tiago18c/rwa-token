@@ -19,9 +19,7 @@ export async function getIdentityRegistryAccount(
 	const identityRegistryProgram = getIdentityRegistryProgram(provider);
 	const identityRegistryPda = getIdentityRegistryPda(assetMint);
 	return identityRegistryProgram.account.identityRegistryAccount
-		.fetch(identityRegistryPda)
-		.then((account) => account)
-		.catch(() => undefined);
+		.fetch(identityRegistryPda);
 }
 
 export interface IdentityRegistryFilter {
@@ -77,9 +75,7 @@ export async function getIdentityAccount(
 	const identityRegistryProgram = getIdentityRegistryProgram(provider);
 	const identityAccountPda = getIdentityAccountPda(assetMint, owner);
 	return identityRegistryProgram.account.identityAccount
-		.fetch(identityAccountPda)
-		.then((account) => account)
-		.catch(() => undefined);
+		.fetch(identityAccountPda);
 }
 
 export interface IdentityAccountFilter {

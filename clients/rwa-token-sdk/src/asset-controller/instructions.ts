@@ -5,7 +5,6 @@ import {
 	Keypair,
 	PublicKey,
 	SystemProgram,
-	SYSVAR_INSTRUCTIONS_PUBKEY,
 	TransactionInstruction,
 } from "@solana/web3.js";
 import {
@@ -74,7 +73,7 @@ export async function getCreateAssetControllerIx(
 			uri: args.uri,
 			symbol: args.symbol,
 			delegate: args.delegate ? new PublicKey(args.delegate) : null,
-			interestRate: args.interestRate ? new BN(args.interestRate) : null,
+			interestRate: args.interestRate ? args.interestRate : null,
 			allowMultipleWallets: args.allowMultipleWallets ? args.allowMultipleWallets : null,
 			enforcePolicyIssuance: args.enforcePolicyIssuance ? args.enforcePolicyIssuance : false,
 		})
@@ -262,11 +261,6 @@ export async function getTransferTokensIxs(
 		{
 			pubkey: getTrackerAccountPda(args.assetMint, args.from),
 			isWritable: true,
-			isSigner: false,
-		},
-		{
-			pubkey: SYSVAR_INSTRUCTIONS_PUBKEY,
-			isWritable: false,
 			isSigner: false,
 		},
 		{
@@ -471,7 +465,7 @@ export async function getUpdateInterestBearingMintRateIx(
 ): Promise<TransactionInstruction> {
 	const assetProgram = getAssetControllerProgram(provider);
 	const ix = await assetProgram.methods
-		.updateInterestBearingMintRate(new BN(args.rate))
+		.updateInterestBearingMintRate(args.rate)
 		.accountsStrict({
 			authority: new PublicKey(args.authority),
 			assetMint: new PublicKey(args.assetMint),
@@ -687,11 +681,6 @@ export async function getRevokeTokensIx(
 			isSigner: false,
 		},
 		{
-			pubkey: SYSVAR_INSTRUCTIONS_PUBKEY,
-			isWritable: false,
-			isSigner: false,
-		},
-		{
 			pubkey: getExtraMetasListPda(args.assetMint),
 			isWritable: false,
 			isSigner: false,
@@ -729,6 +718,108 @@ export async function getRevokeTokensIx(
 			),
 			associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
 			systemProgram: SystemProgram.programId,
+		})
+		.remainingAccounts(remainingAccounts)
+		.instruction();
+	ixs.push(ix);
+	return ixs;
+}
+
+export type SeizeTokensArgs = {
+	amount: number;
+	from: string;
+	to: string;
+	authority: string;
+	assetMint: string;
+};
+
+/**
+ * Seize tokens from a user
+ * @param args - {@link SeizeTokensArgs}
+ * @returns - {@link TransactionInstruction}
+ * */
+export async function getSeizeTokensIx(
+	args: SeizeTokensArgs,
+	provider: AnchorProvider
+): Promise<TransactionInstruction[]> {
+	const assetProgram = getAssetControllerProgram(provider);
+	const remainingAccounts = [
+		{
+			pubkey: getPolicyEnginePda(args.assetMint),
+			isWritable: true,
+			isSigner: false,
+		},
+		{
+			pubkey: identityRegistryProgramId,
+			isWritable: false,
+			isSigner: false,
+		},
+		{
+			pubkey: policyEngineProgramId,
+			isWritable: false,
+			isSigner: false,
+		},
+		{
+			pubkey: getIdentityRegistryPda(args.assetMint),
+			isWritable: false,
+			isSigner: false,
+		},
+		{
+			pubkey: getIdentityAccountPda(args.assetMint, args.to),
+			isWritable: false,
+			isSigner: false,
+		},
+		{
+			pubkey: getIdentityAccountPda(args.assetMint, args.from),
+			isWritable: false,
+			isSigner: false,
+		},
+		{
+			pubkey: getTrackerAccountPda(args.assetMint, args.to),
+			isWritable: true,
+			isSigner: false,
+		},
+		{
+			pubkey: getTrackerAccountPda(args.assetMint, args.from),
+			isWritable: true,
+			isSigner: false,
+		},
+		{
+			pubkey: getExtraMetasListPda(args.assetMint),
+			isWritable: false,
+			isSigner: false,
+		},
+		{
+			pubkey: getWalletIdentityAccountPda(args.assetMint, args.to),
+			isWritable: false,
+			isSigner: false,
+		},
+		{
+			pubkey: getWalletIdentityAccountPda(args.assetMint, args.from),
+			isWritable: false,
+			isSigner: false,
+		}
+	];
+	const ixs: TransactionInstruction[] = [ComputeBudgetProgram.setComputeUnitLimit({units: 450_000})];
+	const ix = await assetProgram.methods
+		.seizeTokens(new BN(args.amount))
+		.accountsStrict({
+			authority: new PublicKey(args.authority),
+			assetMint: new PublicKey(args.assetMint),
+			tokenProgram: TOKEN_2022_PROGRAM_ID,
+			assetController: getAssetControllerPda(args.assetMint),
+			sourceTokenAccount: getAssociatedTokenAddressSync(
+				new PublicKey(args.assetMint),
+				new PublicKey(args.from),
+				false,
+				TOKEN_2022_PROGRAM_ID
+			),
+			destinationTokenAccount: getAssociatedTokenAddressSync(
+				new PublicKey(args.assetMint),
+				new PublicKey(args.to),
+				true,
+				TOKEN_2022_PROGRAM_ID
+			),
 		})
 		.remainingAccounts(remainingAccounts)
 		.instruction();

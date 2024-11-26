@@ -11,9 +11,7 @@ import { GetProgramAccountsFilter, PublicKey } from "@solana/web3.js";
 export async function getPolicyEngineAccount(assetMint: string, provider: AnchorProvider): Promise<PolicyEngineAccount | undefined> {
 	const policyEngineProgram = getPolicyEngineProgram(provider);
 	const policyEnginePda = getPolicyEnginePda(assetMint);
-	return policyEngineProgram.account.policyEngineAccount.fetch(policyEnginePda)
-		.then(account => account)
-		.catch(() => undefined);
+	return policyEngineProgram.account.policyEngineAccount.fetch(policyEnginePda);
 }
 
 export interface PolicyEngineFilter {

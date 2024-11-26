@@ -1,9 +1,10 @@
 import { type Idl, Program, type Provider, utils } from "@coral-xyz/anchor";
-import { PolicyEngineIdl } from "../programs/idls";
 import { PublicKey } from "@solana/web3.js";
 import { type PolicyEngineIdlTypes } from "../programs/types";
 import { utf8 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 import { getIdentityAccountPda } from "../identity-registry";
+
+import * as PolicyEngineIdl from "../programs/idls/PolicyEngine.json";
 
 /** Program address for the policy engine program. */
 export const policyEngineProgramId = new PublicKey(

@@ -892,6 +892,62 @@
       ]
     },
     {
+      "name": "seize_tokens",
+      "docs": [
+        "seize shares of the rwa asset"
+      ],
+      "discriminator": [
+        79,
+        30,
+        69,
+        54,
+        78,
+        1,
+        16,
+        23
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "asset_mint",
+          "writable": true
+        },
+        {
+          "name": "asset_controller",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "asset_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "destination_token_account",
+          "writable": true
+        },
+        {
+          "name": "source_token_account",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
       "name": "thaw_token_account",
       "docs": [
         "thaw token account"

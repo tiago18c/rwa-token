@@ -1,9 +1,8 @@
 use crate::{
-    get_asset_controller_account_pda, verify_cpi_program_is_token22, verify_pda, PolicyEngineAccount, PolicyEngineErrors, Side, TrackerAccount
+    get_asset_controller_account_pda, assert_is_transferring, verify_pda, PolicyEngineAccount, PolicyEngineErrors, Side, TrackerAccount
 };
 use anchor_lang::{
     prelude::*,
-    solana_program::sysvar::{self},
 };
 use anchor_spl::token_interface::{Mint, TokenAccount};
 use identity_registry::{
@@ -50,9 +49,6 @@ pub struct ExecuteTransferHook<'info> {
     #[account(mut)]
     /// CHECK: internal ix checks
     pub source_tracker_account: UncheckedAccount<'info>,
-    #[account(constraint = instructions_program.key() == sysvar::instructions::id())]
-    /// CHECK: constraint check
-    pub instructions_program: UncheckedAccount<'info>,
 
     /// CHECK: internal ix checks
     pub destination_wallet_identity: UncheckedAccount<'info>,
@@ -67,11 +63,8 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
         return Ok(());
     }
 
-    verify_cpi_program_is_token22(
-        &ctx.accounts.instructions_program.to_account_info(),
-        amount,
-        asset_mint,
-    )?;
+    assert_is_transferring(&ctx.accounts.source_account.to_account_info())?;
+    assert_is_transferring(&ctx.accounts.destination_account.to_account_info())?;
 
     require!(
         ctx.accounts.policy_engine_account.owner == &crate::id() 

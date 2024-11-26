@@ -97,11 +97,8 @@ export type IdentityRegistry = {
           "signer": true
         },
         {
-          "name": "owner",
-          "signer": true,
-          "relations": [
-            "identityAccount"
-          ]
+          "name": "authority",
+          "signer": true
         },
         {
           "name": "identityAccount"
@@ -325,11 +322,16 @@ export type IdentityRegistry = {
       ],
       "accounts": [
         {
-          "name": "owner",
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "authority",
           "writable": true,
           "signer": true,
           "relations": [
-            "identityAccount"
+            "identityRegistry"
           ]
         },
         {
@@ -341,6 +343,9 @@ export type IdentityRegistry = {
           "relations": [
             "walletIdentity"
           ]
+        },
+        {
+          "name": "identityRegistry"
         }
       ],
       "args": []

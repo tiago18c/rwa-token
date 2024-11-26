@@ -1,9 +1,9 @@
 use crate::{state::*, PolicyEngineErrors};
-use anchor_lang::{
-    prelude::*,
-    solana_program::sysvar::{self, instructions::get_instruction_relative},
-};
-use anchor_spl::token_2022;
+use anchor_lang::prelude::*;
+use anchor_spl::token_2022::spl_token_2022::extension::StateWithExtensions;
+use anchor_spl::token_2022::spl_token_2022::extension::BaseStateWithExtensions;
+use anchor_spl::token_2022::spl_token_2022::extension::transfer_hook::TransferHookAccount;
+use anchor_spl::token_2022::spl_token_2022::state::Account as Token2022Account;
 use identity_registry::IdentityLevel;
 use spl_tlv_account_resolution::{
     account::ExtraAccountMeta, seeds::Seed, state::ExtraAccountMetaList,
@@ -168,29 +168,16 @@ pub struct Transfer {
     pub side: Side,
 }
 
-pub const TRANSFER_HOOK_MINT_INDEX: usize = 1;
-
-pub fn verify_cpi_program_is_token22(
-    instructions_program: &AccountInfo,
-    amount: u64,
-    mint: Pubkey,
-) -> Result<()> {
-    let ix_relative = get_instruction_relative(0, instructions_program)?;
-    if ix_relative.program_id != token_2022::ID {
+pub fn assert_is_transferring(account: &AccountInfo) -> Result<()> {
+    let account_data = account.try_borrow_data()?;
+    let token_account = StateWithExtensions::<Token2022Account>::unpack(&account_data)?;
+    let account_extension = token_account.get_extension::<TransferHookAccount>()?;
+ 
+    // can assume if its not transferring, it wasn't called by token22
+    if !bool::from(account_extension.transferring) {
         return Err(PolicyEngineErrors::InvalidCpiTransferProgram.into());
     }
-    if ix_relative.data[1..9] != amount.to_le_bytes() {
-        return Err(PolicyEngineErrors::InvalidCpiTransferAmount.into());
-    }
-    // make sure transfer mint is same
-    if let Some(account) = ix_relative.accounts.get(TRANSFER_HOOK_MINT_INDEX) {
-        if account.pubkey != mint {
-            return Err(PolicyEngineErrors::InvalidCpiTransferMint.into());
-        }
-    } else {
-        return Err(PolicyEngineErrors::InvalidCpiTransferProgram.into());
-    }
-
+ 
     Ok(())
 }
 
@@ -267,8 +254,6 @@ pub fn get_extra_account_metas() -> Result<Vec<ExtraAccountMeta>> {
             false,
             true,
         )?,
-        // instructions program
-        ExtraAccountMeta::new_with_pubkey(&sysvar::instructions::id(), false, false)?,
         // destination wallet identity
         ExtraAccountMeta::new_external_pda_with_seeds(
             6,

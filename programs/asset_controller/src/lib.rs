@@ -52,6 +52,14 @@ pub mod asset_controller {
         instructions::revoke::handler(ctx, amount)
     }
 
+    /// seize shares of the rwa asset
+    pub fn seize_tokens<'info>(
+        ctx: Context<'_, '_, '_, 'info, SeizeTokens<'info>>,
+        amount: u64,
+    ) -> Result<()> {
+        instructions::seize::handler(ctx, amount)
+    }
+
     /// close a token account
     pub fn close_token_account(ctx: Context<CloseTokenAccount>) -> Result<()> {
         instructions::account::close::handler(ctx)
