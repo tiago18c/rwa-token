@@ -12,6 +12,7 @@ pub struct AttachWalletToIdentity<'info> {
     #[account()]
     pub owner: Signer<'info>,
     #[account(
+        mut,
         has_one = identity_registry,
         has_one = owner
     )]

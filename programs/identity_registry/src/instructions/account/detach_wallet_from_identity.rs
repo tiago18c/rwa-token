@@ -13,6 +13,7 @@ pub struct DetachWalletFromIdentity<'info> {
     pub wallet_identity: Box<Account<'info, WalletIdentity>>,
     
     #[account(
+        mut,
         has_one = owner
     )]
     pub identity_account: Box<Account<'info, IdentityAccount>>,
