@@ -95,7 +95,8 @@
           "signer": true
         },
         {
-          "name": "identity_account"
+          "name": "identity_account",
+          "writable": true
         },
         {
           "name": "identity_registry",
@@ -334,6 +335,7 @@
         },
         {
           "name": "identity_account",
+          "writable": true,
           "relations": [
             "wallet_identity"
           ]

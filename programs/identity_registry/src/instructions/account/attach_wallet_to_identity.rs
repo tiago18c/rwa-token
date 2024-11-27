@@ -10,6 +10,7 @@ pub struct AttachWalletToIdentity<'info> {
     #[account()]
     pub authority: Signer<'info>,
     #[account(
+        mut,
         has_one = identity_registry,
     )]
     pub identity_account: Box<Account<'info, IdentityAccount>>,
