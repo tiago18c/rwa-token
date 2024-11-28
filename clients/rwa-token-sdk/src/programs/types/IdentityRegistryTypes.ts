@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/identity_registry.json`.
  */
 export type IdentityRegistry = {
-  "address": "idtynCMYbdisCTv4FrCWPSQboZb1uM4TV2cPi79yxQf",
+  "address": "7Zis9Cg1pa3PMRCMfJBgzoQThoBA21QMrkmEnx6nZdQQ",
   "metadata": {
     "name": "identityRegistry",
     "version": "0.0.1",

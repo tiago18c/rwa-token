@@ -8,7 +8,7 @@ import * as PolicyEngineIdl from "../programs/idls/PolicyEngine.json";
 
 /** Program address for the policy engine program. */
 export const policyEngineProgramId = new PublicKey(
-	"po1cPf1eyUJJPqULw4so3T4JU9pdFn83CDyuLEKFAau"
+	"4wyusm2nxncvNyiVej5mZ1k1mVPhfG41oNvHx4BWiYMq"
 );
 
 /**

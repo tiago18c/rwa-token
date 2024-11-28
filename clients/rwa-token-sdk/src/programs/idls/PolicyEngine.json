@@ -1,5 +1,5 @@
 {
-  "address": "po1cPf1eyUJJPqULw4so3T4JU9pdFn83CDyuLEKFAau",
+  "address": "4wyusm2nxncvNyiVej5mZ1k1mVPhfG41oNvHx4BWiYMq",
   "metadata": {
     "name": "policy_engine",
     "version": "0.0.1",
@@ -418,7 +418,7 @@
         },
         {
           "name": "identity_registry",
-          "address": "idtynCMYbdisCTv4FrCWPSQboZb1uM4TV2cPi79yxQf"
+          "address": "7Zis9Cg1pa3PMRCMfJBgzoQThoBA21QMrkmEnx6nZdQQ"
         },
         {
           "name": "identity_registry_account"
@@ -436,9 +436,6 @@
         {
           "name": "source_tracker_account",
           "writable": true
-        },
-        {
-          "name": "instructions_program"
         },
         {
           "name": "destination_wallet_identity"

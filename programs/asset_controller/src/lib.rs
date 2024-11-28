@@ -12,7 +12,7 @@ pub use utils::*;
 
 use anchor_lang::prelude::*;
 
-declare_id!("acpcFrzEYKjVLvZGWueTV8vyDjhu3oKC7sN38QELLan");
+declare_id!("2fJZj6eLMvdGkHTePvbXGjh9x1hHSMvkBPhTcAAPvBMa");
 
 #[program]
 pub mod asset_controller {

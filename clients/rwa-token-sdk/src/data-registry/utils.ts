@@ -1,10 +1,10 @@
 import { type Idl, Program, type Provider } from "@coral-xyz/anchor";
-import { DataRegistryIdl } from "../programs/idls";
+import * as DataRegistryIdl from "../programs/idls/DataRegistry.json";
 import { PublicKey } from "@solana/web3.js";
 import { type DataRegistryIdlTypes } from "../programs/types";
 
 export const dataRegistryProgramId = new PublicKey(
-	"dataeP5X1e7XsWN1ovDSEDP5cqaEUnKBmHE5iZhXPVw"
+	"8Bp1xoRscjuHoG1KT41zAaujGTx2fyB2uzTt8GTeWZX8"
 );
 
 /**

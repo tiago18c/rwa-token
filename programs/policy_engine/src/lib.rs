@@ -12,7 +12,7 @@ pub use utils::*;
 
 use anchor_lang::prelude::*;
 
-declare_id!("po1cPf1eyUJJPqULw4so3T4JU9pdFn83CDyuLEKFAau");
+declare_id!("4wyusm2nxncvNyiVej5mZ1k1mVPhfG41oNvHx4BWiYMq");
 
 #[program]
 #[allow(deprecated)]

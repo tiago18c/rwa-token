@@ -445,7 +445,7 @@ impl PolicyEngineAccount {
 pub fn get_asset_controller_account_pda(asset_mint: Pubkey) -> Pubkey {
     Pubkey::find_program_address(
         &[asset_mint.as_ref()],
-        &pubkey!("acpcFrzEYKjVLvZGWueTV8vyDjhu3oKC7sN38QELLan"),
+        &pubkey!("2fJZj6eLMvdGkHTePvbXGjh9x1hHSMvkBPhTcAAPvBMa"),
     )
     .0
 }

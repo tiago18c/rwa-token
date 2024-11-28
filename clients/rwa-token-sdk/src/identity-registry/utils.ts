@@ -5,7 +5,7 @@ import { type IdentityRegistryIdlTypes } from "../programs/types";
 import * as IdentityRegistryIdl from "../programs/idls/IdentityRegistry.json";
 
 /** Address of the identity registry program. */
-export const identityRegistryProgramId = new PublicKey("idtynCMYbdisCTv4FrCWPSQboZb1uM4TV2cPi79yxQf");
+export const identityRegistryProgramId = new PublicKey("7Zis9Cg1pa3PMRCMfJBgzoQThoBA21QMrkmEnx6nZdQQ");
 
 export const getIdentityRegistryProgram = (provider: Provider) => new Program(
 	IdentityRegistryIdl as Idl,

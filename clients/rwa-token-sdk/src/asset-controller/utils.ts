@@ -5,7 +5,7 @@ import { AssetControllerIdlTypes } from "../programs";
 import * as AssetControllerIdl from "../programs/idls/AssetController.json";
 
 export const assetControllerProgramId = new PublicKey(
-	"acpcFrzEYKjVLvZGWueTV8vyDjhu3oKC7sN38QELLan"
+	"2fJZj6eLMvdGkHTePvbXGjh9x1hHSMvkBPhTcAAPvBMa"
 );
 
 /**

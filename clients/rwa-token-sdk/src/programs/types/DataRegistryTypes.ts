@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/data_registry.json`.
  */
 export type DataRegistry = {
-  "address": "dataeP5X1e7XsWN1ovDSEDP5cqaEUnKBmHE5iZhXPVw",
+  "address": "8Bp1xoRscjuHoG1KT41zAaujGTx2fyB2uzTt8GTeWZX8",
   "metadata": {
     "name": "dataRegistry",
     "version": "0.0.1",
