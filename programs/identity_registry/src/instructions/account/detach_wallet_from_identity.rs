@@ -18,10 +18,10 @@ pub struct DetachWalletFromIdentity<'info> {
         mut,
         constraint = authority.key() == identity_account.owner
         || authority.key() == identity_registry.authority,
+        has_one = identity_registry
     )]
     pub identity_account: Box<Account<'info, IdentityAccount>>,
 
-    #[account(has_one = authority)]
     pub identity_registry: Box<Account<'info, IdentityRegistryAccount>>,
 }
 

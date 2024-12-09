@@ -16,6 +16,8 @@ import {
 	getIdentityAccount,
 	getPolicyEngineAccount,
 	getSeizeTokensIx,
+	getWalletIdentityAccountsWithFilter,
+	getIdentityAccountPda,
 } from "../src";
 import { setupTests } from "./setup";
 import {
@@ -63,6 +65,7 @@ describe("e2e tests", async () => {
 			name: "Test Class Asset",
 			uri: "https://test.com",
 			symbol: "TFT",
+			allowMultipleWallets: true,
 		};
 
 		const setupIx = await rwaClient.assetController.setupNewRegistry(
@@ -349,6 +352,46 @@ describe("e2e tests", async () => {
 			[setup.payerKp, setup.authorityKp]
 		);
 		expect(txnId2).toBeTruthy();
+	});
+
+	test("create wallet identity account", async () => {
+		const createWalletIdentityAccountIx = await rwaClient.identityRegistry.attachWalletToIdentity({
+			owner: setup.user1.toString(),
+			assetMint: mint,
+			payer: setup.payer.toString(),
+			wallet: setup.user4.toString(),
+			authority: setup.user1.toString(),
+		});
+		const txnId2 = await sendAndConfirmTransaction(
+			rwaClient.provider.connection,
+			new Transaction().add(createWalletIdentityAccountIx),
+			[setup.payerKp, setup.user1Kp]
+		);
+		expect(txnId2).toBeTruthy();
+	});
+
+	test("get wallet identity account", async () => {
+		const identityAccount = getIdentityAccountPda(mint, setup.user1.toString());
+		const walletIdentityAccounts = await getWalletIdentityAccountsWithFilter(identityAccount.toBase58(), rwaClient.provider);
+		expect(walletIdentityAccounts).toBeTruthy();
+		expect(walletIdentityAccounts!.length).toBe(1);
+		expect(walletIdentityAccounts![0].wallet.toString()).toBe(setup.user4.toString());
+	});
+
+	test("detach wallet identity account", async () => {
+		const detachWalletIdentityAccountIx = await rwaClient.identityRegistry.detachWalletFromIdentity({
+			owner: setup.user1.toString(),
+			assetMint: mint,
+			payer: setup.payer.toString(),
+			wallet: setup.user4.toString(),
+			authority: setup.user1.toString(),
+		});
+		const txnId = await sendAndConfirmTransaction(
+			rwaClient.provider.connection,
+			new Transaction().add(detachWalletIdentityAccountIx),
+			[setup.payerKp, setup.user1Kp]
+		);
+		expect(txnId).toBeTruthy();
 	});
 
 	test("update data account", async () => {

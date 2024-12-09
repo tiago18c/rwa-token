@@ -351,7 +351,7 @@ export type SetupAssetControllerArgs = {
   uri: string;
   symbol: string;
   interestRate?: number;
-  requireIdentityCreation?: boolean;
+  allowMultipleWallets?: boolean;
   enforcePolicyIssuance?: boolean;
 };
 

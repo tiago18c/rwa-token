@@ -1,5 +1,5 @@
 import { type AnchorProvider } from "@coral-xyz/anchor";
-import { type IdentityRegistryAccount, type IdentityAccount } from "./types";
+import { type IdentityRegistryAccount, type IdentityAccount, WalletIdentityAccount } from "./types";
 import {
 	getIdentityAccountPda,
 	getIdentityRegistryPda,
@@ -67,15 +67,22 @@ export async function getIdentityRegistryAccountsWithFilter(
  * @param owner - The string representation of the asset owner.
  * @returns A promise resolving to the {@link IdentityAccount}, or `undefined` if it doesn't exist.
  */
-export async function getIdentityAccount(
+export async function getIdentityAccountFromOwner(
 	assetMint: string,
 	owner: string,
 	provider: AnchorProvider
 ): Promise<IdentityAccount | undefined> {
-	const identityRegistryProgram = getIdentityRegistryProgram(provider);
 	const identityAccountPda = getIdentityAccountPda(assetMint, owner);
+	return getIdentityAccount(identityAccountPda, provider);
+}
+
+export async function getIdentityAccount(
+	accountAddress: PublicKey,
+	provider: AnchorProvider
+): Promise<IdentityAccount | undefined> {
+	const identityRegistryProgram = getIdentityRegistryProgram(provider);
 	return identityRegistryProgram.account.identityAccount
-		.fetch(identityAccountPda);
+		.fetch(accountAddress);
 }
 
 export interface IdentityAccountFilter {
@@ -118,3 +125,22 @@ export async function getIdentityAccountsWithFilter(
 	);
 }
 
+export const WALLET_IDENTITY_ACCOUNT_OWNER_OFFSET = 8;
+
+export async function getWalletIdentityAccountsWithFilter(
+	owner: string,
+	provider: AnchorProvider
+): Promise<WalletIdentityAccount[] | undefined> {
+	const identityRegistryProgram = getIdentityRegistryProgram(provider);
+
+	const filters: GetProgramAccountsFilter[] = [];
+	filters.push({ memcmp: { offset: WALLET_IDENTITY_ACCOUNT_OWNER_OFFSET, bytes: new PublicKey(owner).toBase58()}, });
+	
+	const walletIdentityAccounts = await provider.connection.getProgramAccounts(identityRegistryProgram.programId, {
+		filters,
+	});
+
+	return walletIdentityAccounts.map((account) =>
+		identityRegistryProgram.coder.accounts.decode("walletIdentity", account.account.data)
+	);
+}

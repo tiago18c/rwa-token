@@ -8,6 +8,7 @@ import {
 	getIdentityAccountPda,
 	getIdentityRegistryProgram,
 	getIdentityRegistryPda,
+	getWalletIdentityAccountPda,
 } from "./utils";
 import { BN, type AnchorProvider } from "@coral-xyz/anchor";
 
@@ -76,6 +77,51 @@ export async function getCreateIdentityAccountIx(
 		.instruction();
 	return ix;
 }
+
+/** Represents the arguments required to attach a wallet to an identity account. */
+export type AttachWalletToIdentityArgs = {
+  wallet: string;
+  owner: string;
+} & CommonArgs;
+
+export async function getAttachWalletToIdentityIx(
+	args: AttachWalletToIdentityArgs,
+	provider: AnchorProvider
+): Promise<TransactionInstruction> {
+	const identityProgram = getIdentityRegistryProgram(provider);
+	const ix = await identityProgram.methods
+		.attachWalletToIdentity(new PublicKey(args.wallet))
+		.accountsStrict({
+			payer: args.payer,
+			authority: args.authority,
+			assetMint: args.assetMint,
+			identityAccount: getIdentityAccountPda(args.assetMint, args.owner),
+			identityRegistry: getIdentityRegistryPda(args.assetMint),
+			walletIdentity: getWalletIdentityAccountPda(args.assetMint, args.wallet),
+			systemProgram: SystemProgram.programId,
+		})
+		.instruction();
+	return ix;
+}
+
+export async function getDetachWalletFromIdentityIx(
+	args: AttachWalletToIdentityArgs,
+	provider: AnchorProvider
+): Promise<TransactionInstruction> {
+	const identityProgram = getIdentityRegistryProgram(provider);
+	const ix = await identityProgram.methods
+		.detachWalletFromIdentity()
+		.accountsStrict({
+			payer: args.payer,
+			authority: args.authority,
+			walletIdentity: getWalletIdentityAccountPda(args.assetMint, args.wallet),
+			identityAccount: getIdentityAccountPda(args.assetMint, args.owner),
+			identityRegistry: getIdentityRegistryPda(args.assetMint),
+		})
+		.instruction();
+	return ix;
+}
+
 
 /** Represents the arguments required to add a level to an identity account. */
 export type AddLevelToIdentityAccountArgs = {
