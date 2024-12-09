@@ -31,7 +31,7 @@ impl IdentityAccount {
         self.owner = owner;
         self.version = Self::VERSION;
         self.levels = vec![IdentityLevel { level, expiry }];
-        self.num_wallets = 1;
+        self.num_wallets = 0;
     }
 
     pub fn add_level(&mut self, level: u8, expiry: i64) -> Result<()> {

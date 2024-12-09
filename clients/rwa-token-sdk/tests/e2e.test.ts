@@ -18,6 +18,7 @@ import {
 	getSeizeTokensIx,
 	getWalletIdentityAccountsWithFilter,
 	getIdentityAccountPda,
+	getIdentityAccountFromOwner,
 } from "../src";
 import { setupTests } from "./setup";
 import {
@@ -116,6 +117,11 @@ describe("e2e tests", async () => {
 		);
 		expect(trackerAccount).toBeTruthy();
 		expect(trackerAccount!.assetMint.toString()).toBe(mint);
+
+		const identityAccount = await getIdentityAccountFromOwner(mint, setup.user1.toString(), rwaClient.provider);
+		expect(identityAccount).toBeTruthy();
+		expect(identityAccount!.owner.toString()).toBe(setup.user1.toString());
+		expect(identityAccount!.numWallets).toBe(0);
 	});
 
 	test("update asset metadata", async () => {
