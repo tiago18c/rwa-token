@@ -1606,6 +1606,10 @@
             "type": "u8"
           },
           {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
             "name": "asset_mint",
             "docs": [
               "corresponding asset mint"

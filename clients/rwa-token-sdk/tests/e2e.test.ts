@@ -196,6 +196,7 @@ describe("e2e tests", async () => {
 			identityFilter: {
 				identityLevels: [1],
 				comparisionType: { or: {} },
+				counterpartyFilter: { both: {} }
 			},
 			policyType: {
 				transactionAmountLimit: {
@@ -221,6 +222,7 @@ describe("e2e tests", async () => {
 			identityFilter: {
 				identityLevels: [1],
 				comparisionType: { or: {} },
+				counterpartyFilter: { both: {} }
 			},
 			policyType: {
 				transactionAmountVelocity: {
@@ -246,6 +248,7 @@ describe("e2e tests", async () => {
 			identityFilter: {
 				identityLevels: [1],
 				comparisionType: { or: {} },
+				counterpartyFilter: { both: {} }
 			},
 			policyType: {
 				transactionCountVelocity: {

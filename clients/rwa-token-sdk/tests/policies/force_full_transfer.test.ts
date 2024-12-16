@@ -131,7 +131,7 @@ describe("test additional policies", async () => {
 				new Transaction().add(...transferTokensIxs),
 				[setup.user1Kp],
 				{skipPreflight: true}
-			)).rejects.toThrowError(/failed \(\{"err":\{"InstructionError":\[1,\{"Custom":6018\}\]\}\}\)/); // ForceFullTransfer error
+			)).rejects.toThrowError(/"InstructionError":\[1,\{"Custom":6018\}\]/); // ForceFullTransfer error
 		});
 
 		test("perform full transfer", async () => {

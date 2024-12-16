@@ -18,8 +18,8 @@ pub fn enforce_identity_filter2(identity: &[IdentityLevel], identity_filter: Ide
     match identity_filter.comparision_type {
         ComparisionType::Or => {
             // if any level is in the identities array, return Ok
-            for level in identity.iter() {
-                if level.expiry > timestamp && identity_filter.identity_levels.contains(&level.level) {
+            for level in identity_filter.identity_levels.iter() {
+                if *level > 0 && identity.iter().any(|l| l.expiry > timestamp && l.level == *level) {
                     return Ok(());
                 }
             }
@@ -27,8 +27,8 @@ pub fn enforce_identity_filter2(identity: &[IdentityLevel], identity_filter: Ide
         }
         ComparisionType::And => {
             // if all levels are in the identities array, return Ok
-            for level in identity.iter() {
-                if level.expiry > timestamp && !identity_filter.identity_levels.contains(&level.level) {
+            for level in identity_filter.identity_levels.iter() {
+                if *level > 0 && !identity.iter().any(|l| l.expiry > timestamp && l.level == *level) {
                     return Err(PolicyEngineErrors::IdentityFilterFailed.into());
                 }
             }
@@ -36,8 +36,8 @@ pub fn enforce_identity_filter2(identity: &[IdentityLevel], identity_filter: Ide
         }
         ComparisionType::Except => {
             // if any level is in the identities array, return Err
-            for level in identity.iter() {
-                if level.expiry > timestamp && identity_filter.identity_levels.contains(&level.level) {
+            for level in identity_filter.identity_levels.iter() {
+                if *level > 0 && identity.iter().any(|l| l.expiry > timestamp && l.level == *level) {
                     return Err(PolicyEngineErrors::IdentityFilterFailed.into());
                 }
             }

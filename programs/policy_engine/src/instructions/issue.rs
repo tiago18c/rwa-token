@@ -22,7 +22,7 @@ pub struct EnforcePolicyIssuanceAccounts<'info> {
     #[account(mut, has_one = asset_mint)]
     pub policy_engine: Box<Account<'info, PolicyEngineAccount>>,
     // can be any token account, user must make sure it is an associated token account with relevant identity permissions
-    #[account(mut,
+    #[account(
         token::mint = asset_mint,
         token::token_program = anchor_spl::token_interface::spl_token_2022::id(),
     )]
@@ -53,7 +53,7 @@ pub fn handler(ctx: Context<EnforcePolicyIssuanceAccounts>, amount: u64) -> Resu
     }
 
     if tracker_account.total_amount == amount {
-        ctx.accounts.policy_engine.increase_holders_count(&ctx.accounts.identity_account.levels, Clock::get()?.unix_timestamp)?;
+        ctx.accounts.policy_engine.increase_holders_count(&ctx.accounts.identity_account.levels)?;
     }
 
     // evaluate policies

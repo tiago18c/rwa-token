@@ -350,6 +350,71 @@
       ]
     },
     {
+      "name": "enforce_policy_on_levels_change",
+      "discriminator": [
+        236,
+        18,
+        123,
+        137,
+        253,
+        244,
+        32,
+        248
+      ],
+      "accounts": [
+        {
+          "name": "identity_account"
+        },
+        {
+          "name": "identity_registry",
+          "signer": true,
+          "relations": [
+            "identity_account"
+          ]
+        },
+        {
+          "name": "asset_mint",
+          "relations": [
+            "identity_registry",
+            "policy_engine"
+          ]
+        },
+        {
+          "name": "tracker_account",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "asset_mint"
+              },
+              {
+                "kind": "account",
+                "path": "identity_account"
+              }
+            ]
+          }
+        },
+        {
+          "name": "policy_engine",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "previous_levels",
+          "type": {
+            "defined": {
+              "name": "PreviousLevelsArgs"
+            }
+          }
+        },
+        {
+          "name": "enforce_limits",
+          "type": "bool"
+        }
+      ]
+    },
+    {
       "name": "execute_transaction",
       "docs": [
         "execute transfer hook"
@@ -786,6 +851,10 @@
             "type": "u8"
           },
           {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
             "name": "asset_mint",
             "docs": [
               "corresponding asset mint"
@@ -809,6 +878,22 @@
           {
             "name": "allow_multiple_wallets",
             "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "LevelExpiry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "level",
+            "type": "u8"
+          },
+          {
+            "name": "expiry",
+            "type": "i64"
           }
         ]
       }
@@ -1042,6 +1127,24 @@
           },
           {
             "name": "ForceFullTransfer"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PreviousLevelsArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "levels",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "LevelExpiry"
+                }
+              }
+            }
           }
         ]
       }

@@ -219,7 +219,7 @@ describe("test suite to test tracker account is being updated correctly on trans
 			//	commitment,
 				skipPreflight: true,
 			}
-		)).rejects.toThrowError(/failed \(\{"err":\{"InstructionError":\[0,\{"Custom":6016\}\]\}\}\)/);
+		)).rejects.toThrowError(/"InstructionError":\[0,\{"Custom":6016\}\]/);
 	});
 
 });

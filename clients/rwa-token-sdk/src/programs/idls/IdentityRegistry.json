@@ -56,6 +56,22 @@
         {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "policy_engine_program"
+        },
+        {
+          "name": "policy_engine",
+          "writable": true
+        },
+        {
+          "name": "tracker_account"
+        },
+        {
+          "name": "asset_mint",
+          "relations": [
+            "identity_registry"
+          ]
         }
       ],
       "args": [
@@ -66,6 +82,10 @@
         {
           "name": "expiry",
           "type": "i64"
+        },
+        {
+          "name": "enforce_limits",
+          "type": "bool"
         }
       ]
     },
@@ -324,10 +344,7 @@
         {
           "name": "authority",
           "writable": true,
-          "signer": true,
-          "relations": [
-            "identity_registry"
-          ]
+          "signer": true
         },
         {
           "name": "wallet_identity",
@@ -341,7 +358,10 @@
           ]
         },
         {
-          "name": "identity_registry"
+          "name": "identity_registry",
+          "relations": [
+            "identity_account"
+          ]
         }
       ],
       "args": []
@@ -451,12 +471,29 @@
         {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "policy_engine_program"
+        },
+        {
+          "name": "policy_engine",
+          "writable": true
+        },
+        {
+          "name": "tracker_account"
+        },
+        {
+          "name": "asset_mint"
         }
       ],
       "args": [
         {
           "name": "level",
           "type": "u8"
+        },
+        {
+          "name": "enforce_limits",
+          "type": "bool"
         }
       ]
     },
@@ -673,6 +710,10 @@
         "fields": [
           {
             "name": "version",
+            "type": "u8"
+          },
+          {
+            "name": "bump",
             "type": "u8"
           },
           {

@@ -62,6 +62,22 @@ export type IdentityRegistry = {
         {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "policyEngineProgram"
+        },
+        {
+          "name": "policyEngine",
+          "writable": true
+        },
+        {
+          "name": "trackerAccount"
+        },
+        {
+          "name": "assetMint",
+          "relations": [
+            "identityRegistry"
+          ]
         }
       ],
       "args": [
@@ -72,6 +88,10 @@ export type IdentityRegistry = {
         {
           "name": "expiry",
           "type": "i64"
+        },
+        {
+          "name": "enforceLimits",
+          "type": "bool"
         }
       ]
     },
@@ -330,10 +350,7 @@ export type IdentityRegistry = {
         {
           "name": "authority",
           "writable": true,
-          "signer": true,
-          "relations": [
-            "identityRegistry"
-          ]
+          "signer": true
         },
         {
           "name": "walletIdentity",
@@ -347,7 +364,10 @@ export type IdentityRegistry = {
           ]
         },
         {
-          "name": "identityRegistry"
+          "name": "identityRegistry",
+          "relations": [
+            "identityAccount"
+          ]
         }
       ],
       "args": []
@@ -457,12 +477,29 @@ export type IdentityRegistry = {
         {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "policyEngineProgram"
+        },
+        {
+          "name": "policyEngine",
+          "writable": true
+        },
+        {
+          "name": "trackerAccount"
+        },
+        {
+          "name": "assetMint"
         }
       ],
       "args": [
         {
           "name": "level",
           "type": "u8"
+        },
+        {
+          "name": "enforceLimits",
+          "type": "bool"
         }
       ]
     },
@@ -679,6 +716,10 @@ export type IdentityRegistry = {
         "fields": [
           {
             "name": "version",
+            "type": "u8"
+          },
+          {
+            "name": "bump",
             "type": "u8"
           },
           {

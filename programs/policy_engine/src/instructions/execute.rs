@@ -223,11 +223,11 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
     if !self_transfer {
         let changed = if source_balance == 0 && destination_balance != amount {
             // source has 0 balance
-            policy_engine_account.decrease_holders_count(&source_levels, timestamp)?;
+            policy_engine_account.decrease_holders_count(&source_levels)?;
             true
         } else if destination_balance == amount && source_balance != 0 {
             // destination has 0 balance
-            policy_engine_account.increase_holders_count(&destination_levels, timestamp)?;
+            policy_engine_account.increase_holders_count(&destination_levels)?;
             true
         } else {
             false

@@ -160,7 +160,7 @@ describe("test additional policies", async () => {
 				new Transaction().add(...transferTokensIxs),
 				[setup.user1Kp],
 				{skipPreflight: true}
-			)).rejects.toThrowError(/failed \(\{"err":\{"InstructionError":\[0,\{"Custom":6010\}\]\}\}\)/);
+			)).rejects.toThrowError(/"InstructionError":\[0,\{"Custom":6010\}\]/);
 			// currentBalance remains unchanged as this is a transfer within the group
 		});
 
@@ -206,7 +206,7 @@ describe("test additional policies", async () => {
 				new Transaction().add(...transferTokensIxs),
 				[setup.user2Kp],
 				{skipPreflight: true}
-			)).rejects.toThrowError(/failed \(\{"err":\{"InstructionError":\[0,\{"Custom":6011\}\]\}\}\)/);
+			)).rejects.toThrowError(/"InstructionError\":\[0,\{\"Custom\":6011\}\]/);
 			// currentBalance remains unchanged as this is a transfer within the group
 		});
 

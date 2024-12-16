@@ -417,6 +417,15 @@ export async function getSetupUserIxs(
 		provider
 	);
 	ixs.push(identityAccountIx);
+	const trackerAccountIx = await getCreateTrackerAccountIx(
+		{
+			payer: args.payer,
+			owner: args.owner,
+			assetMint: args.assetMint,
+		},
+		provider
+	);
+	ixs.push(trackerAccountIx);
 	if (args.levels.length > 1) {
 		for (let i = 1; i < args.levels.length; i++) {
 			const addLevelIx = await getAddLevelToIdentityAccount(
@@ -434,15 +443,6 @@ export async function getSetupUserIxs(
 			ixs.push(addLevelIx);
 		}
 	}
-	const trackerAccountIx = await getCreateTrackerAccountIx(
-		{
-			payer: args.payer,
-			owner: args.owner,
-			assetMint: args.assetMint,
-		},
-		provider
-	);
-	ixs.push(trackerAccountIx);
 	return {
 		ixs,
 		signers: [],

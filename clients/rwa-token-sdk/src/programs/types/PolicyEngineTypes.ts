@@ -356,6 +356,71 @@ export type PolicyEngine = {
       ]
     },
     {
+      "name": "enforcePolicyOnLevelsChange",
+      "discriminator": [
+        236,
+        18,
+        123,
+        137,
+        253,
+        244,
+        32,
+        248
+      ],
+      "accounts": [
+        {
+          "name": "identityAccount"
+        },
+        {
+          "name": "identityRegistry",
+          "signer": true,
+          "relations": [
+            "identityAccount"
+          ]
+        },
+        {
+          "name": "assetMint",
+          "relations": [
+            "identityRegistry",
+            "policyEngine"
+          ]
+        },
+        {
+          "name": "trackerAccount",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "assetMint"
+              },
+              {
+                "kind": "account",
+                "path": "identityAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "policyEngine",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "previousLevels",
+          "type": {
+            "defined": {
+              "name": "previousLevelsArgs"
+            }
+          }
+        },
+        {
+          "name": "enforceLimits",
+          "type": "bool"
+        }
+      ]
+    },
+    {
       "name": "executeTransaction",
       "docs": [
         "execute transfer hook"
@@ -792,6 +857,10 @@ export type PolicyEngine = {
             "type": "u8"
           },
           {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
             "name": "assetMint",
             "docs": [
               "corresponding asset mint"
@@ -815,6 +884,22 @@ export type PolicyEngine = {
           {
             "name": "allowMultipleWallets",
             "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "levelExpiry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "level",
+            "type": "u8"
+          },
+          {
+            "name": "expiry",
+            "type": "i64"
           }
         ]
       }
@@ -1048,6 +1133,24 @@ export type PolicyEngine = {
           },
           {
             "name": "forceFullTransfer"
+          }
+        ]
+      }
+    },
+    {
+      "name": "previousLevelsArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "levels",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "levelExpiry"
+                }
+              }
+            }
           }
         ]
       }

@@ -66,13 +66,14 @@ describe("test additional policies", async () => {
 			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60), new BN(Date.now() / 1000 + 24 * 60 * 60)],
 			signer: setup.authorityKp.publicKey.toString()
 		});
+
 		await sendAndConfirmTransaction(
 			setup.provider.connection,
 			new Transaction().add(...setupUser1.ixs),
 			[setup.payerKp, setup.authorityKp, ...setupUser1.signers],
 			{ skipPreflight: true }
 		);
-
+		
 		const setupUser2 = await rwaClient.identityRegistry.setupUserIxns({
 			payer: setup.payer.toString(),
 			owner: setup.user2.toString(),
@@ -102,8 +103,8 @@ describe("test additional policies", async () => {
 			[setup.payerKp, setup.authorityKp, ...setupUser3.signers],
 			{ skipPreflight: true }
 		);
-
 	});
+
 	describe("test GroupedHolderLimit policy", async () => {
 		const holderLimit = 3;
 

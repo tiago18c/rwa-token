@@ -54,8 +54,9 @@ pub mod identity_registry {
         ctx: Context<AddLevelToIdentityAccount>,
         level: u8,
         expiry: i64,
+        enforce_limits: bool,
     ) -> Result<()> {
-        instructions::account::add::handler(ctx, level, expiry)
+        instructions::account::add::handler(ctx, level, expiry, enforce_limits)
     }
 
     /// add level to identity account
@@ -71,8 +72,9 @@ pub mod identity_registry {
     pub fn remove_level_from_identity_account(
         ctx: Context<RemoveLevelFromIdentityAccount>,
         level: u8,
+        enforce_limits: bool,
     ) -> Result<()> {
-        instructions::account::remove::handler(ctx, level)
+        instructions::account::remove::handler(ctx, level, enforce_limits)
     }
 
     /// revoke user identity account by closing account

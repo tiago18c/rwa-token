@@ -11,6 +11,7 @@ import {
 	getWalletIdentityAccountPda,
 } from "./utils";
 import { BN, type AnchorProvider } from "@coral-xyz/anchor";
+import { getPolicyEnginePda, getTrackerAccountPda, policyEngineProgramId } from "../policy-engine/utils";
 
 /** Represents arguments for creating an on identity registry on chain. */
 export type CreateIdentityRegistryArgs = {
@@ -129,6 +130,7 @@ export type AddLevelToIdentityAccountArgs = {
   level: number;
   expiry: BN;
   signer: string;
+  ignorePolicy?: boolean;
 } & CommonArgs;
 
 /**
@@ -142,13 +144,17 @@ export async function getAddLevelToIdentityAccount(
 ): Promise<TransactionInstruction> {
 	const identityProgram = getIdentityRegistryProgram(provider);
 	const ix = await identityProgram.methods
-		.addLevelToIdentityAccount(args.level, args.expiry)
+		.addLevelToIdentityAccount(args.level, args.expiry, args.ignorePolicy ?? false)
 		.accountsStrict({
 			signer: args.signer,
 			identityRegistry: getIdentityRegistryPda(args.assetMint),
 			identityAccount: getIdentityAccountPda(args.assetMint, args.owner),
 			payer: args.payer,
 			systemProgram: SystemProgram.programId,
+			policyEngineProgram: policyEngineProgramId,
+			policyEngine: getPolicyEnginePda(args.assetMint),
+			trackerAccount: getTrackerAccountPda(args.assetMint, args.owner),
+			assetMint: args.assetMint,
 		})
 		.instruction();
 	return ix;
@@ -158,6 +164,7 @@ export type RemoveLevelFromIdentityAccountArgs = {
   owner: string;
   level: number;
   signer: string;
+  enforceLimits?: boolean;
 } & CommonArgs;
 
 /**
@@ -171,7 +178,7 @@ export async function getRemoveLevelFromIdentityAccount(
 ): Promise<TransactionInstruction> {
 	const identityProgram = getIdentityRegistryProgram(provider);
 	const ix = await identityProgram.methods
-		.removeLevelFromIdentityAccount(args.level)
+		.removeLevelFromIdentityAccount(args.level, args.enforceLimits ?? false)
 		.accountsStrict({
 			signer: args.signer
 				? args.signer
@@ -180,6 +187,10 @@ export async function getRemoveLevelFromIdentityAccount(
 			identityAccount: getIdentityAccountPda(args.assetMint, args.owner),
 			payer: args.signer,
 			systemProgram: SystemProgram.programId,
+			policyEngineProgram: policyEngineProgramId,
+			policyEngine: getPolicyEnginePda(args.assetMint),
+			trackerAccount: getTrackerAccountPda(args.assetMint, args.owner),
+			assetMint: args.assetMint,
 		})
 		.instruction();
 	return ix;

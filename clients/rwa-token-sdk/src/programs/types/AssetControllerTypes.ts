@@ -1612,6 +1612,10 @@ export type AssetController = {
             "type": "u8"
           },
           {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
             "name": "assetMint",
             "docs": [
               "corresponding asset mint"

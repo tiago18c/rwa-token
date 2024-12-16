@@ -62,4 +62,8 @@ pub mod policy_engine {
     pub fn enforce_policy_issuance(ctx: Context<EnforcePolicyIssuanceAccounts>, amount: u64) -> Result<()> {
         instructions::issue::handler(ctx, amount)
     }
+
+    pub fn enforce_policy_on_levels_change(ctx: Context<EnforcePolicyOnLevelsChange>, previous_levels: PreviousLevelsArgs, enforce_limits: bool) -> Result<()> {
+        instructions::enforce_policy_on_levels_change::handler(ctx, previous_levels, enforce_limits)
+    }
 }
