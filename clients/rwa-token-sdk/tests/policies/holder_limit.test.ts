@@ -1,5 +1,7 @@
 import { BN, Wallet } from "@coral-xyz/anchor";
 import {
+	ChangeCountersArgs,
+	getChangeCountersIx,
 	getPolicyEngineAccount,
 	getTransferTokensIxs,
 	RwaClient,
@@ -97,6 +99,39 @@ describe("test additional policies", async () => {
 			[setup.payerKp, setup.authorityKp, ...setupUser4.signers]
 		);
 
+		const changeCounterArgs: ChangeCountersArgs = {
+			authority: setup.authority.toString(),
+			payer: setup.payer.toString(),
+			assetMint: mint,
+			removedCounters: Buffer.from([]),
+			addedCounters: [
+				{
+					value: new BN(0),
+					id: 0,
+					identityFilter: {
+						identityLevels: [1],
+						comparisionType: { or: {} },
+						counterpartyFilter: { both: {} },
+					},
+				},
+				{
+					value: new BN(0),
+					id: 1,
+					identityFilter: {
+						identityLevels: [2],
+						comparisionType: { or: {} },
+						counterpartyFilter: { both: {} },
+					},
+				},
+			],
+		};
+		const changeCounters = await rwaClient.policyEngine.changeCounters(changeCounterArgs);
+		await sendAndConfirmTransaction(
+			setup.provider.connection,
+			new Transaction().add(...changeCounters.ixs),
+			[setup.payerKp, setup.authorityKp]
+		);
+
 		// Issue tokens to user1
 		const issueTokens = await rwaClient.assetController.issueTokenIxns({
 			authority: setup.authority.toString(),
@@ -115,52 +150,30 @@ describe("test additional policies", async () => {
 		const holderLimit = 2;
 
 		test("attach HolderLimit policy 1", async () => {
-			const attachPolicy = await rwaClient.policyEngine.attachPolicy({
+			const attachPolicy = await rwaClient.policyEngine.changeCounterLimits({
 				payer: setup.payer.toString(),
 				assetMint: mint,
 				authority: setup.authority.toString(),
-				identityFilter: {
-					identityLevels: [1],
-					comparisionType: { or: {} },
-					counterpartyFilter: { both: {} },
-				},
-				policyType: { 
-					holdersLimit: { 
+				removedCounterLimits: Buffer.from([]),
+				addedCounterLimits: [{
+					holdersLimit: {
 						min: new BN(2),
 						max: new BN(holderLimit),
-						currentHolders: new BN(1) // Assuming user1 is the only holder at this point
-					} 
-				},
-			});
-			const txnId = await sendAndConfirmTransaction(
-				setup.provider.connection,
-				new Transaction().add(...attachPolicy.ixs),
-				[setup.payerKp, setup.authorityKp, ...attachPolicy.signers]
-			);
-			expect(txnId).toBeTruthy();
-		});
-		test("attach HolderLimit policy 2", async () => {
-			const attachPolicy = await rwaClient.policyEngine.attachPolicy({
-				payer: setup.payer.toString(),
-				assetMint: mint,
-				authority: setup.authority.toString(),
-				identityFilter: {
-					identityLevels: [2],
-					comparisionType: { or: {} },
-					counterpartyFilter: { both: {} },
-				},
-				policyType: { 
-					holdersLimit: { 
+						counterId: 0
+					}
+				},{
+					holdersLimit: {
 						min: new BN(0),
 						max: new BN(holderLimit),
-						currentHolders: new BN(0) // Assuming user1 is the only holder at this point
-					} 
+						counterId: 1
+					}
 				},
+				]
 			});
 			const txnId = await sendAndConfirmTransaction(
 				setup.provider.connection,
 				new Transaction().add(...attachPolicy.ixs),
-				[setup.payerKp, setup.authorityKp, ...attachPolicy.signers]
+				[setup.payerKp, setup.authorityKp]
 			);
 			expect(txnId).toBeTruthy();
 		});
@@ -206,6 +219,8 @@ describe("test additional policies", async () => {
 				decimals,
 				createTa: true,
 			}, rwaClient.provider);
+
+			const policyEngine = await getPolicyEngineAccount(mint, rwaClient.provider);
 
 			await expect(sendAndConfirmTransaction(
 				setup.provider.connection,
@@ -272,9 +287,9 @@ describe("test additional policies", async () => {
 		test("able to mint and increase holders limit", async () => {
 
 			let policyEngine = await getPolicyEngineAccount(mint, rwaClient.provider);
-			let policy = policyEngine?.policies.find((p) => p.policyType.holdersLimit && p.identityFilter.identityLevels.includes(2));
-			expect(policy).toBeTruthy();
-			expect(policy?.policyType.holdersLimit?.currentHolders.toNumber()).toBe(0);
+			let counter = policyEngine?.counters.find((p) => p.id === 1);
+			expect(counter).toBeTruthy();
+			expect(counter?.value.toNumber()).toBe(0);
 
 			// Issue tokens to user1
 			const issueTokens = await rwaClient.assetController.issueTokenIxns({
@@ -294,13 +309,32 @@ describe("test additional policies", async () => {
 			); // HolderLimitExceeded error
 
 			expect(txnid).toBeTruthy();
-			console.log("txnid", txnid);
 
 			policyEngine = await getPolicyEngineAccount(mint, rwaClient.provider);
 
-			policy = policyEngine?.policies.find((p) => p.policyType.holdersLimit && p.identityFilter.identityLevels.includes(2));
-			expect(policy).toBeTruthy();
-			expect(policy?.policyType.holdersLimit?.currentHolders.toNumber()).toBe(1);
+			counter = policyEngine?.counters.find((p) => p.id === 1);
+			expect(counter).toBeTruthy();
+			expect(counter?.value.toNumber()).toBe(1);
+		});
+
+		test("able to remove holders limit", async () => {
+			const changeCounterLimits = await rwaClient.policyEngine.changeCounterLimits({
+				payer: setup.payer.toString(),
+				assetMint: mint,
+				authority: setup.authority.toString(),
+				removedCounterLimits: Buffer.from([0,1]),
+				addedCounterLimits: []
+			});
+			const txnid = await sendAndConfirmTransaction(
+				setup.provider.connection,
+				new Transaction().add(...changeCounterLimits.ixs),
+				[setup.payerKp, setup.authorityKp]
+			);
+			expect(txnid).toBeTruthy();
+
+			const policyEngine = await getPolicyEngineAccount(mint, rwaClient.provider);
+			expect(policyEngine?.counterLimits.length).toBe(0);
 		});
 	});
 });
+

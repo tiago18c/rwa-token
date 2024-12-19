@@ -1,8 +1,12 @@
 import { type IxReturn } from "../utils";
 import {
 	type AttachPolicyArgs,
+	ChangeCounterLimitsArgs,
+	ChangeCountersArgs,
 	DetachPolicyArgs,
 	getAttachToPolicyEngineIx,
+	getChangeCounterLimitsIx,
+	getChangeCountersIx,
 	getDetachFromPolicyEngineIx,
 	getPolicyEnginePda,
 } from "../policy-engine";
@@ -43,6 +47,22 @@ export class PolicyEngine {
 			this.rwaClient.provider
 		);
 		return attachPolicyIx;
+	}
+
+	async changeCounterLimits(policyArgs: ChangeCounterLimitsArgs): Promise<IxReturn> {
+		const changeCounterLimitsIx = await getChangeCounterLimitsIx(
+			policyArgs,
+			this.rwaClient.provider
+		);
+		return changeCounterLimitsIx;
+	}
+
+	async changeCounters(policyArgs: ChangeCountersArgs): Promise<IxReturn> {
+		const changeCountersIx = await getChangeCountersIx(
+			policyArgs,
+			this.rwaClient.provider
+		);
+		return changeCountersIx;
 	}
 
 	/**

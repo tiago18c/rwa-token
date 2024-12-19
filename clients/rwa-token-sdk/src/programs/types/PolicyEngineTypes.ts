@@ -68,6 +68,102 @@ export type PolicyEngine = {
       ]
     },
     {
+      "name": "changeCounterLimits",
+      "discriminator": [
+        200,
+        2,
+        8,
+        102,
+        43,
+        168,
+        141,
+        139
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "signer",
+          "signer": true
+        },
+        {
+          "name": "policyEngine",
+          "writable": true
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "removedCounterLimits",
+          "type": "bytes"
+        },
+        {
+          "name": "addedCounterLimits",
+          "type": {
+            "vec": {
+              "defined": {
+                "name": "counterLimit"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "changeCounters",
+      "discriminator": [
+        156,
+        107,
+        88,
+        204,
+        113,
+        131,
+        241,
+        192
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "signer",
+          "signer": true
+        },
+        {
+          "name": "policyEngine",
+          "writable": true
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "removedCounters",
+          "type": "bytes"
+        },
+        {
+          "name": "addedCounters",
+          "type": {
+            "vec": {
+              "defined": {
+                "name": "counter"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "createPolicyEngine",
       "docs": [
         "create a policy registry"
@@ -328,8 +424,7 @@ export type PolicyEngine = {
           "writable": true
         },
         {
-          "name": "destinationAccount",
-          "writable": true
+          "name": "destinationAccount"
         },
         {
           "name": "identityRegistry",
@@ -712,6 +807,16 @@ export type PolicyEngine = {
       "code": 6026,
       "name": "invalidPolicyEngineAccount",
       "msg": "Invalid policy engine account"
+    },
+    {
+      "code": 6027,
+      "name": "percentageLimitExceeded",
+      "msg": "Percentage limit exceeded"
+    },
+    {
+      "code": 6028,
+      "name": "flowback",
+      "msg": "flowback"
     }
   ],
   "types": [
@@ -731,6 +836,93 @@ export type PolicyEngine = {
           },
           {
             "name": "except"
+          }
+        ]
+      }
+    },
+    {
+      "name": "counter",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "value",
+            "type": "u64"
+          },
+          {
+            "name": "id",
+            "type": "u8"
+          },
+          {
+            "name": "identityFilter",
+            "type": {
+              "defined": {
+                "name": "identityFilter"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "counterLimit",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "holdersLimit",
+            "fields": [
+              {
+                "name": "max",
+                "type": "u64"
+              },
+              {
+                "name": "min",
+                "type": "u64"
+              },
+              {
+                "name": "counterId",
+                "type": "u8"
+              }
+            ]
+          },
+          {
+            "name": "groupedHoldersLimit",
+            "fields": [
+              {
+                "name": "max",
+                "type": "u64"
+              },
+              {
+                "name": "min",
+                "type": "u64"
+              },
+              {
+                "name": "counters",
+                "type": "bytes"
+              }
+            ]
+          },
+          {
+            "name": "percentageLimit",
+            "fields": [
+              {
+                "name": "higherCounterId",
+                "type": "u8"
+              },
+              {
+                "name": "lowerCounterId",
+                "type": "u8"
+              },
+              {
+                "name": "minPercentage",
+                "type": "u8"
+              },
+              {
+                "name": "maxPercentage",
+                "type": "u8"
+              }
+            ]
           }
         ]
       }
@@ -905,22 +1097,6 @@ export type PolicyEngine = {
       }
     },
     {
-      "name": "levelHolder",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "level",
-            "type": "u8"
-          },
-          {
-            "name": "count",
-            "type": "u64"
-          }
-        ]
-      }
-    },
-    {
       "name": "policy",
       "type": {
         "kind": "struct",
@@ -1007,6 +1183,26 @@ export type PolicyEngine = {
                 }
               }
             }
+          },
+          {
+            "name": "counters",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "counter"
+                }
+              }
+            }
+          },
+          {
+            "name": "counterLimits",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "counterLimit"
+                }
+              }
+            }
           }
         ]
       }
@@ -1086,46 +1282,6 @@ export type PolicyEngine = {
             ]
           },
           {
-            "name": "holdersLimit",
-            "fields": [
-              {
-                "name": "max",
-                "type": "u64"
-              },
-              {
-                "name": "min",
-                "type": "u64"
-              },
-              {
-                "name": "currentHolders",
-                "type": "u64"
-              }
-            ]
-          },
-          {
-            "name": "groupedHoldersLimit",
-            "fields": [
-              {
-                "name": "max",
-                "type": "u64"
-              },
-              {
-                "name": "min",
-                "type": "u64"
-              },
-              {
-                "name": "currentHolders",
-                "type": {
-                  "vec": {
-                    "defined": {
-                      "name": "levelHolder"
-                    }
-                  }
-                }
-              }
-            ]
-          },
-          {
             "name": "transferPause"
           },
           {
@@ -1133,6 +1289,19 @@ export type PolicyEngine = {
           },
           {
             "name": "forceFullTransfer"
+          },
+          {
+            "name": "blockFlowbackEndTime",
+            "fields": [
+              {
+                "name": "time",
+                "type": "i64"
+              },
+              {
+                "name": "targetLevel",
+                "type": "u8"
+              }
+            ]
           }
         ]
       }

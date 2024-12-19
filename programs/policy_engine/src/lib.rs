@@ -66,4 +66,12 @@ pub mod policy_engine {
     pub fn enforce_policy_on_levels_change(ctx: Context<EnforcePolicyOnLevelsChange>, previous_levels: PreviousLevelsArgs, enforce_limits: bool) -> Result<()> {
         instructions::enforce_policy_on_levels_change::handler(ctx, previous_levels, enforce_limits)
     }
+
+    pub fn change_counters(ctx: Context<ChangeCounters>, removed_counters: Vec<u8>, added_counters: Vec<Counter>) -> Result<()> {
+        instructions::engine::change_counters::handler(ctx, removed_counters, added_counters)
+    }
+
+    pub fn change_counter_limits(ctx: Context<ChangeCounterLimits>, removed_counter_limits: Vec<u8>, added_counter_limits: Vec<CounterLimit>) -> Result<()> {
+        instructions::engine::change_counter_limits::handler(ctx, removed_counter_limits, added_counter_limits)
+    }
 }

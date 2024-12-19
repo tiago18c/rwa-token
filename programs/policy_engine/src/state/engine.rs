@@ -3,7 +3,7 @@ use identity_registry::IdentityLevel;
 use num_enum::IntoPrimitive;
 use serde::{Deserialize, Serialize};
 
-use crate::{enforce_identity_filter2, enforce_transfer_identity_filter, get_total_amount_transferred_in_timeframe, get_total_transactions_in_timeframe, PolicyEngineErrors};
+use crate::{enforce_identity_filter, enforce_transfer_identity_filter, get_total_amount_transferred_in_timeframe, get_total_transactions_in_timeframe, PolicyEngineErrors};
 
 use super::TrackerAccount;
 
@@ -72,6 +72,34 @@ pub struct PolicyEngineAccount {
     #[max_len(1)]
     /// initial max len
     pub policies: Vec<Policy>,
+    #[max_len(0)]
+    pub counters: Vec<Counter>,
+    #[max_len(0)]
+    pub counter_limits: Vec<CounterLimit>,
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace, Debug)]
+pub struct Counter {
+    pub value: u64,
+    pub id: u8,
+    pub identity_filter: IdentityFilter,
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace, Debug)]
+pub enum CounterLimit {
+    HoldersLimit { max: u64, min: u64, counter_id: u8 },
+    GroupedHoldersLimit { max: u64, min: u64, #[max_len(0)] counters: Vec<u8> },
+    PercentageLimit { higher_counter_id: u8, lower_counter_id: u8, min_percentage: u8, max_percentage: u8 },
+}
+
+impl CounterLimit {
+    pub fn get_space(&self) -> usize {
+        match self {
+            CounterLimit::GroupedHoldersLimit { max: _, min: _, counters } => Counter::INIT_SPACE + counters.len(),
+            _ => CounterLimit::INIT_SPACE,
+        }
+    }
+
 }
 
 
@@ -83,33 +111,6 @@ pub struct Policy {
     pub policy_type: PolicyType,
 }
 
-impl Policy {
-    pub fn new(hash: String, identity_filter: IdentityFilter, policy_type: PolicyType) -> Self {
-        Policy {
-            hash,
-            identity_filter,
-            policy_type,
-        }
-    }
-
-    pub fn space() -> usize {
-        Policy::INIT_SPACE
-    }
-
-    pub fn get_new_space(policy_type: &PolicyType) -> usize {
-        match policy_type {
-            PolicyType::GroupedHoldersLimit{max: _, min: _, current_holders} => Self::INIT_SPACE + current_holders.len() * LevelHolder::INIT_SPACE,
-            _ => Self::INIT_SPACE,
-        }
-    }
-
-    pub fn get_space(&self) -> usize {
-        match &self.policy_type {
-            PolicyType::GroupedHoldersLimit{max: _, min: _, current_holders} => Self::INIT_SPACE + current_holders.len() * LevelHolder::INIT_SPACE,
-            _ => Self::INIT_SPACE,
-        }
-    }
-}
 
 #[derive(
     AnchorSerialize,
@@ -129,17 +130,10 @@ pub enum PolicyType {
     MaxBalance { limit: u64 },
     MinBalance { limit: u64 },
     MinMaxBalance { min: u64, max: u64 },
-    HoldersLimit { max: u64, min: u64, current_holders: u64 },
-    GroupedHoldersLimit { max: u64, min: u64, #[max_len(0)] current_holders: Vec<LevelHolder> },
     TransferPause,
     ForbiddenIdentityGroup,
     ForceFullTransfer,
-}
-
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace, Debug, Serialize, Deserialize, PartialEq)]
-pub struct LevelHolder {
-    pub level: u8,
-    pub count: u64,
+    BlockFlowbackEndTime { time: i64, target_level: u8 },
 }
 
 pub fn get_policy_engine_pda(asset_mint: Pubkey) -> Pubkey {
@@ -204,16 +198,8 @@ impl PolicyEngineAccount {
         if self.policies.iter().any(|policy| policy.hash == hash) {
             return Err(PolicyEngineErrors::PolicyAlreadyExists.into());
         }
-        self.policies.push(Policy::new(hash, identity_filter, policy_type));
+        self.policies.push(Policy { hash, identity_filter, policy_type });
         Ok(())
-    }
-
-    pub fn get_policy_space(&self, hash: &String) -> Result<usize> {
-        let policy = self.policies.iter().find(|policy| &policy.hash == hash);
-        if policy.is_none() {
-            return Err(PolicyEngineErrors::PolicyNotFound.into());
-        }
-        Ok(policy.unwrap().get_space())
     }
 
     pub fn detach(&mut self, hash: String) -> Result<PolicyType> {
@@ -227,16 +213,16 @@ impl PolicyEngineAccount {
         for policy in self.policies.iter() {
             match &policy.policy_type {
                 PolicyType::IdentityApproval => {
-                    enforce_identity_filter2(identity, policy.identity_filter, timestamp)?;
+                    enforce_identity_filter(identity, policy.identity_filter, timestamp)?;
                 }
                 PolicyType::TransactionAmountLimit { limit } => {
-                    if enforce_identity_filter2(identity, policy.identity_filter, timestamp).is_ok()
+                    if enforce_identity_filter(identity, policy.identity_filter, timestamp).is_ok()
                         && amount > *limit {
                         return Err(PolicyEngineErrors::TransactionAmountLimitExceeded.into());
                     }
                 }
                 PolicyType::TransactionAmountVelocity { limit, timeframe } => {
-                    if enforce_identity_filter2(identity, policy.identity_filter, timestamp).is_ok() {
+                    if enforce_identity_filter(identity, policy.identity_filter, timestamp).is_ok() {
                         if let Some(dst_tracker) = tracker_account {
                             let total_amount_transferred = get_total_amount_transferred_in_timeframe(
                                 &dst_tracker.transfers, *timeframe, timestamp,
@@ -251,7 +237,7 @@ impl PolicyEngineAccount {
                     }
                 }
                 PolicyType::TransactionCountVelocity { limit, timeframe } => {
-                    if enforce_identity_filter2(identity, policy.identity_filter, timestamp).is_ok() {
+                    if enforce_identity_filter(identity, policy.identity_filter, timestamp).is_ok() {
                         if let Some(dst_tracker) = tracker_account {
                             let total_transactions =
                                 get_total_transactions_in_timeframe(&dst_tracker.transfers, *timeframe, timestamp);
@@ -262,7 +248,7 @@ impl PolicyEngineAccount {
                     }
                 }
                 PolicyType::MaxBalance { limit } => {
-                    if enforce_identity_filter2(identity, policy.identity_filter, timestamp).is_ok() {
+                    if enforce_identity_filter(identity, policy.identity_filter, timestamp).is_ok() {
                         if let Some(dst_tracker) = tracker_account {
                             if dst_tracker.total_amount > *limit {
                                 return Err(PolicyEngineErrors::MaxBalanceExceeded.into());
@@ -270,13 +256,34 @@ impl PolicyEngineAccount {
                         }
                     }
                 }
+                PolicyType::MinBalance { limit } => {
+                    if enforce_identity_filter(identity, policy.identity_filter, timestamp).is_ok() {
+                        if let Some(dst_tracker) = tracker_account {
+                            if dst_tracker.total_amount < *limit {
+                                return Err(PolicyEngineErrors::MinBalanceExceeded.into());
+                            }
+                        }
+                    }
+                }
+                PolicyType::MinMaxBalance { min, max } => {
+                    if enforce_identity_filter(identity, policy.identity_filter, timestamp).is_ok() {
+                        if let Some(dst_tracker) = tracker_account {
+                            if dst_tracker.total_amount > *max {
+                                return Err(PolicyEngineErrors::MaxBalanceExceeded.into());
+                            }
+                            if dst_tracker.total_amount < *min {
+                                return Err(PolicyEngineErrors::MinBalanceExceeded.into());
+                            }
+                        }
+                    }
+                }
                 PolicyType::TransferPause => {
-                    if enforce_identity_filter2(identity, policy.identity_filter, timestamp).is_ok() {
+                    if enforce_identity_filter(identity, policy.identity_filter, timestamp).is_ok() {
                         return Err(PolicyEngineErrors::TransferPaused.into());
                     }
                 }
                 PolicyType::ForbiddenIdentityGroup => {
-                    if enforce_identity_filter2(identity, policy.identity_filter, timestamp).is_ok()
+                    if enforce_identity_filter(identity, policy.identity_filter, timestamp).is_ok()
                     {
                         return Err(PolicyEngineErrors::ForbiddenIdentityGroup.into());
                     }
@@ -374,136 +381,176 @@ impl PolicyEngineAccount {
                 }
                 PolicyType::MinMaxBalance { min, max } => {
                     if enforce_transfer_identity_filter(destination_identity, source_identity, policy.identity_filter, timestamp).is_ok() {
-                        if source_balance < *min || destination_balance > *max {
-                            return Err(PolicyEngineErrors::MinMaxBalanceExceeded.into());
+                        if source_balance < *min || destination_balance < *min {
+                            return Err(PolicyEngineErrors::MinBalanceExceeded.into());
+                        }
+                        if source_balance > *max || destination_balance > *max {
+                            return Err(PolicyEngineErrors::MaxBalanceExceeded.into());
                         }
                     }
                 }
-                _ => {}
+                PolicyType::BlockFlowbackEndTime { time, target_level } => {
+                    if enforce_identity_filter(source_identity, policy.identity_filter, timestamp).is_ok() {
+                        if  (*time == 0 || *time > timestamp) && destination_identity.iter().any(|level| level.level == *target_level && level.expiry > timestamp) {
+                            return Err(PolicyEngineErrors::Flowback.into());
+                        }
+                    }
+                }
             }
         }
         Ok(())
     }
 
-    pub fn decrease_holders_count(&mut self, identity: &[IdentityLevel]) -> Result<()> {
-        for policy in self.policies.iter_mut() {
-            match &mut policy.policy_type {
-                PolicyType::HoldersLimit { max: _, min, current_holders } => {
-                    if enforce_identity_filter2(identity, policy.identity_filter, 0).is_ok() {
-                        if current_holders == min {
+    pub fn decrease_holders_count(&mut self, identity: &[IdentityLevel]) -> Result<Vec<u8>> {
+        let mut changed_counters = Vec::new();
+        for counter in self.counters.iter_mut() {
+            if enforce_identity_filter(identity, counter.identity_filter, 0).is_ok() {
+                counter.value -= 1;
+                changed_counters.push(counter.id);
+            }
+        }
+
+        Ok(changed_counters)
+    }
+
+    pub fn increase_holders_count(&mut self, identity: &[IdentityLevel]) -> Result<Vec<u8>> {
+        let mut changed_counters = Vec::new();
+        for counter in self.counters.iter_mut() {
+            if enforce_identity_filter(identity, counter.identity_filter, 0).is_ok() {
+                counter.value += 1;
+                changed_counters.push(counter.id);
+            }
+        }
+
+        Ok(changed_counters)
+    }
+
+    pub fn enforce_counters_on_increment(&self, incremented_counters: &[u8]) -> Result<()> {
+        for counter_limit in self.counter_limits.iter() {
+            match counter_limit {
+                CounterLimit::HoldersLimit { max, min: _, counter_id } => {
+                    if incremented_counters.contains(&counter_id) {
+                        let counter = self.counters.iter().find(|counter| counter.id == *counter_id).unwrap();
+                        if *max < counter.value {
                             return Err(PolicyEngineErrors::HoldersLimitExceeded.into());
                         }
-                        *current_holders -= 1;
                     }
                 }
-                PolicyType::GroupedHoldersLimit{max: _, min, current_holders} => {
-                    if enforce_identity_filter2(identity, policy.identity_filter, 0).is_ok() {
-                        for h in current_holders.iter_mut() {
-                            if identity.iter().any(|l| l.level == h.level) {
-                                h.count -= 1;
-            
-                                if h.count < *min {
-                                    return Err(PolicyEngineErrors::HoldersLimitExceeded.into());
-                                }
+                CounterLimit::GroupedHoldersLimit { max, min: _, counters } => {
+                    if incremented_counters.iter().any(|id| counters.contains(id)) {
+                        for counter_id in counters.iter() {
+                            let counter = self.counters.iter().find(|counter| counter.id == *counter_id).unwrap();
+                            if *max < counter.value {
+                                return Err(PolicyEngineErrors::HoldersLimitExceeded.into());
                             }
                         }
                     }
                 }
-                _ => {}
+                CounterLimit::PercentageLimit { higher_counter_id, lower_counter_id, min_percentage, max_percentage } => {
+                    if incremented_counters.contains(&higher_counter_id) || incremented_counters.contains(&lower_counter_id) {
+                        let higher_counter = self.counters.iter().find(|counter| counter.id == *higher_counter_id).unwrap().value;
+                        let lower_counter = self.counters.iter().find(|counter| counter.id == *lower_counter_id).unwrap().value;
+
+                        let percent = lower_counter * 100 / higher_counter;
+
+                        if *max_percentage < 100 && percent > *max_percentage as u64 {
+                            return Err(PolicyEngineErrors::PercentageLimitExceeded.into());
+                        }
+                        if *min_percentage > 0 && percent < *min_percentage as u64 {
+                            return Err(PolicyEngineErrors::PercentageLimitExceeded.into());
+                        }
+                    }
+                }
             }
         }
+
         Ok(())
     }
 
-    pub fn increase_holders_count(&mut self, identity: &[IdentityLevel]) -> Result<()> {
-        for policy in self.policies.iter_mut() {
-            match &mut policy.policy_type {
-                PolicyType::HoldersLimit { max, min: _, current_holders } => {
-                    if enforce_identity_filter2(identity, policy.identity_filter, 0).is_ok() {
-                        if current_holders == max {
+    pub fn enforce_counters_on_decrement(&self, decremented_counters: &[u8]) -> Result<()> {
+        for counter_limit in self.counter_limits.iter() {
+            match counter_limit {
+                CounterLimit::HoldersLimit { max: _, min, counter_id } => {
+                    if decremented_counters.contains(&counter_id) {
+                        let counter = self.counters.iter().find(|counter| counter.id == *counter_id).unwrap();
+                        if *min > counter.value {
                             return Err(PolicyEngineErrors::HoldersLimitExceeded.into());
                         }
-                        *current_holders += 1;
                     }
                 }
-                PolicyType::GroupedHoldersLimit{max, min: _, current_holders} => {
-                    if enforce_identity_filter2(identity, policy.identity_filter, 0).is_ok() {
-                        for h in current_holders.iter_mut() {
-                            if identity.iter().any(|l| l.level == h.level) {
-                                h.count += 1;
-                                if h.count > *max {
-                                    return Err(PolicyEngineErrors::HoldersLimitExceeded.into());
-                                }
+                CounterLimit::GroupedHoldersLimit { max: _, min, counters } => {
+                    for counter_id in counters.iter() {
+                        if decremented_counters.contains(counter_id) {
+                            let counter = self.counters.iter().find(|counter| counter.id == *counter_id).unwrap();
+                            if *min > counter.value {
+                                return Err(PolicyEngineErrors::HoldersLimitExceeded.into());
                             }
                         }
                     }
                 }
-                _ => {}
+                CounterLimit::PercentageLimit { higher_counter_id, lower_counter_id, min_percentage, max_percentage } => {
+                    if decremented_counters.contains(&higher_counter_id) || decremented_counters.contains(&lower_counter_id) {
+                        let higher_counter = self.counters.iter().find(|counter| counter.id == *higher_counter_id).unwrap().value;
+                        let lower_counter = self.counters.iter().find(|counter| counter.id == *lower_counter_id).unwrap().value;
+
+                        let percent = lower_counter * 100 / higher_counter;
+
+                        if *max_percentage < 100 && percent > *max_percentage as u64 {
+                            return Err(PolicyEngineErrors::PercentageLimitExceeded.into());
+                        }
+                        if *min_percentage > 0 && percent < *min_percentage as u64 {
+                            return Err(PolicyEngineErrors::PercentageLimitExceeded.into());
+                        }
+                    }
+                }
             }
         }
+
         Ok(())
     }
 
-    pub fn update_and_enforce_policy_on_levels_change(&mut self, previous_levels: &[IdentityLevel], new_levels: &[IdentityLevel], timestamp: i64, balance: u64, enforce_limits: bool) -> Result<()> {
-        for policy in self.policies.iter_mut() {
-            match &mut policy.policy_type {
-                PolicyType::HoldersLimit { max, min, current_holders } => {
-                    let prev_match = enforce_identity_filter2(previous_levels, policy.identity_filter, 0).is_ok();
-                    let new_match = enforce_identity_filter2(new_levels, policy.identity_filter, 0).is_ok();
-                    
-                    if prev_match && !new_match { // remove from count
-                        if enforce_limits && current_holders == min {
-                            return Err(PolicyEngineErrors::HoldersLimitExceeded.into());
-                        }
-                        *current_holders -= 1;
-                    } else if !prev_match && new_match { // add to count
-                        if enforce_limits && current_holders == max {
-                            return Err(PolicyEngineErrors::HoldersLimitExceeded.into());
-                        }
-                        *current_holders += 1;
-                    }
-                }
-                PolicyType::GroupedHoldersLimit{max, min, current_holders} => {
-                    let prev_match = enforce_identity_filter2(previous_levels, policy.identity_filter, 0).is_ok();
-                    let new_match = enforce_identity_filter2(new_levels, policy.identity_filter, 0).is_ok();
+    pub fn update_counters_on_levels_change(&mut self, previous_levels: &[IdentityLevel], new_levels: &[IdentityLevel]) -> Result<()> {
+        let mut incremented_counters = Vec::new();
+        let mut decremented_counters = Vec::new();
+        for counter in self.counters.iter_mut() {
+            let prev_match = enforce_identity_filter(previous_levels, counter.identity_filter, 0).is_ok();
 
-                    if prev_match && !new_match { // remove from count
-                        for h in current_holders.iter_mut() {
-                            if previous_levels.iter().any(|l| l.level == h.level) {
-                                h.count -= 1;
-                                if enforce_limits && h.count < *min {
-                                    return Err(PolicyEngineErrors::HoldersLimitExceeded.into());
-                                }
-                            }
-                        }
-                    }
-                    else if !prev_match && new_match { // add to count
-                        for h in current_holders.iter_mut() {
-                            if new_levels.iter().any(|l| l.level == h.level) {
-                                h.count += 1;
-                                if enforce_limits && h.count > *max {
-                                    return Err(PolicyEngineErrors::HoldersLimitExceeded.into());
-                                }
-                            }
-                        }
-                    }
-                }
+            let new_match = enforce_identity_filter(new_levels, counter.identity_filter, 0).is_ok();
+
+            if prev_match && !new_match {
+                counter.value -= 1;
+                decremented_counters.push(counter.id);
+            } else if !prev_match && new_match {
+                counter.value += 1;
+                incremented_counters.push(counter.id);
+            }
+        }
+
+        self.enforce_counters_on_increment(&incremented_counters)?;
+        self.enforce_counters_on_decrement(&decremented_counters)?;
+
+        Ok(())
+    }
+
+    pub fn enforce_policy_on_levels_change(&self, new_levels: &[IdentityLevel], timestamp: i64, balance: u64, enforce_limits: bool) -> Result<()> {
+        for policy in self.policies.iter() {
+            match &policy.policy_type {
                 PolicyType::MinMaxBalance { min, max } => {
-                    if enforce_limits && enforce_identity_filter2(new_levels, policy.identity_filter, timestamp).is_ok() {
+                    if enforce_limits && enforce_identity_filter(new_levels, policy.identity_filter, timestamp).is_ok() {
                         if balance < *min || balance > *max {
                             return Err(PolicyEngineErrors::MinMaxBalanceExceeded.into());
                         }
                     }
                 }
                 PolicyType::MaxBalance { limit } => {
-                    if enforce_limits && enforce_identity_filter2(new_levels, policy.identity_filter, timestamp).is_ok() {
+                    if enforce_limits && enforce_identity_filter(new_levels, policy.identity_filter, timestamp).is_ok() {
                         if balance > *limit {
                             return Err(PolicyEngineErrors::MaxBalanceExceeded.into());
                         }
                     }
                 }
                 PolicyType::MinBalance { limit } => {
-                    if enforce_limits && enforce_identity_filter2(new_levels, policy.identity_filter, timestamp).is_ok() {
+                    if enforce_limits && enforce_identity_filter(new_levels, policy.identity_filter, timestamp).is_ok() {
                         if balance < *limit {
                             return Err(PolicyEngineErrors::MinBalanceExceeded.into());
                         }
@@ -513,6 +560,33 @@ impl PolicyEngineAccount {
             }
         }
         Ok(())
+    }
+
+    pub fn update_and_enforce_policy_and_levels_on_levels_change(&mut self, previous_levels: &[IdentityLevel], new_levels: &[IdentityLevel], timestamp: i64, balance: u64, enforce_limits: bool) -> Result<()> {
+        self.update_counters_on_levels_change(previous_levels, new_levels)?;
+        self.enforce_policy_on_levels_change(new_levels, timestamp, balance, enforce_limits)
+    }
+
+
+    pub fn update_counters(&mut self, removed_counters: Vec<u8>, added_counters: Vec<Counter>) -> Result<()> {
+        self.counters.retain(|c| !removed_counters.contains(&c.id));
+        self.counters.extend(added_counters);
+        Ok(())
+    }
+
+    pub fn update_counter_limits(&mut self, removed_counter_limits: Vec<u8>, added_counter_limits: Vec<CounterLimit>) -> Result<i32> {
+
+        let mut space: i32 = -removed_counter_limits.iter().rev().map(|id| {
+            self.counter_limits.remove(*id as usize).get_space() as i32
+        }).sum::<i32>();
+        
+        space += added_counter_limits.iter().map(|limit| {
+            limit.get_space() as i32
+        }).sum::<i32>();
+
+        self.counter_limits.extend(added_counter_limits);
+
+        Ok(space)
     }
 }
 

@@ -3,8 +3,8 @@ use anchor_lang::prelude::*;
 use crate::state::*;
 
 #[derive(Accounts)]
-#[instruction(identity_filter: IdentityFilter, policy_type: PolicyType)]
-pub struct AttachToPolicyEngine<'info> {
+#[instruction(removed_counters: Vec<u8>, added_counters: Vec<Counter>)]
+pub struct ChangeCounters<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
     #[account(
@@ -12,7 +12,7 @@ pub struct AttachToPolicyEngine<'info> {
     )]
     pub signer: Signer<'info>,
     #[account(mut,
-        realloc = policy_engine.to_account_info().data_len() + Policy::INIT_SPACE,
+        realloc = policy_engine.to_account_info().data_len() + Counter::INIT_SPACE * added_counters.len() - Counter::INIT_SPACE * removed_counters.len(),
         realloc::zero = false,
         realloc::payer = payer,
     )]
@@ -21,14 +21,12 @@ pub struct AttachToPolicyEngine<'info> {
 }
 
 pub fn handler(
-    ctx: Context<AttachToPolicyEngine>,
-    identity_filter: IdentityFilter,
-    policy_type: PolicyType,
+    ctx: Context<ChangeCounters>,
+    removed_counters: Vec<u8>,
+    added_counters: Vec<Counter>,
 ) -> Result<()> {
-    ctx.accounts.policy_engine.update_max_timeframe(&policy_type);
-    let policy_account_address = ctx.accounts.policy_engine.key();
     ctx.accounts
         .policy_engine
-        .attach(policy_account_address, policy_type, identity_filter)?;
+        .update_counters(removed_counters, added_counters)?;
     Ok(())
 }

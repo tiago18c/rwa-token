@@ -9,12 +9,8 @@ use spl_tlv_account_resolution::{
     account::ExtraAccountMeta, seeds::Seed, state::ExtraAccountMetaList,
 };
 
-/// enforce receiver
-/// enforce sender
-/// 
-/// enforce both
-/// 
-pub fn enforce_identity_filter2(identity: &[IdentityLevel], identity_filter: IdentityFilter, timestamp: i64) -> Result<()> {
+
+pub fn enforce_identity_filter(identity: &[IdentityLevel], identity_filter: IdentityFilter, timestamp: i64) -> Result<()> {
     match identity_filter.comparision_type {
         ComparisionType::Or => {
             // if any level is in the identities array, return Ok
@@ -49,78 +45,19 @@ pub fn enforce_identity_filter2(identity: &[IdentityLevel], identity_filter: Ide
 pub fn enforce_transfer_identity_filter(destination_identity: &[IdentityLevel], source_identity: &[IdentityLevel], identity_filter: IdentityFilter, timestamp: i64) -> Result<()> {
     match (identity_filter.comparision_type, identity_filter.counterparty_filter) {
         (ComparisionType::Or, CounterpartyFilter::Both) => {
-            enforce_identity_filter2(destination_identity, identity_filter, timestamp)
-            .or(enforce_identity_filter2(source_identity, identity_filter, timestamp))
+            enforce_identity_filter(destination_identity, identity_filter, timestamp)
+            .or(enforce_identity_filter(source_identity, identity_filter, timestamp))
         }
         (_, CounterpartyFilter::Receiver) => {
-            enforce_identity_filter2(destination_identity, identity_filter, timestamp)
+            enforce_identity_filter(destination_identity, identity_filter, timestamp)
         }
         (_, CounterpartyFilter::Sender) => {
-            enforce_identity_filter2(source_identity, identity_filter, timestamp)
+            enforce_identity_filter(source_identity, identity_filter, timestamp)
         }
         (_, CounterpartyFilter::Both) => 
         {
-            enforce_identity_filter2(destination_identity, identity_filter, timestamp)?;
-            enforce_identity_filter2(source_identity, identity_filter, timestamp)
-        }
-    }
-}
-
-pub fn enforce_identity_filter(destination_identity: &[IdentityLevel], source_identity: &[IdentityLevel], identity_filter: IdentityFilter, timestamp: i64) -> Result<()> {
-    match identity_filter.comparision_type {
-        ComparisionType::Or => {
-            // if any level is in the identities array, return Ok
-            if identity_filter.counterparty_filter == CounterpartyFilter::Receiver || identity_filter.counterparty_filter == CounterpartyFilter::Both {
-                for level in destination_identity.iter() {
-                    if level.expiry > timestamp && identity_filter.identity_levels.contains(&level.level) {
-                        return Ok(());
-                    }
-                }
-            }
-            if identity_filter.counterparty_filter == CounterpartyFilter::Sender || identity_filter.counterparty_filter == CounterpartyFilter::Both {
-                for level in source_identity.iter() {
-                    if level.expiry > timestamp && identity_filter.identity_levels.contains(&level.level) {
-                        return Ok(());
-                    }
-                }
-            }
-            Err(PolicyEngineErrors::IdentityFilterFailed.into())
-        }
-        ComparisionType::And => {
-            // if all levels are in the identities array, return Ok
-            if identity_filter.counterparty_filter == CounterpartyFilter::Receiver || identity_filter.counterparty_filter == CounterpartyFilter::Both {
-                for level in destination_identity.iter() {
-                    if level.expiry > timestamp && !identity_filter.identity_levels.contains(&level.level) {
-                        return Err(PolicyEngineErrors::IdentityFilterFailed.into());
-                    }
-                }
-            }
-            if identity_filter.counterparty_filter == CounterpartyFilter::Sender || identity_filter.counterparty_filter == CounterpartyFilter::Both {
-                for level in source_identity.iter() {
-                    if level.expiry > timestamp && !identity_filter.identity_levels.contains(&level.level) {
-                        return Err(PolicyEngineErrors::IdentityFilterFailed.into());
-                    }
-                }
-            }
-            Ok(())
-        }
-        ComparisionType::Except => {
-            // if any level is in the identities array, return Err
-            if identity_filter.counterparty_filter == CounterpartyFilter::Receiver || identity_filter.counterparty_filter == CounterpartyFilter::Both {
-                for level in destination_identity.iter() {
-                    if level.expiry > timestamp && identity_filter.identity_levels.contains(&level.level) {
-                        return Err(PolicyEngineErrors::IdentityFilterFailed.into());
-                    }
-                }
-            }
-            if identity_filter.counterparty_filter == CounterpartyFilter::Sender || identity_filter.counterparty_filter == CounterpartyFilter::Both {
-                for level in source_identity.iter() {
-                    if level.expiry > timestamp && identity_filter.identity_levels.contains(&level.level) {
-                        return Err(PolicyEngineErrors::IdentityFilterFailed.into());
-                    }
-                }
-            }
-            Ok(())
+            enforce_identity_filter(destination_identity, identity_filter, timestamp)?;
+            enforce_identity_filter(source_identity, identity_filter, timestamp)
         }
     }
 }

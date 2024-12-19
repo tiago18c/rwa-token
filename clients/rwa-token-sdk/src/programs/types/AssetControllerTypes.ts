@@ -1423,6 +1423,93 @@ export type AssetController = {
       }
     },
     {
+      "name": "counter",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "value",
+            "type": "u64"
+          },
+          {
+            "name": "id",
+            "type": "u8"
+          },
+          {
+            "name": "identityFilter",
+            "type": {
+              "defined": {
+                "name": "identityFilter"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "counterLimit",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "holdersLimit",
+            "fields": [
+              {
+                "name": "max",
+                "type": "u64"
+              },
+              {
+                "name": "min",
+                "type": "u64"
+              },
+              {
+                "name": "counterId",
+                "type": "u8"
+              }
+            ]
+          },
+          {
+            "name": "groupedHoldersLimit",
+            "fields": [
+              {
+                "name": "max",
+                "type": "u64"
+              },
+              {
+                "name": "min",
+                "type": "u64"
+              },
+              {
+                "name": "counters",
+                "type": "bytes"
+              }
+            ]
+          },
+          {
+            "name": "percentageLimit",
+            "fields": [
+              {
+                "name": "higherCounterId",
+                "type": "u8"
+              },
+              {
+                "name": "lowerCounterId",
+                "type": "u8"
+              },
+              {
+                "name": "minPercentage",
+                "type": "u8"
+              },
+              {
+                "name": "maxPercentage",
+                "type": "u8"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
       "name": "counterpartyFilter",
       "repr": {
         "kind": "rust"
@@ -1644,22 +1731,6 @@ export type AssetController = {
       }
     },
     {
-      "name": "levelHolder",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "level",
-            "type": "u8"
-          },
-          {
-            "name": "count",
-            "type": "u64"
-          }
-        ]
-      }
-    },
-    {
       "name": "policy",
       "type": {
         "kind": "struct",
@@ -1746,6 +1817,26 @@ export type AssetController = {
                 }
               }
             }
+          },
+          {
+            "name": "counters",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "counter"
+                }
+              }
+            }
+          },
+          {
+            "name": "counterLimits",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "counterLimit"
+                }
+              }
+            }
           }
         ]
       }
@@ -1825,46 +1916,6 @@ export type AssetController = {
             ]
           },
           {
-            "name": "holdersLimit",
-            "fields": [
-              {
-                "name": "max",
-                "type": "u64"
-              },
-              {
-                "name": "min",
-                "type": "u64"
-              },
-              {
-                "name": "currentHolders",
-                "type": "u64"
-              }
-            ]
-          },
-          {
-            "name": "groupedHoldersLimit",
-            "fields": [
-              {
-                "name": "max",
-                "type": "u64"
-              },
-              {
-                "name": "min",
-                "type": "u64"
-              },
-              {
-                "name": "currentHolders",
-                "type": {
-                  "vec": {
-                    "defined": {
-                      "name": "levelHolder"
-                    }
-                  }
-                }
-              }
-            ]
-          },
-          {
             "name": "transferPause"
           },
           {
@@ -1872,6 +1923,19 @@ export type AssetController = {
           },
           {
             "name": "forceFullTransfer"
+          },
+          {
+            "name": "blockFlowbackEndTime",
+            "fields": [
+              {
+                "name": "time",
+                "type": "i64"
+              },
+              {
+                "name": "targetLevel",
+                "type": "u8"
+              }
+            ]
           }
         ]
       }

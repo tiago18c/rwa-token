@@ -44,7 +44,7 @@ pub fn handler(ctx: Context<EnforcePolicyOnLevelsChange>, new_levels: PreviousLe
     let new_levels: Vec<IdentityLevel> = new_levels.levels.iter().map(|level| IdentityLevel { level: level.level, expiry: level.expiry }).collect();
 
     if balance != 0 {
-        engine.update_and_enforce_policy_on_levels_change(previous_levels, &new_levels, timestamp, balance, enforce_limits)?;
+        engine.update_and_enforce_policy_and_levels_on_levels_change(previous_levels, &new_levels, timestamp, balance, enforce_limits)?;
     }
 
     Ok(())

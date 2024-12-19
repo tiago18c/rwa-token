@@ -12,7 +12,7 @@ pub struct DetachFromPolicyEngine<'info> {
     )]
     pub signer: Signer<'info>,
     #[account(mut,
-        realloc = policy_engine.to_account_info().data_len() - policy_engine.get_policy_space(&hash)?,
+        realloc = policy_engine.to_account_info().data_len() - Policy::INIT_SPACE,
         realloc::zero = false,
         realloc::payer = payer,
     )]

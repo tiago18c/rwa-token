@@ -1417,6 +1417,93 @@
       }
     },
     {
+      "name": "Counter",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "value",
+            "type": "u64"
+          },
+          {
+            "name": "id",
+            "type": "u8"
+          },
+          {
+            "name": "identity_filter",
+            "type": {
+              "defined": {
+                "name": "IdentityFilter"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "CounterLimit",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "HoldersLimit",
+            "fields": [
+              {
+                "name": "max",
+                "type": "u64"
+              },
+              {
+                "name": "min",
+                "type": "u64"
+              },
+              {
+                "name": "counter_id",
+                "type": "u8"
+              }
+            ]
+          },
+          {
+            "name": "GroupedHoldersLimit",
+            "fields": [
+              {
+                "name": "max",
+                "type": "u64"
+              },
+              {
+                "name": "min",
+                "type": "u64"
+              },
+              {
+                "name": "counters",
+                "type": "bytes"
+              }
+            ]
+          },
+          {
+            "name": "PercentageLimit",
+            "fields": [
+              {
+                "name": "higher_counter_id",
+                "type": "u8"
+              },
+              {
+                "name": "lower_counter_id",
+                "type": "u8"
+              },
+              {
+                "name": "min_percentage",
+                "type": "u8"
+              },
+              {
+                "name": "max_percentage",
+                "type": "u8"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
       "name": "CounterpartyFilter",
       "repr": {
         "kind": "rust"
@@ -1638,22 +1725,6 @@
       }
     },
     {
-      "name": "LevelHolder",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "level",
-            "type": "u8"
-          },
-          {
-            "name": "count",
-            "type": "u64"
-          }
-        ]
-      }
-    },
-    {
       "name": "Policy",
       "type": {
         "kind": "struct",
@@ -1740,6 +1811,26 @@
                 }
               }
             }
+          },
+          {
+            "name": "counters",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "Counter"
+                }
+              }
+            }
+          },
+          {
+            "name": "counter_limits",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "CounterLimit"
+                }
+              }
+            }
           }
         ]
       }
@@ -1819,46 +1910,6 @@
             ]
           },
           {
-            "name": "HoldersLimit",
-            "fields": [
-              {
-                "name": "max",
-                "type": "u64"
-              },
-              {
-                "name": "min",
-                "type": "u64"
-              },
-              {
-                "name": "current_holders",
-                "type": "u64"
-              }
-            ]
-          },
-          {
-            "name": "GroupedHoldersLimit",
-            "fields": [
-              {
-                "name": "max",
-                "type": "u64"
-              },
-              {
-                "name": "min",
-                "type": "u64"
-              },
-              {
-                "name": "current_holders",
-                "type": {
-                  "vec": {
-                    "defined": {
-                      "name": "LevelHolder"
-                    }
-                  }
-                }
-              }
-            ]
-          },
-          {
             "name": "TransferPause"
           },
           {
@@ -1866,6 +1917,19 @@
           },
           {
             "name": "ForceFullTransfer"
+          },
+          {
+            "name": "BlockFlowbackEndTime",
+            "fields": [
+              {
+                "name": "time",
+                "type": "i64"
+              },
+              {
+                "name": "target_level",
+                "type": "u8"
+              }
+            ]
           }
         ]
       }

@@ -466,7 +466,6 @@ describe("e2e tests", async () => {
 		for (const policy of policyAccount?.policies ?? []) {
 			const policyIx = await rwaClient.policyEngine.detachPolicy({
 				authority: setup.authority.toString(),
-				owner: setup.authority.toString(),
 				assetMint: mint,
 				payer: setup.payer.toString(),
 				hash: policy.hash,

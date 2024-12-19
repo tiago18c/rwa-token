@@ -11,7 +11,7 @@ import {
 	getPolicyEnginerEventAuthority,
 	getTrackerAccountPda,
 } from "./utils";
-import { type PolicyType, type IdentityFilter } from "./types";
+import { type PolicyType, type IdentityFilter, Counter, CounterLimit } from "./types";
 import { type AnchorProvider } from "@coral-xyz/anchor";
 import { getIdentityAccountPda, getIdentityRegistryPda } from "../identity-registry";
 
@@ -62,7 +62,6 @@ export type AttachPolicyArgs = {
 /** Represents the arguments required to detach a policy from an asset. */
 export type DetachPolicyArgs = {
 	authority: string;
-	owner: string;
 	assetMint: string;
 	payer: string;
 	hash: string;
@@ -98,6 +97,83 @@ export async function getAttachToPolicyEngineIx(
 	};
 }
 
+
+export type ChangeCountersArgs = {
+	authority: string;
+	payer: string;
+	assetMint: string;
+	removedCounters: Buffer;
+	addedCounters: Counter[];
+}
+
+/**
+ * Generate instructions to connect am policy to an asset.
+ *
+ * This function constructs an instruction to attach a policy account to an asset
+ * using the provided arguments. It calls the policy engine program to attach the policy account,
+ * and returns the generated instruction along with the required signers.
+ *
+ * @param args {@link AttachPolicyArgs}
+ * @returns - {@link IxReturn}, a list of transaction instructions and a new key pair responsible to sign it.
+ */
+export async function getChangeCountersIx(
+	args: ChangeCountersArgs,
+	provider: AnchorProvider
+): Promise<IxReturn> {
+	const policyProgram = getPolicyEngineProgram(provider);
+	const ix = await policyProgram.methods
+		.changeCounters(args.removedCounters, args.addedCounters)
+		.accountsStrict({
+			signer: new PublicKey(args.authority),
+			payer: args.payer,
+			policyEngine: getPolicyEnginePda(args.assetMint),
+			systemProgram: SystemProgram.programId,
+		})
+		.instruction();
+	return {
+		ixs: [ix],
+		signers: [],
+	};
+}
+
+export type ChangeCounterLimitsArgs = {
+	authority: string;
+	payer: string;
+	assetMint: string;
+	removedCounterLimits: Buffer;
+	addedCounterLimits: CounterLimit[];
+}
+
+
+/**
+ * Generate instructions to connect am policy to an asset.
+ *
+ * This function constructs an instruction to attach a policy account to an asset
+ * using the provided arguments. It calls the policy engine program to attach the policy account,
+ * and returns the generated instruction along with the required signers.
+ *
+ * @param args {@link AttachPolicyArgs}
+ * @returns - {@link IxReturn}, a list of transaction instructions and a new key pair responsible to sign it.
+ */
+export async function getChangeCounterLimitsIx(
+	args: ChangeCounterLimitsArgs,
+	provider: AnchorProvider
+): Promise<IxReturn> {
+	const policyProgram = getPolicyEngineProgram(provider);
+	const ix = await policyProgram.methods
+		.changeCounterLimits(args.removedCounterLimits, args.addedCounterLimits)
+		.accountsStrict({
+			signer: new PublicKey(args.authority),
+			payer: args.payer,
+			policyEngine: getPolicyEnginePda(args.assetMint),
+			systemProgram: SystemProgram.programId,
+		})
+		.instruction();
+	return {
+		ixs: [ix],
+		signers: [],
+	};
+}
 
 /**
  * Generate instructions to detach an identity policy account to an asset.

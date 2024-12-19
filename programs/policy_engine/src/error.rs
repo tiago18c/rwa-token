@@ -56,4 +56,8 @@ pub enum PolicyEngineErrors {
     MinMaxBalanceExceeded,
     #[msg("Invalid policy engine account")]
     InvalidPolicyEngineAccount,
+    #[msg("Percentage limit exceeded")]
+    PercentageLimitExceeded,
+    #[msg("Flowback")]
+    Flowback,
 }

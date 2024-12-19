@@ -1,9 +1,7 @@
 use crate::{
     get_asset_controller_account_pda, assert_is_transferring, verify_pda, PolicyEngineAccount, PolicyEngineErrors, Side, TrackerAccount
 };
-use anchor_lang::{
-    prelude::*,
-};
+use anchor_lang::prelude::*;
 use anchor_spl::token_interface::{Mint, TokenAccount};
 use identity_registry::{
     program::IdentityRegistry, IdentityAccount, NO_IDENTITY_LEVEL, NO_TRACKER_LEVEL, SKIP_POLICY_LEVEL, WalletIdentity
@@ -79,7 +77,7 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
     require!(policy_engine_account.asset_mint == asset_mint, PolicyEngineErrors::InvalidPolicyEngineAccount);
 
     // if policy account hasnt been created, skip enforcing token hook logic
-    if policy_engine_account.policies.is_empty() {
+    if policy_engine_account.policies.is_empty() && policy_engine_account.counters.is_empty() {
         return Ok(());
     }
 
@@ -219,21 +217,37 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
 
     let timestamp = Clock::get()?.unix_timestamp;
 
+    msg!("source_levels: {:?}", source_levels);
+    msg!("destination_levels: {:?}", destination_levels);
+
+    msg!("source balance: {:?}", source_balance);
+    msg!("destination balance: {:?}", destination_balance);
+
+    msg!("amount: {:?}", amount);
 
     if !self_transfer {
-        let changed = if source_balance == 0 && destination_balance != amount {
+        let decreased_counters = if source_balance == 0 {
             // source has 0 balance
-            policy_engine_account.decrease_holders_count(&source_levels)?;
-            true
-        } else if destination_balance == amount && source_balance != 0 {
-            // destination has 0 balance
-            policy_engine_account.increase_holders_count(&destination_levels)?;
-            true
+            policy_engine_account.decrease_holders_count(&source_levels)?
         } else {
-            false
+            vec![]
+        };
+        let increased_counters = if destination_balance == amount {
+            // destination has 0 balance
+            policy_engine_account.increase_holders_count(&destination_levels)?
+        } else {
+            vec![]
         };
 
-        if changed {
+        if !decreased_counters.is_empty() {
+            policy_engine_account.enforce_counters_on_decrement(&decreased_counters)?;
+        }
+
+        if !increased_counters.is_empty() {
+            policy_engine_account.enforce_counters_on_increment(&increased_counters)?;
+        }
+
+        if !increased_counters.is_empty() || !decreased_counters.is_empty() {
             let data = policy_engine_account.try_to_vec()?;
             let len = data.len();
             ctx.accounts.policy_engine_account.data.borrow_mut()[8..8 + len].copy_from_slice(&data);

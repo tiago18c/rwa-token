@@ -1,9 +1,10 @@
 import { BN, Wallet } from "@coral-xyz/anchor";
 import {
+	ChangeCounterLimitsArgs,
+	ChangeCountersArgs,
 	getPolicyEngineAccount,
 	getPolicyEngineProgram,
 	getTransferTokensIxs,
-	LevelHolder,
 	Policy,
 	RwaClient,
 } from "../../src";
@@ -103,33 +104,73 @@ describe("test additional policies", async () => {
 			[setup.payerKp, setup.authorityKp, ...setupUser3.signers],
 			{ skipPreflight: true }
 		);
+		
 	});
 
 	describe("test GroupedHolderLimit policy", async () => {
 		const holderLimit = 3;
 
-		test("attach GroupedHolderLimit policy", async () => {
-			const attachPolicy = await rwaClient.policyEngine.attachPolicy({
+		test("add counters", async () => {
+
+
+			const changeCounterArgs: ChangeCountersArgs = {
+				authority: setup.authority.toString(),
 				payer: setup.payer.toString(),
 				assetMint: mint,
-				authority: setup.authority.toString(),
-				identityFilter: {
-					identityLevels: [1],
-					comparisionType: { or: {} },
-				},
-				policyType: { 
-					groupedHoldersLimit: { 
-						min: new BN(2),
-						max: new BN(holderLimit),
-						currentHolders:  [{level: 1, count: new BN(0)}, {level: 2, count: new BN(0)}] 
-					}
-				},
-			});
+				removedCounters: Buffer.from([]),
+				addedCounters: [
+					{
+						value: new BN(0),
+						id: 0,
+						identityFilter: {
+							identityLevels: [1],
+							comparisionType: { or: {} },
+							counterpartyFilter: { both: {} },
+						},
+					},
+					{
+						value: new BN(0),
+						id: 1,
+						identityFilter: {
+							identityLevels: [2],
+							comparisionType: { or: {} },
+							counterpartyFilter: { both: {} },
+						},
+					},
+				],
+			};
+			const changeCounters = await rwaClient.policyEngine.changeCounters(changeCounterArgs);
 			const txnId = await sendAndConfirmTransaction(
 				setup.provider.connection,
-				new Transaction().add(...attachPolicy.ixs),
-				[setup.payerKp, setup.authorityKp, ...attachPolicy.signers],
-				{ skipPreflight: true }
+				new Transaction().add(...changeCounters.ixs),
+				[setup.payerKp, setup.authorityKp]
+			);
+			expect(txnId).toBeTruthy();
+		});
+
+		test("add grouped counter limits", async () => {
+
+
+			const changeCounterLimitsArgs: ChangeCounterLimitsArgs = {
+				authority: setup.authority.toString(),
+				payer: setup.payer.toString(),
+				assetMint: mint,
+				removedCounterLimits: Buffer.from([]),
+				addedCounterLimits: [
+					{
+						groupedHoldersLimit: {
+							min: new BN(2),
+							max: new BN(holderLimit),
+							counters: Buffer.from([0, 1]),
+						},
+					},
+				],
+			};
+			const changeCounterLimits = await rwaClient.policyEngine.changeCounterLimits(changeCounterLimitsArgs);
+			const txnId = await sendAndConfirmTransaction(
+				setup.provider.connection,
+				new Transaction().add(...changeCounterLimits.ixs),
+				[setup.payerKp, setup.authorityKp]
 			);
 			expect(txnId).toBeTruthy();
 		});
