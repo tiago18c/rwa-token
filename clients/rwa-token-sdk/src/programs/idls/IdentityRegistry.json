@@ -76,12 +76,14 @@
       ],
       "args": [
         {
-          "name": "level",
-          "type": "u8"
+          "name": "levels",
+          "type": "bytes"
         },
         {
-          "name": "expiry",
-          "type": "i64"
+          "name": "expiries",
+          "type": {
+            "vec": "i64"
+          }
         },
         {
           "name": "enforce_limits",
@@ -142,6 +144,21 @@
               {
                 "kind": "account",
                 "path": "asset_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "new_wallet_identity_account",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "identity_registry"
+              },
+              {
+                "kind": "arg",
+                "path": "wallet"
               }
             ]
           }
@@ -488,8 +505,8 @@
       ],
       "args": [
         {
-          "name": "level",
-          "type": "u8"
+          "name": "levels",
+          "type": "bytes"
         },
         {
           "name": "enforce_limits",
@@ -641,6 +658,16 @@
       "code": 6007,
       "name": "MultipleWalletsNotAllowed",
       "msg": "Multiple wallets are not allowed"
+    },
+    {
+      "code": 6008,
+      "name": "WalletAlreadyInUse",
+      "msg": "Wallet already in use"
+    },
+    {
+      "code": 6009,
+      "name": "InvalidLevel",
+      "msg": "Invalid level"
     }
   ],
   "types": [

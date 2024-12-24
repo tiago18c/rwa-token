@@ -18,4 +18,8 @@ pub enum IdentityRegistryErrors {
     IdentityCreationRequired,
     #[msg("Multiple wallets are not allowed")]
     MultipleWalletsNotAllowed,
+    #[msg("Wallet already in use")]
+    WalletAlreadyInUse,
+    #[msg("Invalid level")]
+    InvalidLevel
 }

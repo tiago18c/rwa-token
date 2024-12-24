@@ -18,7 +18,7 @@ export async function getAssetControllerAccount(
 	const assetProgram = getAssetControllerProgram(provider);
 	const assetControllerPda = getAssetControllerPda(assetMint);
 	return assetProgram.account.assetControllerAccount
-		.fetch(assetControllerPda);
+		.fetch(assetControllerPda).catch(() : undefined => undefined);
 }
 
 export interface AssetControllerDataFilter {

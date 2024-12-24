@@ -142,6 +142,7 @@ export type IssueTokenArgs = {
   amount: number;
   authority: string;
   owner: string;
+  wallet?: string;
 } & CommonArgs;
 
 /**
@@ -168,13 +169,14 @@ export async function getIssueTokensIx(
 			tokenProgram: TOKEN_2022_PROGRAM_ID,
 			tokenAccount: getAssociatedTokenAddressSync(
 				new PublicKey(args.assetMint),
-				new PublicKey(args.owner),
+				new PublicKey(args.wallet || args.owner),
 				false,
 				TOKEN_2022_PROGRAM_ID
 			),
 			associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
 			systemProgram: SystemProgram.programId,
-			to: new PublicKey(args.owner),
+			to: new PublicKey(args.wallet || args.owner),
+			walletIdentityAccount: args.wallet ? getWalletIdentityAccountPda(args.assetMint, args.wallet) : null,
 		})
 		.instruction();
 	return [ix];
@@ -427,21 +429,19 @@ export async function getSetupUserIxs(
 	);
 	ixs.push(trackerAccountIx);
 	if (args.levels.length > 1) {
-		for (let i = 1; i < args.levels.length; i++) {
-			const addLevelIx = await getAddLevelToIdentityAccount(
-				{
-					authority: args.signer,
-					owner: args.owner,
-					assetMint: args.assetMint,
-					level: args.levels[i],
-					expiry: args.expiry[i],
-					signer: args.signer,
-					payer: args.payer,
-				},
-				provider
-			);
-			ixs.push(addLevelIx);
-		}
+		const addLevelIx = await getAddLevelToIdentityAccount(
+			{
+				authority: args.signer,
+				owner: args.owner,
+				assetMint: args.assetMint,
+				levels: args.levels.slice(1),
+				expiries: args.expiry.slice(1),
+				signer: args.signer,
+				payer: args.payer,
+			},
+			provider
+		);
+		ixs.push(addLevelIx);
 	}
 	return {
 		ixs,

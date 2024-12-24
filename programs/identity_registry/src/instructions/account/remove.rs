@@ -4,7 +4,7 @@ use crate::{cpi_enforce_policy_on_levels_change, state::*, POLICY_ENGINE_ID};
 use anchor_lang::prelude::*;
 
 #[derive(Accounts)]
-#[instruction(level: u8)]
+#[instruction(levels: Vec<u8>)]
 pub struct RemoveLevelFromIdentityAccount<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -35,15 +35,17 @@ pub struct RemoveLevelFromIdentityAccount<'info> {
     pub asset_mint: UncheckedAccount<'info>,
 }
 
-pub fn handler(ctx: Context<RemoveLevelFromIdentityAccount>, level: u8, enforce_limits: bool) -> Result<()> {
-    let previous_levels = ctx.accounts.identity_account.levels.clone();
-
+pub fn handler(ctx: Context<RemoveLevelFromIdentityAccount>, levels: Vec<u8>, enforce_limits: bool) -> Result<()> {
+    
     let signer_seeds = [
         &ctx.accounts.asset_mint.key().to_bytes()[..],
         &[ctx.accounts.identity_registry.bump][..],
-    ];
+        ];
 
-    ctx.accounts.identity_account.remove_level(level)?;
+    let count = levels.len();
+        
+    ctx.accounts.identity_account.remove_levels(levels)?;
+    let previous_levels = ctx.accounts.identity_account.levels.clone();
     
     cpi_enforce_policy_on_levels_change(
         ctx.accounts.identity_account.to_account_info(), 
@@ -57,7 +59,7 @@ pub fn handler(ctx: Context<RemoveLevelFromIdentityAccount>, level: u8, enforce_
         &[&signer_seeds[..]]
     )?;
 
-    ctx.accounts.identity_account.to_account_info().realloc(ctx.accounts.identity_account.to_account_info().data_len() - IdentityLevel::INIT_SPACE, false)?;
+    ctx.accounts.identity_account.to_account_info().realloc(ctx.accounts.identity_account.to_account_info().data_len() - IdentityLevel::INIT_SPACE * count, false)?;
 
     Ok(())
 }

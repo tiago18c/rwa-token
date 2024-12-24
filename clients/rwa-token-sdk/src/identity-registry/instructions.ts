@@ -100,6 +100,7 @@ export async function getAttachWalletToIdentityIx(
 			identityRegistry: getIdentityRegistryPda(args.assetMint),
 			walletIdentity: getWalletIdentityAccountPda(args.assetMint, args.wallet),
 			systemProgram: SystemProgram.programId,
+			newWalletIdentityAccount: getIdentityAccountPda(args.assetMint, args.wallet),
 		})
 		.instruction();
 	return ix;
@@ -127,8 +128,8 @@ export async function getDetachWalletFromIdentityIx(
 /** Represents the arguments required to add a level to an identity account. */
 export type AddLevelToIdentityAccountArgs = {
   owner: string;
-  level: number;
-  expiry: BN;
+  levels: number[];
+  expiries: BN[];
   signer: string;
   ignorePolicy?: boolean;
 } & CommonArgs;
@@ -144,7 +145,7 @@ export async function getAddLevelToIdentityAccount(
 ): Promise<TransactionInstruction> {
 	const identityProgram = getIdentityRegistryProgram(provider);
 	const ix = await identityProgram.methods
-		.addLevelToIdentityAccount(args.level, args.expiry, args.ignorePolicy ?? false)
+		.addLevelToIdentityAccount(Buffer.from(args.levels), args.expiries, args.ignorePolicy ?? false)
 		.accountsStrict({
 			signer: args.signer,
 			identityRegistry: getIdentityRegistryPda(args.assetMint),
@@ -162,7 +163,7 @@ export async function getAddLevelToIdentityAccount(
 
 export type RemoveLevelFromIdentityAccountArgs = {
   owner: string;
-  level: number;
+  levels: number[];
   signer: string;
   enforceLimits?: boolean;
 } & CommonArgs;
@@ -178,7 +179,7 @@ export async function getRemoveLevelFromIdentityAccount(
 ): Promise<TransactionInstruction> {
 	const identityProgram = getIdentityRegistryProgram(provider);
 	const ix = await identityProgram.methods
-		.removeLevelFromIdentityAccount(args.level, args.enforceLimits ?? false)
+		.removeLevelFromIdentityAccount(Buffer.from(args.levels), args.enforceLimits ?? false)
 		.accountsStrict({
 			signer: args.signer
 				? args.signer

@@ -765,6 +765,10 @@
         {
           "name": "policy_engine",
           "writable": true
+        },
+        {
+          "name": "wallet_identity_account",
+          "optional": true
         }
       ],
       "args": [
@@ -1322,6 +1326,11 @@
       "code": 6010,
       "name": "TokenAccountAlreadyInitialized",
       "msg": "Token account is already initialized"
+    },
+    {
+      "code": 6011,
+      "name": "InvalidIdentityAccounts",
+      "msg": "Invalid identity accounts"
     }
   ],
   "types": [

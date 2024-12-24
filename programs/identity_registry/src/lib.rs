@@ -52,11 +52,11 @@ pub mod identity_registry {
     /// add level to identity account
     pub fn add_level_to_identity_account(
         ctx: Context<AddLevelToIdentityAccount>,
-        level: u8,
-        expiry: i64,
+        levels: Vec<u8>,
+        expiries: Vec<i64>,
         enforce_limits: bool,
     ) -> Result<()> {
-        instructions::account::add::handler(ctx, level, expiry, enforce_limits)
+        instructions::account::add::handler(ctx, levels, expiries, enforce_limits)
     }
 
     /// add level to identity account
@@ -71,10 +71,10 @@ pub mod identity_registry {
     /// remove level from identity account
     pub fn remove_level_from_identity_account(
         ctx: Context<RemoveLevelFromIdentityAccount>,
-        level: u8,
+        levels: Vec<u8>,
         enforce_limits: bool,
     ) -> Result<()> {
-        instructions::account::remove::handler(ctx, level, enforce_limits)
+        instructions::account::remove::handler(ctx, levels, enforce_limits)
     }
 
     /// revoke user identity account by closing account

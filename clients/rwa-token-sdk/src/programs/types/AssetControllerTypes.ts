@@ -771,6 +771,10 @@ export type AssetController = {
         {
           "name": "policyEngine",
           "writable": true
+        },
+        {
+          "name": "walletIdentityAccount",
+          "optional": true
         }
       ],
       "args": [
@@ -1328,6 +1332,11 @@ export type AssetController = {
       "code": 6010,
       "name": "tokenAccountAlreadyInitialized",
       "msg": "Token account is already initialized"
+    },
+    {
+      "code": 6011,
+      "name": "invalidIdentityAccounts",
+      "msg": "Invalid identity accounts"
     }
   ],
   "types": [

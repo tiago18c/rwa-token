@@ -16,8 +16,9 @@ pub struct DetachWalletFromIdentity<'info> {
     
     #[account(
         mut,
-        constraint = authority.key() == identity_account.owner
-        || authority.key() == identity_registry.authority,
+        // in this context, the investor is not authorized to detach the wallet
+        //constraint = authority.key() == identity_account.owner || 
+        constraint = authority.key() == identity_registry.authority,
         has_one = identity_registry
     )]
     pub identity_account: Box<Account<'info, IdentityAccount>>,

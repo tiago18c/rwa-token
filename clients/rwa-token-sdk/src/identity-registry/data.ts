@@ -19,7 +19,7 @@ export async function getIdentityRegistryAccount(
 	const identityRegistryProgram = getIdentityRegistryProgram(provider);
 	const identityRegistryPda = getIdentityRegistryPda(assetMint);
 	return identityRegistryProgram.account.identityRegistryAccount
-		.fetch(identityRegistryPda);
+		.fetch(identityRegistryPda).catch(() : undefined=> undefined);
 }
 
 export interface IdentityRegistryFilter {
@@ -82,7 +82,16 @@ export async function getIdentityAccount(
 ): Promise<IdentityAccount | undefined> {
 	const identityRegistryProgram = getIdentityRegistryProgram(provider);
 	return identityRegistryProgram.account.identityAccount
-		.fetch(accountAddress);
+		.fetch(accountAddress).catch(() : undefined => undefined);
+}
+
+export async function getWalletIdentityAccount(
+	accountAddress: PublicKey,
+	provider: AnchorProvider
+): Promise<WalletIdentityAccount | undefined> {
+	const identityRegistryProgram = getIdentityRegistryProgram(provider);
+	return identityRegistryProgram.account.walletIdentity
+		.fetch(accountAddress).catch(() : undefined => undefined);
 }
 
 export interface IdentityAccountFilter {

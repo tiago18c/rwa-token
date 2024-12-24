@@ -31,6 +31,10 @@ pub struct AttachWalletToIdentity<'info> {
     )]
     pub wallet_identity: Box<Account<'info, WalletIdentity>>,
 
+    /// CHECK: checked with seeds to enforce wallet is not tied to an existing identity
+    #[account(seeds = [identity_registry.key().as_ref(), wallet.as_ref()], bump)]
+    pub new_wallet_identity_account: UncheckedAccount<'info>,
+
     pub system_program: Program<'info, System>,
 }
 
@@ -42,6 +46,7 @@ pub fn handler(ctx: Context<AttachWalletToIdentity>, wallet: Pubkey) -> Result<(
             || ctx.accounts.authority.key() == ctx.accounts.identity_registry.authority,
         IdentityRegistryErrors::UnauthorizedSigner
     );
+    require!(ctx.accounts.new_wallet_identity_account.data_is_empty(), IdentityRegistryErrors::WalletAlreadyInUse);
     ctx.accounts.identity_account.add_wallet()?;
     ctx.accounts.wallet_identity.identity_account = ctx.accounts.identity_account.key();
     ctx.accounts.wallet_identity.wallet = wallet;

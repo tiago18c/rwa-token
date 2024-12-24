@@ -3,11 +3,11 @@ use anchor_spl::{
     associated_token::AssociatedToken,
     token_interface::{mint_to, Mint, MintTo, Token2022, TokenAccount},
 };
-use identity_registry::{IdentityAccount, IdentityRegistryAccount};
+use identity_registry::{IdentityAccount, IdentityRegistryAccount, WalletIdentity};
 use policy_engine::{program::PolicyEngine, PolicyEngineAccount, TrackerAccount};
 use rwa_utils::get_bump_in_seed_form;
 
-use crate::AssetControllerAccount;
+use crate::{AssetControllerAccount, AssetControllerErrors};
 
 #[derive(Accounts)]
 #[instruction()]
@@ -44,6 +44,8 @@ pub struct IssueTokens<'info> {
     pub policy_engine_program: Program<'info, PolicyEngine>,
     #[account(mut)]
     pub policy_engine: Box<Account<'info, PolicyEngineAccount>>,
+    /// CHECK: checked in handler
+    pub wallet_identity_account: Option<UncheckedAccount<'info>>,
 }
 
 impl<'info> IssueTokens<'info> {
@@ -84,6 +86,19 @@ impl<'info> IssueTokens<'info> {
 }
 
 pub fn handler(ctx: Context<IssueTokens>, amount: u64) -> Result<()> {
+    // either to is the wallet related to the identity account
+    // or we have a wallet identity account that links a wallet to an identity account
+    let wallet_identity = ctx.accounts.wallet_identity_account.as_ref().and_then(|v| WalletIdentity::try_deserialize(&mut &v.data.borrow()[..]).ok());
+    
+    require!(
+        ctx.accounts.to.key() == ctx.accounts.identity_account.owner 
+        || (wallet_identity.is_some() 
+            && wallet_identity.as_ref().unwrap().wallet == ctx.accounts.to.key() 
+            && wallet_identity.as_ref().unwrap().identity_account == ctx.accounts.identity_account.key()),
+        AssetControllerErrors::InvalidIdentityAccounts
+    );
+
+
     let asset_mint = ctx.accounts.asset_mint.key();
     let signer_seeds = [
         asset_mint.as_ref(),

@@ -82,12 +82,14 @@ export type IdentityRegistry = {
       ],
       "args": [
         {
-          "name": "level",
-          "type": "u8"
+          "name": "levels",
+          "type": "bytes"
         },
         {
-          "name": "expiry",
-          "type": "i64"
+          "name": "expiries",
+          "type": {
+            "vec": "i64"
+          }
         },
         {
           "name": "enforceLimits",
@@ -148,6 +150,21 @@ export type IdentityRegistry = {
               {
                 "kind": "account",
                 "path": "assetMint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "newWalletIdentityAccount",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "identityRegistry"
+              },
+              {
+                "kind": "arg",
+                "path": "wallet"
               }
             ]
           }
@@ -494,8 +511,8 @@ export type IdentityRegistry = {
       ],
       "args": [
         {
-          "name": "level",
-          "type": "u8"
+          "name": "levels",
+          "type": "bytes"
         },
         {
           "name": "enforceLimits",
@@ -647,6 +664,16 @@ export type IdentityRegistry = {
       "code": 6007,
       "name": "multipleWalletsNotAllowed",
       "msg": "Multiple wallets are not allowed"
+    },
+    {
+      "code": 6008,
+      "name": "walletAlreadyInUse",
+      "msg": "Wallet already in use"
+    },
+    {
+      "code": 6009,
+      "name": "invalidLevel",
+      "msg": "Invalid level"
     }
   ],
   "types": [
