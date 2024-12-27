@@ -208,30 +208,30 @@ pub struct PolicyEngineAccount {
     pub max_timeframe: i64,
     /// enforce policy issuance
     pub enforce_policy_issuance: bool,
+    /// generic mapping for levels
+    pub mapping: [u8; 256],
+    /// policies to apply on issuance
+    /// these are partially for storage only
+    pub issuance_policies: IssuancePolicies,
+    /// policies to check on transfers or balance changes
     #[max_len(1)]
-    /// initial max len
     pub policies: Vec<Policy>,
+    /// counters to track the number of holders depending on filters
     #[max_len(0)]
     pub counters: Vec<Counter>,
+    /// limits to apply on existing counters
     #[max_len(0)]
     pub counter_limits: Vec<CounterLimit>,
-    pub mapping: [u8; 256],
-    pub issuance_policies: IssuancePolicies,
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace, Debug)]
 pub struct IssuancePolicies {
     pub disallow_backdating: bool,
     pub max_supply: u64,
-    #[max_len(5)]
-    pub lockup_periods: Vec<LockupPeriod>,
+    pub us_lock_period: u64,
+    pub non_us_lock_period: u64,
 }
 
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace, Debug)]
-pub struct LockupPeriod {
-    pub time: u64,
-    pub identity_filter: IdentityFilter,
-}
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace, Debug)]
 pub struct Counter {

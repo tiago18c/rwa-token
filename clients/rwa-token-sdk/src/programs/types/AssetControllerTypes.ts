@@ -1916,34 +1916,12 @@ export type AssetController = {
             "type": "u64"
           },
           {
-            "name": "lockupPeriods",
-            "type": {
-              "vec": {
-                "defined": {
-                  "name": "lockupPeriod"
-                }
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "lockupPeriod",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "time",
+            "name": "usLockPeriod",
             "type": "u64"
           },
           {
-            "name": "identityFilter",
-            "type": {
-              "defined": {
-                "name": "identityFilter"
-              }
-            }
+            "name": "nonUsLockPeriod",
+            "type": "u64"
           }
         ]
       }
@@ -2024,6 +2002,23 @@ export type AssetController = {
             "type": "bool"
           },
           {
+            "name": "mapping",
+            "type": {
+              "array": [
+                "u8",
+                256
+              ]
+            }
+          },
+          {
+            "name": "issuancePolicies",
+            "type": {
+              "defined": {
+                "name": "issuancePolicies"
+              }
+            }
+          },
+          {
             "name": "policies",
             "docs": [
               "initial max len"
@@ -2053,23 +2048,6 @@ export type AssetController = {
                 "defined": {
                   "name": "counterLimit"
                 }
-              }
-            }
-          },
-          {
-            "name": "mapping",
-            "type": {
-              "array": [
-                "u8",
-                256
-              ]
-            }
-          },
-          {
-            "name": "issuancePolicies",
-            "type": {
-              "defined": {
-                "name": "issuancePolicies"
               }
             }
           }

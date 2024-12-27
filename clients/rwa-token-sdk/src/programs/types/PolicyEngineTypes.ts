@@ -1352,14 +1352,12 @@ export type PolicyEngine = {
             "type": "u64"
           },
           {
-            "name": "lockupPeriods",
-            "type": {
-              "vec": {
-                "defined": {
-                  "name": "lockupPeriod"
-                }
-              }
-            }
+            "name": "usLockPeriod",
+            "type": "u64"
+          },
+          {
+            "name": "nonUsLockPeriod",
+            "type": "u64"
           }
         ]
       }
@@ -1376,26 +1374,6 @@ export type PolicyEngine = {
           {
             "name": "expiry",
             "type": "i64"
-          }
-        ]
-      }
-    },
-    {
-      "name": "lockupPeriod",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "time",
-            "type": "u64"
-          },
-          {
-            "name": "identityFilter",
-            "type": {
-              "defined": {
-                "name": "identityFilter"
-              }
-            }
           }
         ]
       }
@@ -1494,6 +1472,23 @@ export type PolicyEngine = {
             "type": "bool"
           },
           {
+            "name": "mapping",
+            "type": {
+              "array": [
+                "u8",
+                256
+              ]
+            }
+          },
+          {
+            "name": "issuancePolicies",
+            "type": {
+              "defined": {
+                "name": "issuancePolicies"
+              }
+            }
+          },
+          {
             "name": "policies",
             "docs": [
               "initial max len"
@@ -1523,23 +1518,6 @@ export type PolicyEngine = {
                 "defined": {
                   "name": "counterLimit"
                 }
-              }
-            }
-          },
-          {
-            "name": "mapping",
-            "type": {
-              "array": [
-                "u8",
-                256
-              ]
-            }
-          },
-          {
-            "name": "issuancePolicies",
-            "type": {
-              "defined": {
-                "name": "issuancePolicies"
               }
             }
           }

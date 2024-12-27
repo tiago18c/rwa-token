@@ -1346,14 +1346,12 @@
             "type": "u64"
           },
           {
-            "name": "lockup_periods",
-            "type": {
-              "vec": {
-                "defined": {
-                  "name": "LockupPeriod"
-                }
-              }
-            }
+            "name": "us_lock_period",
+            "type": "u64"
+          },
+          {
+            "name": "non_us_lock_period",
+            "type": "u64"
           }
         ]
       }
@@ -1370,26 +1368,6 @@
           {
             "name": "expiry",
             "type": "i64"
-          }
-        ]
-      }
-    },
-    {
-      "name": "LockupPeriod",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "time",
-            "type": "u64"
-          },
-          {
-            "name": "identity_filter",
-            "type": {
-              "defined": {
-                "name": "IdentityFilter"
-              }
-            }
           }
         ]
       }
@@ -1488,6 +1466,23 @@
             "type": "bool"
           },
           {
+            "name": "mapping",
+            "type": {
+              "array": [
+                "u8",
+                256
+              ]
+            }
+          },
+          {
+            "name": "issuance_policies",
+            "type": {
+              "defined": {
+                "name": "IssuancePolicies"
+              }
+            }
+          },
+          {
             "name": "policies",
             "docs": [
               "initial max len"
@@ -1517,23 +1512,6 @@
                 "defined": {
                   "name": "CounterLimit"
                 }
-              }
-            }
-          },
-          {
-            "name": "mapping",
-            "type": {
-              "array": [
-                "u8",
-                256
-              ]
-            }
-          },
-          {
-            "name": "issuance_policies",
-            "type": {
-              "defined": {
-                "name": "IssuancePolicies"
               }
             }
           }

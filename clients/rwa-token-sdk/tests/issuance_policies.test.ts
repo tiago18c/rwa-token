@@ -273,7 +273,8 @@ describe("issuance policies", async () => {
 			issuancePolicies: {
 				disallowBackdating: true,
 				maxSupply: new BN(0),
-				lockupPeriods: [],
+				usLockPeriod: new BN(1000),
+				nonUsLockPeriod: new BN(1000),
 			},
 
 		});
@@ -301,7 +302,8 @@ describe("issuance policies", async () => {
 			issuancePolicies: {
 				disallowBackdating: true,
 				maxSupply: new BN(1),
-				lockupPeriods: [],
+				usLockPeriod: new BN(1000),
+				nonUsLockPeriod: new BN(1000),
 			},
 
 		});

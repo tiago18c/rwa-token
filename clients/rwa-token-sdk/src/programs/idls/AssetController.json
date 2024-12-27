@@ -1910,34 +1910,12 @@
             "type": "u64"
           },
           {
-            "name": "lockup_periods",
-            "type": {
-              "vec": {
-                "defined": {
-                  "name": "LockupPeriod"
-                }
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "LockupPeriod",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "time",
+            "name": "us_lock_period",
             "type": "u64"
           },
           {
-            "name": "identity_filter",
-            "type": {
-              "defined": {
-                "name": "IdentityFilter"
-              }
-            }
+            "name": "non_us_lock_period",
+            "type": "u64"
           }
         ]
       }
@@ -2018,6 +1996,23 @@
             "type": "bool"
           },
           {
+            "name": "mapping",
+            "type": {
+              "array": [
+                "u8",
+                256
+              ]
+            }
+          },
+          {
+            "name": "issuance_policies",
+            "type": {
+              "defined": {
+                "name": "IssuancePolicies"
+              }
+            }
+          },
+          {
             "name": "policies",
             "docs": [
               "initial max len"
@@ -2047,23 +2042,6 @@
                 "defined": {
                   "name": "CounterLimit"
                 }
-              }
-            }
-          },
-          {
-            "name": "mapping",
-            "type": {
-              "array": [
-                "u8",
-                256
-              ]
-            }
-          },
-          {
-            "name": "issuance_policies",
-            "type": {
-              "defined": {
-                "name": "IssuancePolicies"
               }
             }
           }
