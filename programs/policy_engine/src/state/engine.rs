@@ -216,6 +216,21 @@ pub struct PolicyEngineAccount {
     #[max_len(0)]
     pub counter_limits: Vec<CounterLimit>,
     pub mapping: [u8; 256],
+    pub issuance_policies: IssuancePolicies,
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace, Debug)]
+pub struct IssuancePolicies {
+    pub disallow_backdating: bool,
+    pub max_supply: u64,
+    #[max_len(5)]
+    pub lockup_periods: Vec<LockupPeriod>,
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace, Debug)]
+pub struct LockupPeriod {
+    pub time: u64,
+    pub identity_filter: IdentityFilter,
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace, Debug)]
@@ -270,8 +285,6 @@ impl Policy {
     }
 }
 
-
-
 #[derive(
     AnchorSerialize,
     AnchorDeserialize,
@@ -318,6 +331,10 @@ impl PolicyEngineAccount {
         for (src, dst) in mapping_source.iter().zip(mapping_value.iter()) {
             self.mapping[*src as usize] = *dst;
         }
+    }
+
+    pub fn change_issuance_policies(&mut self, issuance_policies: IssuancePolicies) {
+        self.issuance_policies = issuance_policies;
     }
 
     pub fn get_policy_space(&self, hash: &str) -> Result<usize> {
@@ -393,7 +410,10 @@ impl PolicyEngineAccount {
         Err(PolicyEngineErrors::PolicyNotFound.into())
     }
 
-    pub fn enforce_policy_issuance(&self, _amount: u64, timestamp: i64, identity: &[IdentityLevel], country: u8, tracker_account: Option<&TrackerAccount>) -> Result<()> {
+    pub fn enforce_policy_issuance(&self, supply: u64, timestamp: i64, identity: &[IdentityLevel], country: u8, tracker_account: Option<&TrackerAccount>, issuance_timestamp: i64) -> Result<()> {
+        require!(!self.issuance_policies.disallow_backdating || issuance_timestamp >= timestamp, PolicyEngineErrors::BackdatingNotAllowed);
+        require!(self.issuance_policies.max_supply == 0 || self.issuance_policies.max_supply >= supply, PolicyEngineErrors::MaxSupplyExceeded);
+
         for policy in self.policies.iter() {
             match &policy.policy_type {
                 PolicyType::IdentityApproval => {

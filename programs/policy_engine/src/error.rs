@@ -61,5 +61,9 @@ pub enum PolicyEngineErrors {
     #[msg("Flowback")]
     Flowback,
     #[msg("Invalid instruction data")]
-    InvalidInstructionData
+    InvalidInstructionData,
+    #[msg("Backdating not allowed")]
+    BackdatingNotAllowed,
+    #[msg("Max supply exceeded")]
+    MaxSupplyExceeded,
 }

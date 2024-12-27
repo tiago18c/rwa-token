@@ -35,7 +35,7 @@ pub struct EnforcePolicyIssuanceAccounts<'info> {
     pub destination_tracker_account: Box<Account<'info, TrackerAccount>>,
 }
 
-pub fn handler(ctx: Context<EnforcePolicyIssuanceAccounts>, amount: u64) -> Result<()> {
+pub fn handler(ctx: Context<EnforcePolicyIssuanceAccounts>, amount: u64, issuance_timestamp: i64) -> Result<()> {
 
     // TODO: refactor skip policy level check
     // if user has identity skip level, skip enforcing policy
@@ -59,11 +59,12 @@ pub fn handler(ctx: Context<EnforcePolicyIssuanceAccounts>, amount: u64) -> Resu
 
     // evaluate policies
     ctx.accounts.policy_engine.enforce_policy_issuance(
-        amount,
+        ctx.accounts.asset_mint.supply,
         Clock::get()?.unix_timestamp,
         &ctx.accounts.identity_account.levels,
         ctx.accounts.identity_account.country,
         Some(&tracker_account),
+        issuance_timestamp,
     )?;
     Ok(())
 }

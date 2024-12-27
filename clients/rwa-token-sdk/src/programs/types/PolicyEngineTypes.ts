@@ -164,6 +164,44 @@ export type PolicyEngine = {
       ]
     },
     {
+      "name": "changeIssuancePolicies",
+      "discriminator": [
+        186,
+        201,
+        163,
+        157,
+        32,
+        250,
+        166,
+        37
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "signer",
+          "signer": true
+        },
+        {
+          "name": "policyEngine",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "issuancePolicies",
+          "type": {
+            "defined": {
+              "name": "issuancePolicies"
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "changeMapping",
       "discriminator": [
         103,
@@ -485,6 +523,10 @@ export type PolicyEngine = {
         {
           "name": "amount",
           "type": "u64"
+        },
+        {
+          "name": "issuanceTimestamp",
+          "type": "i64"
         }
       ]
     },
@@ -864,6 +906,16 @@ export type PolicyEngine = {
       "code": 6029,
       "name": "invalidInstructionData",
       "msg": "Invalid instruction data"
+    },
+    {
+      "code": 6030,
+      "name": "backdatingNotAllowed",
+      "msg": "Backdating not allowed"
+    },
+    {
+      "code": 6031,
+      "name": "maxSupplyExceeded",
+      "msg": "Max supply exceeded"
     }
   ],
   "types": [
@@ -1287,6 +1339,32 @@ export type PolicyEngine = {
       }
     },
     {
+      "name": "issuancePolicies",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "disallowBackdating",
+            "type": "bool"
+          },
+          {
+            "name": "maxSupply",
+            "type": "u64"
+          },
+          {
+            "name": "lockupPeriods",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "lockupPeriod"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "levelExpiry",
       "type": {
         "kind": "struct",
@@ -1298,6 +1376,26 @@ export type PolicyEngine = {
           {
             "name": "expiry",
             "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "lockupPeriod",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "time",
+            "type": "u64"
+          },
+          {
+            "name": "identityFilter",
+            "type": {
+              "defined": {
+                "name": "identityFilter"
+              }
+            }
           }
         ]
       }
@@ -1435,6 +1533,14 @@ export type PolicyEngine = {
                 "u8",
                 256
               ]
+            }
+          },
+          {
+            "name": "issuancePolicies",
+            "type": {
+              "defined": {
+                "name": "issuancePolicies"
+              }
             }
           }
         ]

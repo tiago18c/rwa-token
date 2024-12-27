@@ -3,11 +3,13 @@ import {
 	type AttachPolicyArgs,
 	ChangeCounterLimitsArgs,
 	ChangeCountersArgs,
+	ChangeIssuancePoliciesArgs,
 	ChangeMappingArgs,
 	DetachPolicyArgs,
 	getAttachToPolicyEngineIx,
 	getChangeCounterLimitsIx,
 	getChangeCountersIx,
+	getChangeIssuancePoliciesIx,
 	getChangeMappingIx,
 	getDetachFromPolicyEngineIx,
 	getPolicyEnginePda,
@@ -73,6 +75,14 @@ export class PolicyEngine {
 			this.rwaClient.provider
 		);
 		return changeMappingIx;
+	}
+
+	async changeIssuancePolicies(policyArgs: ChangeIssuancePoliciesArgs): Promise<IxReturn> {
+		const changeIssuancePoliciesIx = await getChangeIssuancePoliciesIx(
+			policyArgs,
+			this.rwaClient.provider
+		);
+		return changeIssuancePoliciesIx;
 	}
 
 	/**

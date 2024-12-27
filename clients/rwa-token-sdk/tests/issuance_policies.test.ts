@@ -9,7 +9,7 @@ import { ConfirmOptions, Connection, Transaction, sendAndConfirmTransaction } fr
 import { expect, test, describe } from "vitest";
 import { Config } from "../src/classes/types";
 
-describe("test policy setup", async () => {
+describe("issuance policies", async () => {
 	let rwaClient: RwaClient;
 	let mint: string;
 	const setup = await setupTests();
@@ -43,6 +43,7 @@ describe("test policy setup", async () => {
 			name: "Test Asset",
 			uri: "https://test.com",
 			symbol: "TST",
+			enforcePolicyIssuance: true,
 		};
 		const setupAssetController = await rwaClient.assetController.setupNewRegistry(
 			createAssetControllerArgs
@@ -264,116 +265,60 @@ describe("test policy setup", async () => {
 		expect(txnId).toBeTruthy();
 	});
 
-	test("issue tokens", async () => {
-		let issueTokens = await rwaClient.assetController.issueTokenIxns({
+	test("change issuance policies", async () => {
+		const changeIssuancePolicies = await rwaClient.policyEngine.changeIssuancePolicies({
+			payer: setup.payer.toString(),
+			authority: setup.authority.toString(),
+			assetMint: mint,
+			issuancePolicies: {
+				disallowBackdating: true,
+				maxSupply: new BN(0),
+				lockupPeriods: [],
+			},
+
+		});
+		const txnId = await sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...changeIssuancePolicies.ixs), [setup.payerKp, setup.authorityKp, ...changeIssuancePolicies.signers]);
+		expect(txnId).toBeTruthy();
+	});
+
+	test("failt to issue tokens after backdating", async () => {
+		const issueTokens = await rwaClient.assetController.issueTokenIxns({
 			authority: setup.authority.toString(),
 			payer: setup.payer.toString(),
 			owner: setup.user1.toString(),
 			assetMint: mint,
 			amount: 1000000,
+			timestamp: new BN(Date.now() / 1000 - 1000),
 		});
-		let txnId = await sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...issueTokens), [setup.payerKp, setup.authorityKp]);
-		expect(txnId).toBeTruthy();
-		issueTokens = await rwaClient.assetController.issueTokenIxns({
-			authority: setup.authority.toString(),
-			payer: setup.payer.toString(),
-			owner: setup.user2.toString(),
-			assetMint: mint,
-			amount: 1000000,
-		});
-		txnId = await sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...issueTokens), [setup.payerKp, setup.authorityKp]);
-		expect(txnId).toBeTruthy();
-		issueTokens = await rwaClient.assetController.issueTokenIxns({
-			authority: setup.authority.toString(),
-			payer: setup.payer.toString(),
-			owner: setup.user3.toString(),
-			assetMint: mint,
-			amount: 1000000,
-		});
-		txnId = await sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...issueTokens), [setup.payerKp, setup.authorityKp]);
-		expect(txnId).toBeTruthy();
+		expect(sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...issueTokens), [setup.payerKp, setup.authorityKp])).rejects.toThrowError();
 	});
 
-	test("transfer 1000 tokens from user1, user2 and user3. fail for user1, success for others", async () => {
-		let transferTokensIxs = await getTransferTokensIxs({
-			from: setup.user2.toString(),
-			to: setup.user1.toString(),
+	test("limit issuance", async () => {
+		const changeIssuancePolicies = await rwaClient.policyEngine.changeIssuancePolicies({
+			payer: setup.payer.toString(),
+			authority: setup.authority.toString(),
 			assetMint: mint,
-			amount: 100000,
-			decimals,
-		}, rwaClient.provider);
-		void expect(sendAndConfirmTransaction(
-			setup.provider.connection,
-			new Transaction().add(...transferTokensIxs),
-			[setup.user2Kp],
-		)).rejects.toThrowError();
-		transferTokensIxs = await getTransferTokensIxs({
-			from: setup.user3.toString(),
-			to: setup.user2.toString(),
-			assetMint: mint,
-			amount: 1000,
-			decimals,
-		},  rwaClient.provider);
-		let txnId = await sendAndConfirmTransaction(
-			setup.provider.connection,
-			new Transaction().add(...transferTokensIxs),
-			[setup.user3Kp],
-		);
-		expect(txnId).toBeTruthy();
-		transferTokensIxs = await getTransferTokensIxs({
-			from: setup.user1.toString(),
-			to: setup.user3.toString(),
-			assetMint: mint,
-			amount: 1000,
-			decimals,
-		}, rwaClient.provider);
-		txnId = await sendAndConfirmTransaction(
-			setup.provider.connection,
-			new Transaction().add(...transferTokensIxs),
-			[setup.user1Kp],
-		);
+			issuancePolicies: {
+				disallowBackdating: true,
+				maxSupply: new BN(1),
+				lockupPeriods: [],
+			},
+
+		});
+		const txnId = await sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...changeIssuancePolicies.ixs), [setup.payerKp, setup.authorityKp, ...changeIssuancePolicies.signers]);
 		expect(txnId).toBeTruthy();
 	});
-
-	test("transfer 10000 tokens 3 times to user1, fail 3rd time", async () => {
-		let transferTokensIxs = await getTransferTokensIxs({
-			from: setup.user2.toString(),
-			to: setup.user1.toString(),
+	
+	test("fail to issue tokens after max supply reached", async () => {
+		const issueTokens = await rwaClient.assetController.issueTokenIxns({
+			authority: setup.authority.toString(),
+			payer: setup.payer.toString(),
+			owner: setup.user1.toString(),
 			assetMint: mint,
-			amount: 10000,
-			decimals,
-		}, rwaClient.provider);
-		let txnId = await sendAndConfirmTransaction(
-			setup.provider.connection,
-			new Transaction().add(...transferTokensIxs),
-			[setup.user2Kp],
-		);
-		expect(txnId).toBeTruthy();
-		transferTokensIxs = await getTransferTokensIxs({
-			from: setup.user2.toString(),
-			to: setup.user1.toString(),
-			assetMint: mint,
-			amount: 10000,
-			decimals,
-		}, rwaClient.provider);
-		txnId = await sendAndConfirmTransaction(
-			setup.provider.connection,
-			new Transaction().add(...transferTokensIxs),
-			[setup.user2Kp],
-		);
-		expect(txnId).toBeTruthy();
-		transferTokensIxs = await getTransferTokensIxs({
-			from: setup.user2.toString(),
-			to: setup.user1.toString(),
-			assetMint: mint,
-			amount: 10000,
-			decimals,
-		}, rwaClient.provider);
-		void expect(sendAndConfirmTransaction(
-			setup.provider.connection,
-			new Transaction().add(...transferTokensIxs),
-			[setup.user2Kp],
-		)).rejects.toThrowError();
+			amount: 1000000,
+			timestamp: new BN(Date.now() / 1000 + 1000),
+		});
+		expect(sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...issueTokens), [setup.payerKp, setup.authorityKp])).rejects.toThrowError();
 	});
 
 });

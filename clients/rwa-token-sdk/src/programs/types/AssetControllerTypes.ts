@@ -781,6 +781,10 @@ export type AssetController = {
         {
           "name": "amount",
           "type": "u64"
+        },
+        {
+          "name": "issuanceTimestamp",
+          "type": "i64"
         }
       ]
     },
@@ -1899,6 +1903,52 @@ export type AssetController = {
       }
     },
     {
+      "name": "issuancePolicies",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "disallowBackdating",
+            "type": "bool"
+          },
+          {
+            "name": "maxSupply",
+            "type": "u64"
+          },
+          {
+            "name": "lockupPeriods",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "lockupPeriod"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "lockupPeriod",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "time",
+            "type": "u64"
+          },
+          {
+            "name": "identityFilter",
+            "type": {
+              "defined": {
+                "name": "identityFilter"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "policy",
       "type": {
         "kind": "struct",
@@ -2013,6 +2063,14 @@ export type AssetController = {
                 "u8",
                 256
               ]
+            }
+          },
+          {
+            "name": "issuancePolicies",
+            "type": {
+              "defined": {
+                "name": "issuancePolicies"
+              }
             }
           }
         ]

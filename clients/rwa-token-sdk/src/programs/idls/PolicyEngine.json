@@ -158,6 +158,44 @@
       ]
     },
     {
+      "name": "change_issuance_policies",
+      "discriminator": [
+        186,
+        201,
+        163,
+        157,
+        32,
+        250,
+        166,
+        37
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "signer",
+          "signer": true
+        },
+        {
+          "name": "policy_engine",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "issuance_policies",
+          "type": {
+            "defined": {
+              "name": "IssuancePolicies"
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "change_mapping",
       "discriminator": [
         103,
@@ -479,6 +517,10 @@
         {
           "name": "amount",
           "type": "u64"
+        },
+        {
+          "name": "issuance_timestamp",
+          "type": "i64"
         }
       ]
     },
@@ -858,6 +900,16 @@
       "code": 6029,
       "name": "InvalidInstructionData",
       "msg": "Invalid instruction data"
+    },
+    {
+      "code": 6030,
+      "name": "BackdatingNotAllowed",
+      "msg": "Backdating not allowed"
+    },
+    {
+      "code": 6031,
+      "name": "MaxSupplyExceeded",
+      "msg": "Max supply exceeded"
     }
   ],
   "types": [
@@ -1281,6 +1333,32 @@
       }
     },
     {
+      "name": "IssuancePolicies",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "disallow_backdating",
+            "type": "bool"
+          },
+          {
+            "name": "max_supply",
+            "type": "u64"
+          },
+          {
+            "name": "lockup_periods",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "LockupPeriod"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "LevelExpiry",
       "type": {
         "kind": "struct",
@@ -1292,6 +1370,26 @@
           {
             "name": "expiry",
             "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "LockupPeriod",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "time",
+            "type": "u64"
+          },
+          {
+            "name": "identity_filter",
+            "type": {
+              "defined": {
+                "name": "IdentityFilter"
+              }
+            }
           }
         ]
       }
@@ -1429,6 +1527,14 @@
                 "u8",
                 256
               ]
+            }
+          },
+          {
+            "name": "issuance_policies",
+            "type": {
+              "defined": {
+                "name": "IssuancePolicies"
+              }
             }
           }
         ]

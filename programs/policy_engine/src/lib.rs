@@ -59,8 +59,8 @@ pub mod policy_engine {
         instructions::execute::handler(ctx, amount)
     }
 
-    pub fn enforce_policy_issuance(ctx: Context<EnforcePolicyIssuanceAccounts>, amount: u64) -> Result<()> {
-        instructions::issue::handler(ctx, amount)
+    pub fn enforce_policy_issuance(ctx: Context<EnforcePolicyIssuanceAccounts>, amount: u64, issuance_timestamp: i64) -> Result<()> {
+        instructions::issue::handler(ctx, amount, issuance_timestamp)
     }
 
     pub fn enforce_policy_on_levels_change(ctx: Context<EnforcePolicyOnLevelsChange>, new_levels: NewLevelsArgs, new_country: u8, enforce_limits: bool) -> Result<()> {
@@ -77,5 +77,9 @@ pub mod policy_engine {
 
     pub fn change_mapping(ctx: Context<ChangeMapping>, mapping_source: Vec<u8>, mapping_value: Vec<u8>) -> Result<()> {
         instructions::engine::change_mapping::handler(ctx, mapping_source, mapping_value)
+    }
+
+    pub fn change_issuance_policies(ctx: Context<ChangeIssuancePolicies>, issuance_policies: IssuancePolicies) -> Result<()> {
+        instructions::engine::change_issuance_policies::handler(ctx, issuance_policies)
     }
 }

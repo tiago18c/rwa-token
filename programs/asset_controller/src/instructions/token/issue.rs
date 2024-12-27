@@ -64,7 +64,7 @@ impl<'info> IssueTokens<'info> {
         Ok(())
     }
 
-    fn enforce_policy_issuance(&self, amount: u64, signer_seeds: &[&[&[u8]]]) -> Result<()> {
+    fn enforce_policy_issuance(&self, amount: u64, issuance_timestamp: i64, signer_seeds: &[&[&[u8]]]) -> Result<()> {
         let accounts = policy_engine::cpi::accounts::EnforcePolicyIssuanceAccounts {
             asset_mint: self.asset_mint.to_account_info(),
             policy_engine: self.policy_engine.to_account_info(),
@@ -80,12 +80,12 @@ impl<'info> IssueTokens<'info> {
             accounts,
             signer_seeds,
         );
-        policy_engine::cpi::enforce_policy_issuance(cpi_ctx, amount)?;
+        policy_engine::cpi::enforce_policy_issuance(cpi_ctx, amount, issuance_timestamp)?;
         Ok(())
     }
 }
 
-pub fn handler(ctx: Context<IssueTokens>, amount: u64) -> Result<()> {
+pub fn handler(ctx: Context<IssueTokens>, amount: u64, issuance_timestamp: i64) -> Result<()> {
     // either to is the wallet related to the identity account
     // or we have a wallet identity account that links a wallet to an identity account
     let wallet_identity = ctx.accounts.wallet_identity_account.as_ref().and_then(|v| WalletIdentity::try_deserialize(&mut &v.data.borrow()[..]).ok());
@@ -105,6 +105,6 @@ pub fn handler(ctx: Context<IssueTokens>, amount: u64) -> Result<()> {
         &get_bump_in_seed_form(&ctx.bumps.asset_controller),
     ];
     ctx.accounts.issue_tokens(amount, &[&signer_seeds])?;
-    ctx.accounts.enforce_policy_issuance(amount, &[&signer_seeds])?;
+    ctx.accounts.enforce_policy_issuance(amount, issuance_timestamp, &[&signer_seeds])?;
     Ok(())
 }

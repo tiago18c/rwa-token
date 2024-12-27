@@ -775,6 +775,10 @@
         {
           "name": "amount",
           "type": "u64"
+        },
+        {
+          "name": "issuance_timestamp",
+          "type": "i64"
         }
       ]
     },
@@ -1893,6 +1897,52 @@
       }
     },
     {
+      "name": "IssuancePolicies",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "disallow_backdating",
+            "type": "bool"
+          },
+          {
+            "name": "max_supply",
+            "type": "u64"
+          },
+          {
+            "name": "lockup_periods",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "LockupPeriod"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "LockupPeriod",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "time",
+            "type": "u64"
+          },
+          {
+            "name": "identity_filter",
+            "type": {
+              "defined": {
+                "name": "IdentityFilter"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "Policy",
       "type": {
         "kind": "struct",
@@ -2007,6 +2057,14 @@
                 "u8",
                 256
               ]
+            }
+          },
+          {
+            "name": "issuance_policies",
+            "type": {
+              "defined": {
+                "name": "IssuancePolicies"
+              }
             }
           }
         ]

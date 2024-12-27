@@ -11,7 +11,7 @@ import {
 	getPolicyEnginerEventAuthority,
 	getTrackerAccountPda,
 } from "./utils";
-import { type PolicyType, type IdentityFilter, Counter, CounterLimit } from "./types";
+import { type PolicyType, type IdentityFilter, Counter, CounterLimit, IssuancePolicies } from "./types";
 import { type AnchorProvider } from "@coral-xyz/anchor";
 import { getIdentityAccountPda, getIdentityRegistryPda } from "../identity-registry";
 
@@ -89,6 +89,32 @@ export async function getAttachToPolicyEngineIx(
 			payer: args.payer,
 			policyEngine: getPolicyEnginePda(args.assetMint),
 			systemProgram: SystemProgram.programId,
+		})
+		.instruction();
+	return {
+		ixs: [ix],
+		signers: [],
+	};
+}
+
+export type ChangeIssuancePoliciesArgs = {
+	authority: string;
+	payer: string;
+	assetMint: string;
+	issuancePolicies: any;
+}
+
+export async function getChangeIssuancePoliciesIx(
+	args: ChangeIssuancePoliciesArgs,
+	provider: AnchorProvider
+): Promise<IxReturn> {
+	const policyProgram = getPolicyEngineProgram(provider);
+	const ix = await policyProgram.methods
+		.changeIssuancePolicies(args.issuancePolicies)
+		.accountsStrict({
+			signer: new PublicKey(args.authority),
+			payer: args.payer,
+			policyEngine: getPolicyEnginePda(args.assetMint),
 		})
 		.instruction();
 	return {

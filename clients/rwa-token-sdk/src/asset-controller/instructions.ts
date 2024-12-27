@@ -143,6 +143,7 @@ export type IssueTokenArgs = {
   authority: string;
   owner: string;
   wallet?: string;
+  timestamp?: BN;
 } & CommonArgs;
 
 /**
@@ -156,7 +157,7 @@ export async function getIssueTokensIx(
 ): Promise<TransactionInstruction[]> {
 	const assetProgram = getAssetControllerProgram(provider);
 	const ix = await assetProgram.methods
-		.issueTokens(new BN(args.amount))
+		.issueTokens(new BN(args.amount), args.timestamp || new BN( Date.now() / 1000))
 		.accountsStrict({
 			authority: new PublicKey(args.authority),
 			assetMint: new PublicKey(args.assetMint),

@@ -27,8 +27,8 @@ pub mod asset_controller {
     }
 
     /// issue shares of the rwa asset
-    pub fn issue_tokens(ctx: Context<IssueTokens>, amount: u64) -> Result<()> {
-        instructions::issue::handler(ctx, amount)
+    pub fn issue_tokens(ctx: Context<IssueTokens>, amount: u64, issuance_timestamp: i64) -> Result<()> {
+        instructions::issue::handler(ctx, amount, issuance_timestamp)
     }
 
     /// edit metadata of the rwa asset
