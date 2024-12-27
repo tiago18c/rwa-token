@@ -68,6 +68,7 @@ describe("extension tests", async () => {
 				signer: setup.authority.toString(),
 				levels: [255],
 				expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60)],
+				country: 1,
 			},
 			rwaClient.provider
 		);

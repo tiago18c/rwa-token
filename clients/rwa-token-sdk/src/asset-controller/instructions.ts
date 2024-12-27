@@ -393,6 +393,7 @@ export type SetupUserArgs = {
   assetMint: string;
   levels: number[];
   expiry: BN[];
+  country: number;
 };
 
 /**
@@ -415,6 +416,7 @@ export async function getSetupUserIxs(
 			owner: args.owner,
 			level: args.levels[0],
 			expiry: args.expiry[0],
+			country: args.country,
 		},
 		provider
 	);

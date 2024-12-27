@@ -11,6 +11,8 @@ import {
 	AttachWalletToIdentityArgs,
 	getAttachWalletToIdentityIx,
 	getDetachWalletFromIdentityIx,
+	ChangeCountryArgs,
+	getChangeCountryIx,
 } from "../identity-registry";
 import { type RwaClient } from "./Client";
 
@@ -47,6 +49,11 @@ export class IdentityRegistry {
 	async detachWalletFromIdentity(detachWalletArgs: AttachWalletToIdentityArgs): Promise<TransactionInstruction> {
 		const detachWalletIx = await getDetachWalletFromIdentityIx(detachWalletArgs, this.rwaClient.provider);
 		return detachWalletIx;
+	}
+
+	async changeCountry(changeCountryArgs: ChangeCountryArgs): Promise<TransactionInstruction> {
+		const changeCountryIx = await getChangeCountryIx(changeCountryArgs, this.rwaClient.provider);
+		return changeCountryIx;
 	}
 
 	/**

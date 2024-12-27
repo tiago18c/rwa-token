@@ -60,4 +60,6 @@ pub enum PolicyEngineErrors {
     PercentageLimitExceeded,
     #[msg("Flowback")]
     Flowback,
+    #[msg("Invalid instruction data")]
+    InvalidInstructionData
 }

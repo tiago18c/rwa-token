@@ -82,6 +82,7 @@ describe("e2e tests", async () => {
 			signer: setup.authority.toString(),
 			levels: [1],
 			expiry: [new BN(tomorrow)],
+			country: 1,
 		}, rwaClient.provider);
 		const setupUser2Ixs = await getSetupUserIxs({
 			assetMint: mint,
@@ -90,6 +91,7 @@ describe("e2e tests", async () => {
 			signer: setup.authority.toString(),
 			levels: [1],
 			expiry: [new BN(tomorrow)],
+			country: 1,
 		}, rwaClient.provider);
 		const setupUser3Ixs = await getSetupUserIxs({
 			assetMint: mint,
@@ -98,6 +100,7 @@ describe("e2e tests", async () => {
 			signer: setup.authority.toString(),
 			levels: [1],
 			expiry: [new BN(tomorrow)],
+			country: 1,
 		}, rwaClient.provider);
 		const txnId = await sendAndConfirmTransaction(
 			rwaClient.provider.connection,
@@ -130,9 +133,15 @@ describe("e2e tests", async () => {
 			assetMint: mint,
 			payer: setup.payer.toString(),
 			identityFilter: {
-				identityLevels: [1],
-				comparisionType: { or: {} },
-				counterpartyFilter: { both: {}}
+				simple: [ {
+					single: [
+						{
+							target: {bothOr: {}},
+							mode: {include: {}},
+							level: {level: [1]},
+						}
+					]
+				}]
 			},
 			policyType: {
 				identityApproval: {},
@@ -206,9 +215,15 @@ describe("e2e tests", async () => {
 			assetMint: mint,
 			authority: setup.authority.toString(),
 			identityFilter: {
-				identityLevels: [2],
-				comparisionType: { or: {} },
-				counterpartyFilter: { receiver: {}}
+				simple: [ {
+					single: [
+						{
+							target: {receiver: {}},
+							mode: {include: {}},
+							level: {level: [2]},
+						}
+					]
+				}]
 			},
 			policyType: { 
 				maxBalance: { 
@@ -230,9 +245,15 @@ describe("e2e tests", async () => {
 			assetMint: mint,
 			authority: setup.authority.toString(),
 			identityFilter: {
-				identityLevels: [2],
-				comparisionType: { or: {} },
-				counterpartyFilter: { receiver: {}}
+				simple: [ {
+					single: [
+						{
+							target: {receiver: {}},
+							mode: {include: {}},
+							level: {level: [2]},
+						}
+					]
+				}]
 			},
 			policyType: { 
 				minBalance: { 
@@ -251,8 +272,8 @@ describe("e2e tests", async () => {
 	test("add levels to identity account", async () => {
 		const addLevelIx = await rwaClient.identityRegistry.addIdentityLevelToUserAccount({
 			owner: setup.user1.toString(),
-			level: 2,
-			expiry: new BN(1800000000),
+			levels: [2],
+			expiries: [new BN(1800000000)],
 			signer: setup.authority.toString(),
 			assetMint: mint,
 			payer: setup.payer.toString(),
@@ -268,8 +289,8 @@ describe("e2e tests", async () => {
 	test("add levels to identity account2", async () => {
 		const addLevelIx = await rwaClient.identityRegistry.addIdentityLevelToUserAccount({
 			owner: setup.user2.toString(),
-			level: 2,
-			expiry: new BN(1800000000),
+			levels: [2],
+			expiries: [new BN(1800000000)],
 			signer: setup.authority.toString(),
 			assetMint: mint,
 			payer: setup.payer.toString(),
@@ -285,8 +306,8 @@ describe("e2e tests", async () => {
 	test("add levels to identity account3", async () => {
 		const addLevelIx = await rwaClient.identityRegistry.addIdentityLevelToUserAccount({
 			owner: setup.user3.toString(),
-			level: 2,
-			expiry: new BN(1800000000),
+			levels: [2],
+			expiries: [new BN(1800000000)],
 			signer: setup.authority.toString(),
 			assetMint: mint,
 			payer: setup.payer.toString(),

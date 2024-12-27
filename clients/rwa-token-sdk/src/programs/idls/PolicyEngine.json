@@ -158,6 +158,44 @@
       ]
     },
     {
+      "name": "change_mapping",
+      "discriminator": [
+        103,
+        1,
+        52,
+        20,
+        160,
+        194,
+        113,
+        125
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "signer",
+          "signer": true
+        },
+        {
+          "name": "policy_engine",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "mapping_source",
+          "type": "bytes"
+        },
+        {
+          "name": "mapping_value",
+          "type": "bytes"
+        }
+      ]
+    },
+    {
       "name": "create_policy_engine",
       "docs": [
         "create a policy registry"
@@ -496,12 +534,16 @@
       ],
       "args": [
         {
-          "name": "previous_levels",
+          "name": "new_levels",
           "type": {
             "defined": {
-              "name": "PreviousLevelsArgs"
+              "name": "NewLevelsArgs"
             }
           }
+        },
+        {
+          "name": "new_country",
+          "type": "u8"
         },
         {
           "name": "enforce_limits",
@@ -811,29 +853,14 @@
       "code": 6028,
       "name": "Flowback",
       "msg": "Flowback"
+    },
+    {
+      "code": 6029,
+      "name": "InvalidInstructionData",
+      "msg": "Invalid instruction data"
     }
   ],
   "types": [
-    {
-      "name": "ComparisionType",
-      "repr": {
-        "kind": "rust"
-      },
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "Or"
-          },
-          {
-            "name": "And"
-          },
-          {
-            "name": "Except"
-          }
-        ]
-      }
-    },
     {
       "name": "Counter",
       "type": {
@@ -922,7 +949,176 @@
       }
     },
     {
-      "name": "CounterpartyFilter",
+      "name": "FilterComparison",
+      "repr": {
+        "kind": "rust"
+      },
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Or"
+          },
+          {
+            "name": "And"
+          }
+        ]
+      }
+    },
+    {
+      "name": "FilterData",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "level",
+            "type": {
+              "defined": {
+                "name": "FilterLevel"
+              }
+            }
+          },
+          {
+            "name": "target",
+            "type": {
+              "defined": {
+                "name": "FilterTarget"
+              }
+            }
+          },
+          {
+            "name": "mode",
+            "type": {
+              "defined": {
+                "name": "FilterMode"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "FilterInner",
+      "repr": {
+        "kind": "rust"
+      },
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Single",
+            "fields": [
+              {
+                "defined": {
+                  "name": "FilterData"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Tuple",
+            "fields": [
+              {
+                "defined": {
+                  "name": "FilterData"
+                }
+              },
+              {
+                "defined": {
+                  "name": "FilterComparison"
+                }
+              },
+              {
+                "defined": {
+                  "name": "FilterData"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Multiple",
+            "fields": [
+              {
+                "defined": {
+                  "name": "FilterComparison"
+                }
+              },
+              {
+                "vec": {
+                  "defined": {
+                    "name": "FilterData"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "FilterLevel",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Level",
+            "fields": [
+              "u8"
+            ]
+          },
+          {
+            "name": "LevelMappingAny",
+            "fields": [
+              "u8"
+            ]
+          },
+          {
+            "name": "LevelMapping",
+            "fields": [
+              {
+                "name": "source",
+                "type": "u8"
+              },
+              {
+                "name": "target",
+                "type": "u8"
+              }
+            ]
+          },
+          {
+            "name": "Country",
+            "fields": [
+              "u8"
+            ]
+          },
+          {
+            "name": "CountryMapping",
+            "fields": [
+              "u8"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "FilterMode",
+      "repr": {
+        "kind": "rust"
+      },
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Include"
+          },
+          {
+            "name": "Exclude"
+          }
+        ]
+      }
+    },
+    {
+      "name": "FilterTarget",
       "repr": {
         "kind": "rust"
       },
@@ -936,7 +1132,10 @@
             "name": "Receiver"
           },
           {
-            "name": "Both"
+            "name": "BothAnd"
+          },
+          {
+            "name": "BothOr"
           }
         ]
       }
@@ -972,6 +1171,10 @@
             "type": "u16"
           },
           {
+            "name": "country",
+            "type": "u8"
+          },
+          {
             "name": "levels",
             "type": {
               "vec": {
@@ -986,33 +1189,36 @@
     },
     {
       "name": "IdentityFilter",
+      "repr": {
+        "kind": "rust"
+      },
       "type": {
-        "kind": "struct",
-        "fields": [
+        "kind": "enum",
+        "variants": [
           {
-            "name": "identity_levels",
-            "type": {
-              "array": [
-                "u8",
-                10
-              ]
-            }
+            "name": "Simple",
+            "fields": [
+              {
+                "defined": {
+                  "name": "FilterInner"
+                }
+              }
+            ]
           },
           {
-            "name": "comparision_type",
-            "type": {
-              "defined": {
-                "name": "ComparisionType"
+            "name": "IfThen",
+            "fields": [
+              {
+                "defined": {
+                  "name": "FilterInner"
+                }
+              },
+              {
+                "defined": {
+                  "name": "FilterInner"
+                }
               }
-            }
-          },
-          {
-            "name": "counterparty_filter",
-            "type": {
-              "defined": {
-                "name": "CounterpartyFilter"
-              }
-            }
+            ]
           }
         ]
       }
@@ -1086,6 +1292,24 @@
           {
             "name": "expiry",
             "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "NewLevelsArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "levels",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "LevelExpiry"
+                }
+              }
+            }
           }
         ]
       }
@@ -1197,6 +1421,15 @@
                 }
               }
             }
+          },
+          {
+            "name": "mapping",
+            "type": {
+              "array": [
+                "u8",
+                256
+              ]
+            }
           }
         ]
       }
@@ -1296,24 +1529,6 @@
                 "type": "u8"
               }
             ]
-          }
-        ]
-      }
-    },
-    {
-      "name": "PreviousLevelsArgs",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "levels",
-            "type": {
-              "vec": {
-                "defined": {
-                  "name": "LevelExpiry"
-                }
-              }
-            }
           }
         ]
       }

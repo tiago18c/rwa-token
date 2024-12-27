@@ -164,6 +164,44 @@ export type PolicyEngine = {
       ]
     },
     {
+      "name": "changeMapping",
+      "discriminator": [
+        103,
+        1,
+        52,
+        20,
+        160,
+        194,
+        113,
+        125
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "signer",
+          "signer": true
+        },
+        {
+          "name": "policyEngine",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "mappingSource",
+          "type": "bytes"
+        },
+        {
+          "name": "mappingValue",
+          "type": "bytes"
+        }
+      ]
+    },
+    {
       "name": "createPolicyEngine",
       "docs": [
         "create a policy registry"
@@ -502,12 +540,16 @@ export type PolicyEngine = {
       ],
       "args": [
         {
-          "name": "previousLevels",
+          "name": "newLevels",
           "type": {
             "defined": {
-              "name": "previousLevelsArgs"
+              "name": "newLevelsArgs"
             }
           }
+        },
+        {
+          "name": "newCountry",
+          "type": "u8"
         },
         {
           "name": "enforceLimits",
@@ -817,29 +859,14 @@ export type PolicyEngine = {
       "code": 6028,
       "name": "flowback",
       "msg": "flowback"
+    },
+    {
+      "code": 6029,
+      "name": "invalidInstructionData",
+      "msg": "Invalid instruction data"
     }
   ],
   "types": [
-    {
-      "name": "comparisionType",
-      "repr": {
-        "kind": "rust"
-      },
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "or"
-          },
-          {
-            "name": "and"
-          },
-          {
-            "name": "except"
-          }
-        ]
-      }
-    },
     {
       "name": "counter",
       "type": {
@@ -928,7 +955,176 @@ export type PolicyEngine = {
       }
     },
     {
-      "name": "counterpartyFilter",
+      "name": "filterComparison",
+      "repr": {
+        "kind": "rust"
+      },
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "or"
+          },
+          {
+            "name": "and"
+          }
+        ]
+      }
+    },
+    {
+      "name": "filterData",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "level",
+            "type": {
+              "defined": {
+                "name": "filterLevel"
+              }
+            }
+          },
+          {
+            "name": "target",
+            "type": {
+              "defined": {
+                "name": "filterTarget"
+              }
+            }
+          },
+          {
+            "name": "mode",
+            "type": {
+              "defined": {
+                "name": "filterMode"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "filterInner",
+      "repr": {
+        "kind": "rust"
+      },
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "single",
+            "fields": [
+              {
+                "defined": {
+                  "name": "filterData"
+                }
+              }
+            ]
+          },
+          {
+            "name": "tuple",
+            "fields": [
+              {
+                "defined": {
+                  "name": "filterData"
+                }
+              },
+              {
+                "defined": {
+                  "name": "filterComparison"
+                }
+              },
+              {
+                "defined": {
+                  "name": "filterData"
+                }
+              }
+            ]
+          },
+          {
+            "name": "multiple",
+            "fields": [
+              {
+                "defined": {
+                  "name": "filterComparison"
+                }
+              },
+              {
+                "vec": {
+                  "defined": {
+                    "name": "filterData"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "filterLevel",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "level",
+            "fields": [
+              "u8"
+            ]
+          },
+          {
+            "name": "levelMappingAny",
+            "fields": [
+              "u8"
+            ]
+          },
+          {
+            "name": "levelMapping",
+            "fields": [
+              {
+                "name": "source",
+                "type": "u8"
+              },
+              {
+                "name": "target",
+                "type": "u8"
+              }
+            ]
+          },
+          {
+            "name": "country",
+            "fields": [
+              "u8"
+            ]
+          },
+          {
+            "name": "countryMapping",
+            "fields": [
+              "u8"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "filterMode",
+      "repr": {
+        "kind": "rust"
+      },
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "include"
+          },
+          {
+            "name": "exclude"
+          }
+        ]
+      }
+    },
+    {
+      "name": "filterTarget",
       "repr": {
         "kind": "rust"
       },
@@ -942,7 +1138,10 @@ export type PolicyEngine = {
             "name": "receiver"
           },
           {
-            "name": "both"
+            "name": "bothAnd"
+          },
+          {
+            "name": "bothOr"
           }
         ]
       }
@@ -978,6 +1177,10 @@ export type PolicyEngine = {
             "type": "u16"
           },
           {
+            "name": "country",
+            "type": "u8"
+          },
+          {
             "name": "levels",
             "type": {
               "vec": {
@@ -992,33 +1195,36 @@ export type PolicyEngine = {
     },
     {
       "name": "identityFilter",
+      "repr": {
+        "kind": "rust"
+      },
       "type": {
-        "kind": "struct",
-        "fields": [
+        "kind": "enum",
+        "variants": [
           {
-            "name": "identityLevels",
-            "type": {
-              "array": [
-                "u8",
-                10
-              ]
-            }
+            "name": "simple",
+            "fields": [
+              {
+                "defined": {
+                  "name": "filterInner"
+                }
+              }
+            ]
           },
           {
-            "name": "comparisionType",
-            "type": {
-              "defined": {
-                "name": "comparisionType"
+            "name": "ifThen",
+            "fields": [
+              {
+                "defined": {
+                  "name": "filterInner"
+                }
+              },
+              {
+                "defined": {
+                  "name": "filterInner"
+                }
               }
-            }
-          },
-          {
-            "name": "counterpartyFilter",
-            "type": {
-              "defined": {
-                "name": "counterpartyFilter"
-              }
-            }
+            ]
           }
         ]
       }
@@ -1092,6 +1298,24 @@ export type PolicyEngine = {
           {
             "name": "expiry",
             "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "newLevelsArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "levels",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "levelExpiry"
+                }
+              }
+            }
           }
         ]
       }
@@ -1203,6 +1427,15 @@ export type PolicyEngine = {
                 }
               }
             }
+          },
+          {
+            "name": "mapping",
+            "type": {
+              "array": [
+                "u8",
+                256
+              ]
+            }
           }
         ]
       }
@@ -1302,24 +1535,6 @@ export type PolicyEngine = {
                 "type": "u8"
               }
             ]
-          }
-        ]
-      }
-    },
-    {
-      "name": "previousLevelsArgs",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "levels",
-            "type": {
-              "vec": {
-                "defined": {
-                  "name": "levelExpiry"
-                }
-              }
-            }
           }
         ]
       }

@@ -123,18 +123,30 @@ describe("test additional policies", async () => {
 						value: new BN(0),
 						id: 0,
 						identityFilter: {
-							identityLevels: [1],
-							comparisionType: { or: {} },
-							counterpartyFilter: { both: {} },
+							simple: [ {
+								single: [
+									{
+										target: {bothOr: {}},
+										mode: {include: {}},
+										level: {level: [1]},
+									}
+								]
+							}]
 						},
 					},
 					{
 						value: new BN(0),
 						id: 1,
 						identityFilter: {
-							identityLevels: [2],
-							comparisionType: { or: {} },
-							counterpartyFilter: { both: {} },
+							simple: [ {
+								single: [
+									{
+										target: {bothOr: {}},
+										mode: {include: {}},
+										level: {level: [2]},
+									}
+								]
+							}]
 						},
 					},
 				],

@@ -151,8 +151,15 @@ describe("test suite to test tracker account is being updated correctly on trans
 			assetMint: mint,
 			authority: setup.authority.toString(),
 			identityFilter: {
-				identityLevels: [1],
-				comparisionType: {or: {}}
+				simple: [ {
+					single: [
+						{
+							target: {sender: {}},
+							mode: {include: {}},
+							level: {level: [1]}	,
+						}
+					]
+				}]
 			},
 			policyType: {transactionAmountVelocity: { limit: new BN(1000000000000), timeframe: new BN(1000000000000) }} // enough limit and timeframe to allow a lot of transfers
 		};
@@ -199,7 +206,7 @@ describe("test suite to test tracker account is being updated correctly on trans
 					rwaClient.provider
 				);
 				expect(trackerAccount!.transfers.length).toBe(i + 1);
-				expect(trackerAccount!.transfers.at(i)?.amount == 100);
+				expect(trackerAccount!.transfers.at(i)?.amount?.toNumber()).toBe(100);
 			}
 		}
 		const transferArgs: TransferTokensArgs = {

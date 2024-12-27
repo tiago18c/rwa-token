@@ -13,6 +13,7 @@ pub struct IdentityAccount {
     pub owner: Pubkey,
 
     pub num_wallets: u16,
+    pub country: u8,
     // identity levels corresponding to the user
     #[max_len(1)] // initial length is 1
     pub levels: Vec<IdentityLevel>,
@@ -26,12 +27,13 @@ pub struct IdentityLevel {
 
 impl IdentityAccount {
     pub const VERSION: u8 = 1;
-    pub fn new(&mut self, owner: Pubkey, identity_registry: Pubkey, level: u8, expiry: i64) {
+    pub fn new(&mut self, owner: Pubkey, identity_registry: Pubkey, level: u8, expiry: i64, country: u8) {
         self.identity_registry = identity_registry;
         self.owner = owner;
         self.version = Self::VERSION;
         self.levels = vec![IdentityLevel { level, expiry }];
         self.num_wallets = 0;
+        self.country = country;
     }
 
     pub fn add_levels(&mut self, levels: Vec<u8>, expiries: Vec<i64>) -> Result<()> {
@@ -74,6 +76,11 @@ impl IdentityAccount {
 
     pub fn remove_wallet(&mut self) -> Result<()> {
         self.num_wallets -= 1;
+        Ok(())
+    }
+
+    pub fn set_country(&mut self, country: u8) -> Result<()> {
+        self.country = country;
         Ok(())
     }
 }

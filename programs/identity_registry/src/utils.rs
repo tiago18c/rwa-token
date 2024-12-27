@@ -16,14 +16,15 @@ pub fn cpi_enforce_policy_on_levels_change<'info>(
         policy_engine: AccountInfo<'info>, 
         policy_program: AccountInfo<'info>, 
         new_levels: &[IdentityLevel],
+        new_country: u8,
         enforce_limits: bool,
         signer_seeds: &[&[&[u8]]]
     ) -> Result<()> {
 
     let mut data: Vec<u8> = vec![236, 18, 123, 137, 253, 244, 32, 248];
     data.extend(new_levels.try_to_vec()?);
+    data.extend(new_country.try_to_vec()?);
     data.extend((!enforce_limits).try_to_vec()?);
-    
     invoke_signed(
         &Instruction {
             program_id: policy_program.key(),

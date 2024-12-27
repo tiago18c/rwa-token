@@ -182,6 +182,76 @@ export type IdentityRegistry = {
       ]
     },
     {
+      "name": "changeCountry",
+      "discriminator": [
+        208,
+        227,
+        224,
+        246,
+        9,
+        254,
+        62,
+        179
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "signer",
+          "signer": true
+        },
+        {
+          "name": "identityRegistry"
+        },
+        {
+          "name": "identityAccount",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "identityRegistry"
+              },
+              {
+                "kind": "account",
+                "path": "identity_account.owner",
+                "account": "identityAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "policyEngineProgram"
+        },
+        {
+          "name": "policyEngine",
+          "writable": true
+        },
+        {
+          "name": "trackerAccount"
+        },
+        {
+          "name": "assetMint",
+          "relations": [
+            "identityRegistry"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "newCountry",
+          "type": "u8"
+        },
+        {
+          "name": "enforceLimits",
+          "type": "bool"
+        }
+      ]
+    },
+    {
       "name": "createIdentityAccount",
       "docs": [
         "identity functions",
@@ -243,6 +313,10 @@ export type IdentityRegistry = {
         {
           "name": "expiry",
           "type": "i64"
+        },
+        {
+          "name": "country",
+          "type": "u8"
         }
       ]
     },
@@ -706,6 +780,10 @@ export type IdentityRegistry = {
           {
             "name": "numWallets",
             "type": "u16"
+          },
+          {
+            "name": "country",
+            "type": "u8"
           },
           {
             "name": "levels",

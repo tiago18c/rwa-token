@@ -45,8 +45,9 @@ pub mod identity_registry {
         owner: Pubkey,
         level: u8,
         expiry: i64,
+        country: u8,
     ) -> Result<()> {
-        instructions::account::create::handler(ctx, owner, level, expiry)
+        instructions::account::create::handler(ctx, owner, level, expiry, country)
     }
 
     /// add level to identity account
@@ -99,5 +100,13 @@ pub mod identity_registry {
         ctx: Context<DetachWalletFromIdentity>,
     ) -> Result<()> {
         instructions::account::detach_wallet_from_identity::handler(ctx)
+    }
+
+    pub fn change_country(
+        ctx: Context<ChangeCountry>,
+        new_country: u8,
+        enforce_limits: bool,
+    ) -> Result<()> {
+        instructions::account::change_country::handler(ctx, new_country, enforce_limits)
     }
 }

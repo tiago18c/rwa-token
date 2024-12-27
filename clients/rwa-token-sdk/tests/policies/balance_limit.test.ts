@@ -106,9 +106,15 @@ describe("test additional policies", async () => {
 				assetMint: mint,
 				authority: setup.authority.toString(),
 				identityFilter: {
-					identityLevels: [2],
-					comparisionType: { or: {} },
-					counterpartyFilter: { receiver: {}}
+					simple: [ {
+						single: [
+							{
+								target: {receiver: {}},
+								mode: {include: {}},
+								level: {level: [2]},
+							}
+						]
+					}]
 				},
 				policyType: { 
 					maxBalance: { 
@@ -171,9 +177,15 @@ describe("test additional policies", async () => {
 				assetMint: mint,
 				authority: setup.authority.toString(),
 				identityFilter: {
-					identityLevels: [2],
-					comparisionType: { or: {} },
-					counterpartyFilter: { sender: {}}
+					simple: [ {
+						single: [
+							{
+								target: {sender: {}},
+								mode: {include: {}},
+								level: {level: [2]},
+							}
+						]
+					}]
 				},
 				policyType: { 
 					minBalance: { 

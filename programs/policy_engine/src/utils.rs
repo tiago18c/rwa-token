@@ -1,66 +1,12 @@
-use crate::{state::*, PolicyEngineErrors};
+use crate::PolicyEngineErrors;
 use anchor_lang::prelude::*;
 use anchor_spl::token_2022::spl_token_2022::extension::StateWithExtensions;
 use anchor_spl::token_2022::spl_token_2022::extension::BaseStateWithExtensions;
 use anchor_spl::token_2022::spl_token_2022::extension::transfer_hook::TransferHookAccount;
 use anchor_spl::token_2022::spl_token_2022::state::Account as Token2022Account;
-use identity_registry::IdentityLevel;
 use spl_tlv_account_resolution::{
     account::ExtraAccountMeta, seeds::Seed, state::ExtraAccountMetaList,
 };
-
-
-pub fn enforce_identity_filter(identity: &[IdentityLevel], identity_filter: IdentityFilter, timestamp: i64) -> Result<()> {
-    match identity_filter.comparision_type {
-        ComparisionType::Or => {
-            // if any level is in the identities array, return Ok
-            for level in identity_filter.identity_levels.iter() {
-                if *level > 0 && identity.iter().any(|l| l.expiry > timestamp && l.level == *level) {
-                    return Ok(());
-                }
-            }
-            Err(PolicyEngineErrors::IdentityFilterFailed.into())
-        }
-        ComparisionType::And => {
-            // if all levels are in the identities array, return Ok
-            for level in identity_filter.identity_levels.iter() {
-                if *level > 0 && !identity.iter().any(|l| l.expiry > timestamp && l.level == *level) {
-                    return Err(PolicyEngineErrors::IdentityFilterFailed.into());
-                }
-            }
-            Ok(())
-        }
-        ComparisionType::Except => {
-            // if any level is in the identities array, return Err
-            for level in identity_filter.identity_levels.iter() {
-                if *level > 0 && identity.iter().any(|l| l.expiry > timestamp && l.level == *level) {
-                    return Err(PolicyEngineErrors::IdentityFilterFailed.into());
-                }
-            }
-            Ok(())
-        }
-    }
-}
-
-pub fn enforce_transfer_identity_filter(destination_identity: &[IdentityLevel], source_identity: &[IdentityLevel], identity_filter: IdentityFilter, timestamp: i64) -> Result<()> {
-    match (identity_filter.comparision_type, identity_filter.counterparty_filter) {
-        (ComparisionType::Or, CounterpartyFilter::Both) => {
-            enforce_identity_filter(destination_identity, identity_filter, timestamp)
-            .or(enforce_identity_filter(source_identity, identity_filter, timestamp))
-        }
-        (_, CounterpartyFilter::Receiver) => {
-            enforce_identity_filter(destination_identity, identity_filter, timestamp)
-        }
-        (_, CounterpartyFilter::Sender) => {
-            enforce_identity_filter(source_identity, identity_filter, timestamp)
-        }
-        (_, CounterpartyFilter::Both) => 
-        {
-            enforce_identity_filter(destination_identity, identity_filter, timestamp)?;
-            enforce_identity_filter(source_identity, identity_filter, timestamp)
-        }
-    }
-}
 
 pub fn get_total_amount_transferred_in_timeframe(
     transfers: &Vec<Transfer>,

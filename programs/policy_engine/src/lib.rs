@@ -63,8 +63,8 @@ pub mod policy_engine {
         instructions::issue::handler(ctx, amount)
     }
 
-    pub fn enforce_policy_on_levels_change(ctx: Context<EnforcePolicyOnLevelsChange>, previous_levels: PreviousLevelsArgs, enforce_limits: bool) -> Result<()> {
-        instructions::enforce_policy_on_levels_change::handler(ctx, previous_levels, enforce_limits)
+    pub fn enforce_policy_on_levels_change(ctx: Context<EnforcePolicyOnLevelsChange>, new_levels: NewLevelsArgs, new_country: u8, enforce_limits: bool) -> Result<()> {
+        instructions::enforce_policy_on_levels_change::handler(ctx, new_levels, new_country, enforce_limits)
     }
 
     pub fn change_counters(ctx: Context<ChangeCounters>, removed_counters: Vec<u8>, added_counters: Vec<Counter>) -> Result<()> {
@@ -73,5 +73,9 @@ pub mod policy_engine {
 
     pub fn change_counter_limits(ctx: Context<ChangeCounterLimits>, removed_counter_limits: Vec<u8>, added_counter_limits: Vec<CounterLimit>) -> Result<()> {
         instructions::engine::change_counter_limits::handler(ctx, removed_counter_limits, added_counter_limits)
+    }
+
+    pub fn change_mapping(ctx: Context<ChangeMapping>, mapping_source: Vec<u8>, mapping_value: Vec<u8>) -> Result<()> {
+        instructions::engine::change_mapping::handler(ctx, mapping_source, mapping_value)
     }
 }

@@ -12,7 +12,7 @@ pub struct AttachToPolicyEngine<'info> {
     )]
     pub signer: Signer<'info>,
     #[account(mut,
-        realloc = policy_engine.to_account_info().data_len() + Policy::INIT_SPACE,
+        realloc = policy_engine.to_account_info().data_len() + Policy::get_new_space(&identity_filter),
         realloc::zero = false,
         realloc::payer = payer,
     )]

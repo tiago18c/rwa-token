@@ -3,10 +3,12 @@ import {
 	type AttachPolicyArgs,
 	ChangeCounterLimitsArgs,
 	ChangeCountersArgs,
+	ChangeMappingArgs,
 	DetachPolicyArgs,
 	getAttachToPolicyEngineIx,
 	getChangeCounterLimitsIx,
 	getChangeCountersIx,
+	getChangeMappingIx,
 	getDetachFromPolicyEngineIx,
 	getPolicyEnginePda,
 } from "../policy-engine";
@@ -63,6 +65,14 @@ export class PolicyEngine {
 			this.rwaClient.provider
 		);
 		return changeCountersIx;
+	}
+
+	async changeMapping(policyArgs: ChangeMappingArgs): Promise<IxReturn> {
+		const changeMappingIx = await getChangeMappingIx(
+			policyArgs,
+			this.rwaClient.provider
+		);
+		return changeMappingIx;
 	}
 
 	/**

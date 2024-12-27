@@ -24,9 +24,9 @@ pub struct CreateIdentityAccount<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<CreateIdentityAccount>, owner: Pubkey, level: u8, expiry: i64) -> Result<()> {
+pub fn handler(ctx: Context<CreateIdentityAccount>, owner: Pubkey, level: u8, expiry: i64, country: u8) -> Result<()> {
     ctx.accounts
         .identity_account
-        .new(owner, ctx.accounts.identity_registry.key(), level, expiry);
+        .new(owner, ctx.accounts.identity_registry.key(), level, expiry, country);
     Ok(())
 }

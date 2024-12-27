@@ -103,8 +103,15 @@ describe("test additional policies", async () => {
 				assetMint: mint,
 				authority: setup.authority.toString(),
 				identityFilter: {
-					identityLevels: [1],
-					comparisionType: { or: {} },
+					simple: [ {
+						single: [
+							{
+								target: {sender: {}},
+								mode: {include: {}},
+								level: {level: [1]},
+							}
+						]
+					}]
 				},
 				policyType: { forceFullTransfer: {} },
 			});

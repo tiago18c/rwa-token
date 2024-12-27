@@ -82,6 +82,7 @@ describe("e2e tests", async () => {
 			signer: setup.authority.toString(),
 			levels: [1],
 			expiry: [new BN(tomorrow)],
+			country: 1,
 		}, rwaClient.provider);
 		const setupUser2Ixs = await getSetupUserIxs({
 			assetMint: mint,
@@ -90,6 +91,7 @@ describe("e2e tests", async () => {
 			signer: setup.authority.toString(),
 			levels: [1],
 			expiry: [new BN(1800000000)],
+			country: 1,
 		}, rwaClient.provider);
 		const setupUser3Ixs = await getSetupUserIxs({
 			assetMint: mint,
@@ -98,6 +100,7 @@ describe("e2e tests", async () => {
 			signer: setup.authority.toString(),
 			levels: [255],
 			expiry: [new BN(tomorrow)],
+			country: 1,
 		}, rwaClient.provider);
 		const txnId = await sendAndConfirmTransaction(
 			rwaClient.provider.connection,
@@ -170,9 +173,15 @@ describe("e2e tests", async () => {
 			assetMint: mint,
 			payer: setup.payer.toString(),
 			identityFilter: {
-				identityLevels: [1],
-				comparisionType: { or: {} },
-				counterpartyFilter: { both: {}}
+				simple: [ {
+					single: [
+						{
+							target: {bothOr: {}},
+							mode: {include: {}},
+							level: {level: [1]},
+						}
+					]
+				}]
 			},
 			policyType: {
 				identityApproval: {},
@@ -194,9 +203,15 @@ describe("e2e tests", async () => {
 			assetMint: mint,
 			authority: setup.authority.toString(),
 			identityFilter: {
-				identityLevels: [1],
-				comparisionType: { or: {} },
-				counterpartyFilter: { both: {} }
+				simple: [ {
+					single: [
+						{
+							target: {bothOr: {}},
+							mode: {include: {}},
+							level: {level: [1]},
+						}
+					]
+				}]
 			},
 			policyType: {
 				transactionAmountLimit: {
@@ -220,9 +235,15 @@ describe("e2e tests", async () => {
 			assetMint: mint,
 			authority: setup.authority.toString(),
 			identityFilter: {
-				identityLevels: [1],
-				comparisionType: { or: {} },
-				counterpartyFilter: { both: {} }
+				simple: [ {
+					single: [
+						{
+							target: {bothOr: {}},
+							mode: {include: {}},
+							level: {level: [1]},
+						}
+					]
+				}]
 			},
 			policyType: {
 				transactionAmountVelocity: {
@@ -246,9 +267,15 @@ describe("e2e tests", async () => {
 			assetMint: mint,
 			authority: setup.authority.toString(),
 			identityFilter: {
-				identityLevels: [1],
-				comparisionType: { or: {} },
-				counterpartyFilter: { both: {} }
+				simple: [ {
+					single: [
+						{
+							target: {bothOr: {}},
+							mode: {include: {}},
+							level: {level: [1]},
+						}
+					]
+				}]
 			},
 			policyType: {
 				transactionCountVelocity: {
@@ -393,12 +420,12 @@ describe("e2e tests", async () => {
 			assetMint: mint,
 			payer: setup.payer.toString(),
 			wallet: setup.user4.toString(),
-			authority: setup.user1.toString(),
+			authority: setup.authority.toString(),
 		});
 		const txnId = await sendAndConfirmTransaction(
 			rwaClient.provider.connection,
 			new Transaction().add(detachWalletIdentityAccountIx),
-			[setup.payerKp, setup.user1Kp]
+			[setup.payerKp, setup.authorityKp]
 		);
 		expect(txnId).toBeTruthy();
 	});
@@ -481,4 +508,125 @@ describe("e2e tests", async () => {
 
 		expect(policyAccount?.policies.length).toBe(0);
 	});
+
+	test("change country", async () => {
+		const changeCountryIx = await rwaClient.identityRegistry.changeCountry({
+			owner: setup.user1.toString(),
+			assetMint: mint,
+			payer: setup.payer.toString(),
+			country: 100,
+			signer: setup.authority.toString(),
+		});
+		const txnId = await sendAndConfirmTransaction(
+			rwaClient.provider.connection,
+			new Transaction().add(changeCountryIx),
+			[setup.payerKp, setup.authorityKp]
+		);
+		expect(txnId).toBeTruthy();
+	});
+
+	test("add  forbidden country", async () => {
+		const policyArgs: AttachPolicyArgs = {
+			payer: setup.payer.toString(),
+			assetMint: mint,
+			authority: setup.authority.toString(),
+			identityFilter: {
+				simple: [ {
+					single: [
+						{
+							target: {bothOr: {}},
+							mode: {include: {}},
+							level: {country: [100]},
+						}
+					]
+				}]
+			},
+			policyType: {
+				forbiddenIdentityGroup: {},
+			},
+		};
+		const policyIx = await rwaClient.policyEngine.attachPolicy(policyArgs);
+		const txnId = await sendAndConfirmTransaction(
+			rwaClient.provider.connection,
+			new Transaction().add(...policyIx.ixs),
+			[setup.payerKp, setup.authorityKp]
+		);
+		expect(txnId).toBeTruthy();
+	});
+
+	test("fail to transfer out of user 1", async () => {
+		const transferIx = await rwaClient.assetController.transfer({
+			from: setup.user1.toString(),
+			to: setup.user2.toString(),
+			assetMint: mint,
+			amount: 100,
+			decimals,
+		});
+		expect(sendAndConfirmTransaction(
+			rwaClient.provider.connection,
+			new Transaction().add(...transferIx),
+			[setup.user1Kp]
+		)).rejects.toThrow();
+	});
+
+	test("change mapping", async () => {
+		const changeMappingIx = await rwaClient.policyEngine.changeMapping({
+			authority: setup.authority.toString(),
+			payer: setup.payer.toString(),
+			assetMint: mint,
+			mappingSource: [100],
+			mappingValue: [1],
+		});
+		const txnId = await sendAndConfirmTransaction(
+			rwaClient.provider.connection,
+			new Transaction().add(...changeMappingIx.ixs),
+			[setup.payerKp, setup.authorityKp]
+		);
+		expect(txnId).toBeTruthy();
+	});
+
+	test("add forbidden identity group mapping", async () => {
+		const policyArgs: AttachPolicyArgs = {
+			payer: setup.payer.toString(),
+			assetMint: mint,
+			authority: setup.authority.toString(),
+			identityFilter: {
+				simple: [ {
+					single: [
+						{
+							target: {sender: {}},
+							mode: {exclude: {}},
+							level: { levelMapping: {source: 1, target: 100}},
+						}
+					]
+				}]
+			},
+			policyType: {
+				identityApproval: {},
+			},
+		};
+		const policyIx = await rwaClient.policyEngine.attachPolicy(policyArgs);
+		const txnId = await sendAndConfirmTransaction(
+			rwaClient.provider.connection,
+			new Transaction().add(...policyIx.ixs),
+			[setup.payerKp, setup.authorityKp]
+		);
+		expect(txnId).toBeTruthy();
+	});
+
+	test("fail to transfer out of user 2", async () => {
+		const transferIx = await rwaClient.assetController.transfer({
+			from: setup.user2.toString(),
+			to: setup.user1.toString(),
+			assetMint: mint,
+			amount: 100,
+			decimals,
+		});
+		expect(sendAndConfirmTransaction(
+			rwaClient.provider.connection,
+			new Transaction().add(...transferIx),
+			[setup.user2Kp]
+		)).rejects.toThrow();
+	});
 });
+

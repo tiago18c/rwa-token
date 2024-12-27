@@ -1412,26 +1412,6 @@ export type AssetController = {
       }
     },
     {
-      "name": "comparisionType",
-      "repr": {
-        "kind": "rust"
-      },
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "or"
-          },
-          {
-            "name": "and"
-          },
-          {
-            "name": "except"
-          }
-        ]
-      }
-    },
-    {
       "name": "counter",
       "type": {
         "kind": "struct",
@@ -1519,26 +1499,6 @@ export type AssetController = {
       }
     },
     {
-      "name": "counterpartyFilter",
-      "repr": {
-        "kind": "rust"
-      },
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "sender"
-          },
-          {
-            "name": "receiver"
-          },
-          {
-            "name": "both"
-          }
-        ]
-      }
-    },
-    {
       "name": "createAssetControllerArgs",
       "type": {
         "kind": "struct",
@@ -1607,6 +1567,198 @@ export type AssetController = {
       }
     },
     {
+      "name": "filterComparison",
+      "repr": {
+        "kind": "rust"
+      },
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "or"
+          },
+          {
+            "name": "and"
+          }
+        ]
+      }
+    },
+    {
+      "name": "filterData",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "level",
+            "type": {
+              "defined": {
+                "name": "filterLevel"
+              }
+            }
+          },
+          {
+            "name": "target",
+            "type": {
+              "defined": {
+                "name": "filterTarget"
+              }
+            }
+          },
+          {
+            "name": "mode",
+            "type": {
+              "defined": {
+                "name": "filterMode"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "filterInner",
+      "repr": {
+        "kind": "rust"
+      },
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "single",
+            "fields": [
+              {
+                "defined": {
+                  "name": "filterData"
+                }
+              }
+            ]
+          },
+          {
+            "name": "tuple",
+            "fields": [
+              {
+                "defined": {
+                  "name": "filterData"
+                }
+              },
+              {
+                "defined": {
+                  "name": "filterComparison"
+                }
+              },
+              {
+                "defined": {
+                  "name": "filterData"
+                }
+              }
+            ]
+          },
+          {
+            "name": "multiple",
+            "fields": [
+              {
+                "defined": {
+                  "name": "filterComparison"
+                }
+              },
+              {
+                "vec": {
+                  "defined": {
+                    "name": "filterData"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "filterLevel",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "level",
+            "fields": [
+              "u8"
+            ]
+          },
+          {
+            "name": "levelMappingAny",
+            "fields": [
+              "u8"
+            ]
+          },
+          {
+            "name": "levelMapping",
+            "fields": [
+              {
+                "name": "source",
+                "type": "u8"
+              },
+              {
+                "name": "target",
+                "type": "u8"
+              }
+            ]
+          },
+          {
+            "name": "country",
+            "fields": [
+              "u8"
+            ]
+          },
+          {
+            "name": "countryMapping",
+            "fields": [
+              "u8"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "filterMode",
+      "repr": {
+        "kind": "rust"
+      },
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "include"
+          },
+          {
+            "name": "exclude"
+          }
+        ]
+      }
+    },
+    {
+      "name": "filterTarget",
+      "repr": {
+        "kind": "rust"
+      },
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "sender"
+          },
+          {
+            "name": "receiver"
+          },
+          {
+            "name": "bothAnd"
+          },
+          {
+            "name": "bothOr"
+          }
+        ]
+      }
+    },
+    {
       "name": "identityAccount",
       "type": {
         "kind": "struct",
@@ -1637,6 +1789,10 @@ export type AssetController = {
             "type": "u16"
           },
           {
+            "name": "country",
+            "type": "u8"
+          },
+          {
             "name": "levels",
             "type": {
               "vec": {
@@ -1651,33 +1807,36 @@ export type AssetController = {
     },
     {
       "name": "identityFilter",
+      "repr": {
+        "kind": "rust"
+      },
       "type": {
-        "kind": "struct",
-        "fields": [
+        "kind": "enum",
+        "variants": [
           {
-            "name": "identityLevels",
-            "type": {
-              "array": [
-                "u8",
-                10
-              ]
-            }
+            "name": "simple",
+            "fields": [
+              {
+                "defined": {
+                  "name": "filterInner"
+                }
+              }
+            ]
           },
           {
-            "name": "comparisionType",
-            "type": {
-              "defined": {
-                "name": "comparisionType"
+            "name": "ifThen",
+            "fields": [
+              {
+                "defined": {
+                  "name": "filterInner"
+                }
+              },
+              {
+                "defined": {
+                  "name": "filterInner"
+                }
               }
-            }
-          },
-          {
-            "name": "counterpartyFilter",
-            "type": {
-              "defined": {
-                "name": "counterpartyFilter"
-              }
-            }
+            ]
           }
         ]
       }
@@ -1845,6 +2004,15 @@ export type AssetController = {
                   "name": "counterLimit"
                 }
               }
+            }
+          },
+          {
+            "name": "mapping",
+            "type": {
+              "array": [
+                "u8",
+                256
+              ]
             }
           }
         ]

@@ -58,10 +58,25 @@ describe("test policy setup", async () => {
 			payer: setup.payer.toString(),
 			assetMint: mint,
 			authority: setup.authority.toString(),
+			
 			identityFilter: {
-				identityLevels: [1, 2],
-				comparisionType: { or: {} },
-				counterpartyFilter: { both: {} }
+				simple: [ {
+					tuple: [
+						{
+							target: {bothOr: {}},
+							mode: {include: {}},
+							level: {level: [1]},
+						},
+						{
+							or: {}
+						}, 
+						{
+							target: {bothOr: {}},
+							mode: {include: {}},
+							level: {level: [2]},
+						}
+					]
+				}]
 			},
 			policyType: {
 				identityApproval: {},
@@ -76,10 +91,17 @@ describe("test policy setup", async () => {
 			payer: setup.payer.toString(),
 			assetMint: mint,
 			authority: setup.authority.toString(),
+			
 			identityFilter: {
-				identityLevels: [1], // Going to skip other identity levels
-				comparisionType: { or: {} },
-				counterpartyFilter: { receiver: {} }
+				simple: [ {
+					single: [
+						{
+							target: {receiver: {}},
+							mode: {include: {}},
+							level: {level: [1]},
+						}
+					]
+				}]
 			},
 			policyType: {
 				transactionAmountLimit: {
@@ -97,9 +119,15 @@ describe("test policy setup", async () => {
 			assetMint: mint,
 			authority: setup.authority.toString(),
 			identityFilter: {
-				identityLevels: [2], // Going to skip other identity levels
-				comparisionType: { or: {} },
-				counterpartyFilter: { receiver: {} }
+				simple: [ {
+					single: [
+						{
+							target: {sender: {}},
+							mode: {include: {}},
+							level: {level: [2]},
+						}
+					]
+				}]
 			},
 			policyType: {
 				transactionAmountLimit: {
@@ -117,9 +145,15 @@ describe("test policy setup", async () => {
 			assetMint: mint,
 			authority: setup.authority.toString(),
 			identityFilter: {
-				identityLevels: [1], // Going to skip other identity levels
-				comparisionType: { or: {} },
-				counterpartyFilter: { receiver: {} }
+				simple: [ {
+					single: [
+						{
+							target: {receiver: {}},
+							mode: {include: {}},
+							level: {level: [1]},
+						}
+					]
+				}]
 			},
 			policyType: {
 				transactionAmountVelocity: {
@@ -138,9 +172,15 @@ describe("test policy setup", async () => {
 			assetMint: mint,
 			authority: setup.authority.toString(),
 			identityFilter: {
-				identityLevels: [1], // Going to skip other identity levels
-				comparisionType: { or: {} },
-				counterpartyFilter: { receiver: {} }
+				simple: [ {
+					single: [
+						{
+							target: {receiver: {}},
+							mode: {include: {}},
+							level: {level: [1]},
+						}
+					]
+				}]
 			},
 			policyType: {
 				transactionCountVelocity: {
@@ -159,9 +199,15 @@ describe("test policy setup", async () => {
 			assetMint: mint,
 			authority: setup.authority.toString(),
 			identityFilter: {
-				identityLevels: [2], // Going to skip other identity levels
-				comparisionType: { or: {} },
-				counterpartyFilter: { receiver: {} }
+				simple: [ {
+					single: [
+						{
+							target: {sender: {}},
+							mode: {include: {}},
+							level: {level: [2]},
+						}
+					]
+				}]
 			},
 			policyType: {
 				transactionCountVelocity: {
@@ -183,7 +229,8 @@ describe("test policy setup", async () => {
 			assetMint: mint,
 			levels: [1],
 			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60)],
-			signer: setup.authorityKp.publicKey.toString()
+			signer: setup.authorityKp.publicKey.toString(),
+			country: 1,
 		});
 		const txnId = await sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...setupUser.ixs), [setup.payerKp, setup.authorityKp, ...setupUser.signers]);
 		expect(txnId).toBeTruthy();
@@ -196,7 +243,8 @@ describe("test policy setup", async () => {
 			assetMint: mint,
 			levels: [2],
 			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60)],
-			signer: setup.authorityKp.publicKey.toString()
+			signer: setup.authorityKp.publicKey.toString(),
+			country: 1,
 		});
 		const txnId = await sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...setupUser.ixs), [setup.payerKp, setup.authorityKp, ...setupUser.signers]);
 		expect(txnId).toBeTruthy();
@@ -209,7 +257,8 @@ describe("test policy setup", async () => {
 			assetMint: mint,
 			levels: [255], // Skips all policies
 			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60)],
-			signer: setup.authorityKp.publicKey.toString()
+			signer: setup.authorityKp.publicKey.toString(),
+			country: 1,
 		});
 		const txnId = await sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...setupUser.ixs), [setup.payerKp, setup.authorityKp, ...setupUser.signers]);
 		expect(txnId).toBeTruthy();

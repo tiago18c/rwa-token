@@ -97,6 +97,32 @@ export async function getAttachToPolicyEngineIx(
 	};
 }
 
+export type ChangeMappingArgs = {
+	authority: string;
+	payer: string;
+	assetMint: string;
+	mappingSource: number[];
+	mappingValue: number[];
+}
+
+export async function getChangeMappingIx(
+	args: ChangeMappingArgs,
+	provider: AnchorProvider
+): Promise<IxReturn> {
+	const policyProgram = getPolicyEngineProgram(provider);
+	const ix = await policyProgram.methods
+		.changeMapping(Buffer.from(args.mappingSource), Buffer.from(args.mappingValue))
+		.accountsStrict({
+			signer: new PublicKey(args.authority),
+			payer: args.payer,
+			policyEngine: getPolicyEnginePda(args.assetMint),
+		})
+		.instruction();
+	return {
+		ixs: [ix],
+		signers: [],
+	};
+}
 
 export type ChangeCountersArgs = {
 	authority: string;

@@ -53,7 +53,7 @@ pub fn handler(ctx: Context<EnforcePolicyIssuanceAccounts>, amount: u64) -> Resu
     }
 
     if tracker_account.total_amount == amount {
-        let changed_counters = ctx.accounts.policy_engine.increase_holders_count(&ctx.accounts.identity_account.levels)?;
+        let changed_counters = ctx.accounts.policy_engine.increase_holders_count(&ctx.accounts.identity_account.levels, ctx.accounts.identity_account.country)?;
         ctx.accounts.policy_engine.enforce_counters_on_increment(&changed_counters)?;
     }
 
@@ -62,6 +62,7 @@ pub fn handler(ctx: Context<EnforcePolicyIssuanceAccounts>, amount: u64) -> Resu
         amount,
         Clock::get()?.unix_timestamp,
         &ctx.accounts.identity_account.levels,
+        ctx.accounts.identity_account.country,
         Some(&tracker_account),
     )?;
     Ok(())

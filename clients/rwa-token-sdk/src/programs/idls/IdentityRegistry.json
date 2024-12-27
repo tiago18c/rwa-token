@@ -176,6 +176,76 @@
       ]
     },
     {
+      "name": "change_country",
+      "discriminator": [
+        208,
+        227,
+        224,
+        246,
+        9,
+        254,
+        62,
+        179
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "signer",
+          "signer": true
+        },
+        {
+          "name": "identity_registry"
+        },
+        {
+          "name": "identity_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "identity_registry"
+              },
+              {
+                "kind": "account",
+                "path": "identity_account.owner",
+                "account": "IdentityAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "policy_engine_program"
+        },
+        {
+          "name": "policy_engine",
+          "writable": true
+        },
+        {
+          "name": "tracker_account"
+        },
+        {
+          "name": "asset_mint",
+          "relations": [
+            "identity_registry"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "new_country",
+          "type": "u8"
+        },
+        {
+          "name": "enforce_limits",
+          "type": "bool"
+        }
+      ]
+    },
+    {
       "name": "create_identity_account",
       "docs": [
         "identity functions",
@@ -237,6 +307,10 @@
         {
           "name": "expiry",
           "type": "i64"
+        },
+        {
+          "name": "country",
+          "type": "u8"
         }
       ]
     },
@@ -700,6 +774,10 @@
           {
             "name": "num_wallets",
             "type": "u16"
+          },
+          {
+            "name": "country",
+            "type": "u8"
           },
           {
             "name": "levels",

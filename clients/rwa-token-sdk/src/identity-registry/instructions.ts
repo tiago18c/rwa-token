@@ -52,6 +52,7 @@ export type CreateIdentityAccountArgs = {
   level: number;
   owner: string;
   expiry: BN;
+  country: number;
 } & CommonArgs;
 
 /**
@@ -65,7 +66,7 @@ export async function getCreateIdentityAccountIx(
 ): Promise<TransactionInstruction> {
 	const identityProgram = getIdentityRegistryProgram(provider);
 	const ix = await identityProgram.methods
-		.createIdentityAccount(new PublicKey(args.owner), args.level, args.expiry)
+		.createIdentityAccount(new PublicKey(args.owner), args.level, args.expiry, args.country)
 		.accountsStrict({
 			payer: args.payer,
 			identityRegistry: getIdentityRegistryPda(args.assetMint),
@@ -124,6 +125,38 @@ export async function getDetachWalletFromIdentityIx(
 	return ix;
 }
 
+/** Represents arguments for creating an identity account on chain. */
+export type ChangeCountryArgs = {
+	owner: string;
+	country: number;
+	ignorePolicy?: boolean;
+  } & CommonArgs;
+  
+/**
+ * Builds the transaction instruction to add a level to identity account
+ * @param args - {@link AddLevelToIdentityAccountArgs}.
+ * @returns Add level to identity account transaction instruction.
+ */
+export async function getChangeCountryIx(
+	args: ChangeCountryArgs,
+	provider: AnchorProvider
+): Promise<TransactionInstruction> {
+	const identityProgram = getIdentityRegistryProgram(provider);
+	const ix = await identityProgram.methods
+		.changeCountry(args.country, args.ignorePolicy ?? false)
+		.accountsStrict({
+			signer: args.signer,
+			identityRegistry: getIdentityRegistryPda(args.assetMint),
+			identityAccount: getIdentityAccountPda(args.assetMint, args.owner),
+			payer: args.payer,
+			policyEngineProgram: policyEngineProgramId,
+			policyEngine: getPolicyEnginePda(args.assetMint),
+			trackerAccount: getTrackerAccountPda(args.assetMint, args.owner),
+			assetMint: args.assetMint,
+		})
+		.instruction();
+	return ix;
+}
 
 /** Represents the arguments required to add a level to an identity account. */
 export type AddLevelToIdentityAccountArgs = {

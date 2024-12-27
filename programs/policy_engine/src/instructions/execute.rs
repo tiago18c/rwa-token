@@ -88,7 +88,7 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
         &identity_registry::id(),
     )?;
 
-    let destination_levels = if ctx.accounts.destination_identity_account.owner.key() == identity_registry::id() 
+    let (destination_levels, destination_country) = if ctx.accounts.destination_identity_account.owner.key() == identity_registry::id() 
     && ctx.accounts.destination_identity_account.data.borrow()[..8] == *IdentityAccount::DISCRIMINATOR {
         let destination_identity_account = Box::new(IdentityAccount::deserialize(
             &mut &ctx.accounts.destination_identity_account.data.borrow()[8..],
@@ -110,12 +110,12 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
             destination_identity_account.identity_registry == ctx.accounts.identity_registry_account.key(),
             PolicyEngineErrors::InvalidIdentityAccount
         );
-        destination_identity_account.levels
+        (destination_identity_account.levels, destination_identity_account.country)
     } else {
-        vec![NO_IDENTITY_LEVEL]
+        (vec![NO_IDENTITY_LEVEL], 0)
     };
 
-    let source_levels = if ctx.accounts.source_identity_account.owner.key() == identity_registry::id() 
+    let (source_levels, source_country) = if ctx.accounts.source_identity_account.owner.key() == identity_registry::id() 
     && ctx.accounts.source_identity_account.data.borrow()[..8] == *IdentityAccount::DISCRIMINATOR {
         let source_identity_account = Box::new(IdentityAccount::deserialize(
             &mut &ctx.accounts.source_identity_account.data.borrow()[8..],
@@ -136,9 +136,9 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
             source_identity_account.identity_registry == ctx.accounts.identity_registry_account.key(),
             PolicyEngineErrors::InvalidIdentityAccount
         );
-        source_identity_account.levels
+        (source_identity_account.levels, source_identity_account.country)
     } else {
-        vec![NO_IDENTITY_LEVEL]
+        (vec![NO_IDENTITY_LEVEL], 0)
     };
 
     // TODO: refactor skip policy level check
@@ -228,13 +228,13 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
     if !self_transfer {
         let decreased_counters = if source_balance == 0 {
             // source has 0 balance
-            policy_engine_account.decrease_holders_count(&source_levels)?
+            policy_engine_account.decrease_holders_count(&source_levels, source_country)?
         } else {
             vec![]
         };
         let increased_counters = if destination_balance == amount {
             // destination has 0 balance
-            policy_engine_account.increase_holders_count(&destination_levels)?
+            policy_engine_account.increase_holders_count(&destination_levels, destination_country)?
         } else {
             vec![]
         };
@@ -259,7 +259,9 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
         amount,
         timestamp,
         &source_levels,
+        source_country,
         &destination_levels,
+        destination_country,
         &source_tracker_account,
         &destination_tracker_account,
         source_balance,
