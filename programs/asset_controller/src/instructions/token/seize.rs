@@ -50,17 +50,8 @@ impl<'info> SeizeTokens<'info> {
             self.asset_controller.to_account_info(),
         ];
 
-        add_extra_accounts_for_execute_cpi(
-            &mut ix,
-            &mut account_infos,
-            &policy_engine::id(),
-            self.source_token_account.to_account_info(),
-            self.asset_mint.to_account_info(),
-            self.destination_token_account.to_account_info(),
-            self.asset_controller.to_account_info(),
-            amount,
-            remaining_accounts,
-        )?;
+        account_infos.extend(remaining_accounts.iter().map(|account| account.clone()));
+        ix.accounts.extend(remaining_accounts.iter().map(|account| AccountMeta { pubkey: *account.key, is_signer: account.is_signer, is_writable: account.is_writable }));
 
         anchor_lang::solana_program::program::invoke_signed(&ix, &account_infos, signer_seeds)
             .map_err(Into::into)

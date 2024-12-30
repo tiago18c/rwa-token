@@ -217,14 +217,6 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
 
     let timestamp = Clock::get()?.unix_timestamp;
 
-    msg!("source_levels: {:?}", source_levels);
-    msg!("destination_levels: {:?}", destination_levels);
-
-    msg!("source balance: {:?}", source_balance);
-    msg!("destination balance: {:?}", destination_balance);
-
-    msg!("amount: {:?}", amount);
-
     if !self_transfer {
         let decreased_counters = if source_balance == 0 {
             // source has 0 balance
