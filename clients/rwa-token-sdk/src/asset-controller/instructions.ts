@@ -711,7 +711,6 @@ export async function getRevokeTokensIx(
 			isWritable: true,
 			isSigner: false,
 		},
-		/****************************/
 	];
 	const ixs: TransactionInstruction[] = [ComputeBudgetProgram.setComputeUnitLimit({units: 450_000})];
 	const ix = await assetProgram.methods
@@ -725,12 +724,6 @@ export async function getRevokeTokensIx(
 				new PublicKey(args.assetMint),
 				new PublicKey(args.owner),
 				false,
-				TOKEN_2022_PROGRAM_ID
-			),
-			authorityTokenAccount: getAssociatedTokenAddressSync(
-				new PublicKey(args.assetMint),
-				getAssetControllerPda(args.assetMint),
-				true,
 				TOKEN_2022_PROGRAM_ID
 			),
 			associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
