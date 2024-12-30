@@ -297,6 +297,23 @@ export type IdentityRegistry = {
           }
         },
         {
+          "name": "walletIdentity",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "owner"
+              },
+              {
+                "kind": "account",
+                "path": "identity_registry.asset_mint",
+                "account": "identityRegistryAccount"
+              }
+            ]
+          }
+        },
+        {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
         }

@@ -825,63 +825,6 @@ export type AssetController = {
           }
         },
         {
-          "name": "authorityTokenAccount",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "account",
-                "path": "assetController"
-              },
-              {
-                "kind": "account",
-                "path": "tokenProgram"
-              },
-              {
-                "kind": "account",
-                "path": "assetMint"
-              }
-            ],
-            "program": {
-              "kind": "const",
-              "value": [
-                140,
-                151,
-                37,
-                143,
-                78,
-                36,
-                137,
-                241,
-                187,
-                61,
-                16,
-                41,
-                20,
-                142,
-                13,
-                131,
-                11,
-                90,
-                19,
-                153,
-                218,
-                255,
-                16,
-                132,
-                4,
-                142,
-                123,
-                216,
-                219,
-                233,
-                248,
-                89
-              ]
-            }
-          }
-        },
-        {
           "name": "revokeTokenAccount",
           "writable": true
         },
@@ -2003,6 +1946,9 @@ export type AssetController = {
           },
           {
             "name": "mapping",
+            "docs": [
+              "generic mapping for levels"
+            ],
             "type": {
               "array": [
                 "u8",
@@ -2012,6 +1958,10 @@ export type AssetController = {
           },
           {
             "name": "issuancePolicies",
+            "docs": [
+              "policies to apply on issuance",
+              "these are partially for storage only"
+            ],
             "type": {
               "defined": {
                 "name": "issuancePolicies"
@@ -2021,7 +1971,7 @@ export type AssetController = {
           {
             "name": "policies",
             "docs": [
-              "initial max len"
+              "policies to check on transfers or balance changes"
             ],
             "type": {
               "vec": {
@@ -2033,6 +1983,9 @@ export type AssetController = {
           },
           {
             "name": "counters",
+            "docs": [
+              "counters to track the number of holders depending on filters"
+            ],
             "type": {
               "vec": {
                 "defined": {
@@ -2043,6 +1996,9 @@ export type AssetController = {
           },
           {
             "name": "counterLimits",
+            "docs": [
+              "limits to apply on existing counters"
+            ],
             "type": {
               "vec": {
                 "defined": {

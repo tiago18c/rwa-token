@@ -291,6 +291,23 @@
           }
         },
         {
+          "name": "wallet_identity",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "owner"
+              },
+              {
+                "kind": "account",
+                "path": "identity_registry.asset_mint",
+                "account": "IdentityRegistryAccount"
+              }
+            ]
+          }
+        },
+        {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
         }

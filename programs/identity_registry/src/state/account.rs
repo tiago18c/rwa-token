@@ -32,7 +32,7 @@ impl IdentityAccount {
         self.owner = owner;
         self.version = Self::VERSION;
         self.levels = vec![IdentityLevel { level, expiry }];
-        self.num_wallets = 0;
+        self.num_wallets = 1;
         self.country = country;
     }
 

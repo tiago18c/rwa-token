@@ -668,24 +668,24 @@
           "name": "identity_registry_account"
         },
         {
-          "name": "destination_identity_account"
+          "name": "source_wallet_identity"
+        },
+        {
+          "name": "destination_wallet_identity"
         },
         {
           "name": "source_identity_account"
         },
         {
-          "name": "destination_tracker_account",
-          "writable": true
+          "name": "destination_identity_account"
         },
         {
           "name": "source_tracker_account",
           "writable": true
         },
         {
-          "name": "destination_wallet_identity"
-        },
-        {
-          "name": "source_wallet_identity"
+          "name": "destination_tracker_account",
+          "writable": true
         }
       ],
       "args": [
@@ -1467,6 +1467,9 @@
           },
           {
             "name": "mapping",
+            "docs": [
+              "generic mapping for levels"
+            ],
             "type": {
               "array": [
                 "u8",
@@ -1476,6 +1479,10 @@
           },
           {
             "name": "issuance_policies",
+            "docs": [
+              "policies to apply on issuance",
+              "these are partially for storage only"
+            ],
             "type": {
               "defined": {
                 "name": "IssuancePolicies"
@@ -1485,7 +1492,7 @@
           {
             "name": "policies",
             "docs": [
-              "initial max len"
+              "policies to check on transfers or balance changes"
             ],
             "type": {
               "vec": {
@@ -1497,6 +1504,9 @@
           },
           {
             "name": "counters",
+            "docs": [
+              "counters to track the number of holders depending on filters"
+            ],
             "type": {
               "vec": {
                 "defined": {
@@ -1507,6 +1517,9 @@
           },
           {
             "name": "counter_limits",
+            "docs": [
+              "limits to apply on existing counters"
+            ],
             "type": {
               "vec": {
                 "defined": {

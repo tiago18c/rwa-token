@@ -73,6 +73,7 @@ describe("test suite to test tracker account is being updated correctly on trans
 			assetMint: mint,
 			levels: [1],
 			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60)],
+			country: 1,
 		};
 		const setupIx1 = await rwaClient.identityRegistry.setupUserIxns(
 			setupUser1Args
@@ -90,6 +91,7 @@ describe("test suite to test tracker account is being updated correctly on trans
 			assetMint: mint,
 			levels: [1],
 			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60)],
+			country: 1,
 		};
 		const setupIx2 = await rwaClient.identityRegistry.setupUserIxns(
 			setupUser2Args

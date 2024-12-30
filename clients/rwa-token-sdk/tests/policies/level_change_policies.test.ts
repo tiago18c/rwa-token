@@ -124,7 +124,7 @@ describe("e2e tests", async () => {
 		const identityAccount = await getIdentityAccountFromOwner(mint, setup.user1.toString(), rwaClient.provider);
 		expect(identityAccount).toBeTruthy();
 		expect(identityAccount!.owner.toString()).toBe(setup.user1.toString());
-		expect(identityAccount!.numWallets).toBe(0);
+		expect(identityAccount!.numWallets).toBe(1);
 	});
 
 	test("create identity approval policy", async () => {

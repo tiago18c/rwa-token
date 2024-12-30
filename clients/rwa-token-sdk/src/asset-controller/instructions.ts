@@ -22,6 +22,8 @@ import {
 	getIdentityRegistryPda,
 	getAddLevelToIdentityAccount,
 	getWalletIdentityAccountPda,
+	getWalletIdentityAccount,
+	getIdentityAccount,
 } from "../identity-registry";
 import {
 	type CommonArgs,
@@ -177,7 +179,7 @@ export async function getIssueTokensIx(
 			associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
 			systemProgram: SystemProgram.programId,
 			to: new PublicKey(args.wallet || args.owner),
-			walletIdentityAccount: args.wallet ? getWalletIdentityAccountPda(args.assetMint, args.wallet) : null,
+			walletIdentityAccount: getWalletIdentityAccountPda(args.assetMint, args.wallet || args.owner),
 		})
 		.instruction();
 	return [ix];
@@ -219,6 +221,7 @@ export type TransferTokensArgs = {
   decimals: number;
   message?: string;
   createTa?: boolean;
+  wallet?: string;
 }
 
 /**
@@ -230,7 +233,26 @@ export async function getTransferTokensIxs(
 	args: TransferTokensArgs,
 	provider: AnchorProvider
 ): Promise<TransactionInstruction[]> {
+	const destinationWalletIdentityPda = getWalletIdentityAccountPda(args.assetMint, args.to);
+	const destinationWalletIdentityAccount = await getWalletIdentityAccount(destinationWalletIdentityPda, provider);
+	if (!destinationWalletIdentityAccount) {
+		throw new Error("Destination wallet account not found");
+	}
+	const destinationIdentityAccount = await getIdentityAccount(destinationWalletIdentityAccount?.identityAccount, provider);
+	if (!destinationIdentityAccount) {
+		throw new Error("Destination wallet account not found");
+	}
 	const remainingAccounts = [
+		{
+			pubkey: getExtraMetasListPda(args.assetMint),
+			isWritable: false,
+			isSigner: false,
+		},
+		{
+			pubkey: policyEngineProgramId,
+			isWritable: false,
+			isSigner: false,
+		},
 		{
 			pubkey: getPolicyEnginePda(args.assetMint),
 			isWritable: true,
@@ -247,7 +269,12 @@ export async function getTransferTokensIxs(
 			isSigner: false,
 		},
 		{
-			pubkey: getIdentityAccountPda(args.assetMint, args.to),
+			pubkey: getWalletIdentityAccountPda(args.assetMint, args.wallet || args.from),
+			isWritable: false,
+			isSigner: false,
+		},
+		{
+			pubkey: destinationWalletIdentityPda,
 			isWritable: false,
 			isSigner: false,
 		},
@@ -257,8 +284,8 @@ export async function getTransferTokensIxs(
 			isSigner: false,
 		},
 		{
-			pubkey: getTrackerAccountPda(args.assetMint, args.to),
-			isWritable: true,
+			pubkey: destinationWalletIdentityAccount.identityAccount,
+			isWritable: false,
 			isSigner: false,
 		},
 		{
@@ -267,25 +294,10 @@ export async function getTransferTokensIxs(
 			isSigner: false,
 		},
 		{
-			pubkey: getExtraMetasListPda(args.assetMint),
-			isWritable: false,
+			pubkey: getTrackerAccountPda(args.assetMint, destinationIdentityAccount.owner.toString()),
+			isWritable: true,
 			isSigner: false,
 		},
-		{
-			pubkey: policyEngineProgramId,
-			isWritable: false,
-			isSigner: false,
-		},
-		{
-			pubkey: getWalletIdentityAccountPda(args.assetMint, args.to),
-			isWritable: false,
-			isSigner: false,
-		},
-		{
-			pubkey: getWalletIdentityAccountPda(args.assetMint, args.from),
-			isWritable: false,
-			isSigner: false,
-		}
 	];
 
 	const ixs: TransactionInstruction[] = [];
@@ -321,7 +333,7 @@ export async function getTransferTokensIxs(
 	const ix = createTransferCheckedInstruction(
 		getAssociatedTokenAddressSync(
 			new PublicKey(args.assetMint),
-			new PublicKey(args.from),
+			new PublicKey(args.wallet || args.from),
 			true,
 			TOKEN_2022_PROGRAM_ID
 		),
@@ -332,7 +344,7 @@ export async function getTransferTokensIxs(
 			true,
 			TOKEN_2022_PROGRAM_ID
 		),
-		new PublicKey(args.from),
+		new PublicKey(args.wallet || args.from),
 		args.amount,
 		args.decimals,
 		[],
@@ -628,6 +640,7 @@ export async function getThawTokenIx(
 export type RevokeTokensArgs = {
 	amount: number;
 	owner: string;
+	wallet?: string;
 	authority: string;
 	assetMint: string;
 };
@@ -644,6 +657,16 @@ export async function getRevokeTokensIx(
 	const assetProgram = getAssetControllerProgram(provider);
 	const remainingAccounts = [
 		{
+			pubkey: getExtraMetasListPda(args.assetMint),
+			isWritable: false,
+			isSigner: false,
+		},
+		{
+			pubkey: policyEngineProgramId,
+			isWritable: false,
+			isSigner: false,
+		},
+		{
 			pubkey: getPolicyEnginePda(args.assetMint),
 			isWritable: true,
 			isSigner: false,
@@ -654,37 +677,12 @@ export async function getRevokeTokensIx(
 			isSigner: false,
 		},
 		{
-			pubkey: policyEngineProgramId,
-			isWritable: false,
-			isSigner: false,
-		},
-		{
 			pubkey: getIdentityRegistryPda(args.assetMint),
 			isWritable: false,
 			isSigner: false,
 		},
 		{
-			pubkey: getIdentityAccountPda(args.assetMint, getAssetControllerPda(args.assetMint).toString()),
-			isWritable: false,
-			isSigner: false,
-		},
-		{
-			pubkey: getIdentityAccountPda(args.assetMint, args.owner),
-			isWritable: false,
-			isSigner: false,
-		},
-		{
-			pubkey: getTrackerAccountPda(args.assetMint, getAssetControllerPda(args.assetMint).toString()),
-			isWritable: true,
-			isSigner: false,
-		},
-		{
-			pubkey: getTrackerAccountPda(args.assetMint, args.owner),
-			isWritable: true,
-			isSigner: false,
-		},
-		{
-			pubkey: getExtraMetasListPda(args.assetMint),
+			pubkey: getWalletIdentityAccountPda(args.assetMint, args.wallet || args.owner),
 			isWritable: false,
 			isSigner: false,
 		},
@@ -694,10 +692,26 @@ export async function getRevokeTokensIx(
 			isSigner: false,
 		},
 		{
-			pubkey: getWalletIdentityAccountPda(args.assetMint, args.owner),
+			pubkey: getIdentityAccountPda(args.assetMint, args.owner),
 			isWritable: false,
 			isSigner: false,
-		}
+		},
+		{
+			pubkey: getIdentityAccountPda(args.assetMint, getAssetControllerPda(args.assetMint).toString()),
+			isWritable: false,
+			isSigner: false,
+		},
+		{
+			pubkey: getTrackerAccountPda(args.assetMint, args.owner),
+			isWritable: true,
+			isSigner: false,
+		},
+		{
+			pubkey: getTrackerAccountPda(args.assetMint, getAssetControllerPda(args.assetMint).toString()),
+			isWritable: true,
+			isSigner: false,
+		},
+		/****************************/
 	];
 	const ixs: TransactionInstruction[] = [ComputeBudgetProgram.setComputeUnitLimit({units: 450_000})];
 	const ix = await assetProgram.methods
@@ -732,6 +746,7 @@ export type SeizeTokensArgs = {
 	amount: number;
 	from: string;
 	to: string;
+	wallet?: string;
 	authority: string;
 	assetMint: string;
 };
@@ -746,7 +761,17 @@ export async function getSeizeTokensIx(
 	provider: AnchorProvider
 ): Promise<TransactionInstruction[]> {
 	const assetProgram = getAssetControllerProgram(provider);
-	const remainingAccounts = [
+	const remainingAccounts = [		
+		{
+			pubkey: getExtraMetasListPda(args.assetMint),
+			isWritable: false,
+			isSigner: false,
+		},
+		{
+			pubkey: policyEngineProgramId,
+			isWritable: false,
+			isSigner: false,
+		},
 		{
 			pubkey: getPolicyEnginePda(args.assetMint),
 			isWritable: true,
@@ -758,37 +783,12 @@ export async function getSeizeTokensIx(
 			isSigner: false,
 		},
 		{
-			pubkey: policyEngineProgramId,
-			isWritable: false,
-			isSigner: false,
-		},
-		{
 			pubkey: getIdentityRegistryPda(args.assetMint),
 			isWritable: false,
 			isSigner: false,
 		},
 		{
-			pubkey: getIdentityAccountPda(args.assetMint, args.to),
-			isWritable: false,
-			isSigner: false,
-		},
-		{
-			pubkey: getIdentityAccountPda(args.assetMint, args.from),
-			isWritable: false,
-			isSigner: false,
-		},
-		{
-			pubkey: getTrackerAccountPda(args.assetMint, args.to),
-			isWritable: true,
-			isSigner: false,
-		},
-		{
-			pubkey: getTrackerAccountPda(args.assetMint, args.from),
-			isWritable: true,
-			isSigner: false,
-		},
-		{
-			pubkey: getExtraMetasListPda(args.assetMint),
+			pubkey: getWalletIdentityAccountPda(args.assetMint, args.wallet || args.from),
 			isWritable: false,
 			isSigner: false,
 		},
@@ -798,10 +798,26 @@ export async function getSeizeTokensIx(
 			isSigner: false,
 		},
 		{
-			pubkey: getWalletIdentityAccountPda(args.assetMint, args.from),
+			pubkey: getIdentityAccountPda(args.assetMint, args.from),
 			isWritable: false,
 			isSigner: false,
-		}
+		},
+		{
+			pubkey: getIdentityAccountPda(args.assetMint, args.to),
+			isWritable: false,
+			isSigner: false,
+		},
+		{
+			pubkey: getTrackerAccountPda(args.assetMint, args.from),
+			isWritable: true,
+			isSigner: false,
+		},
+		{
+			pubkey: getTrackerAccountPda(args.assetMint, args.to),
+			isWritable: true,
+			isSigner: false,
+		}, 
+		
 	];
 	const ixs: TransactionInstruction[] = [ComputeBudgetProgram.setComputeUnitLimit({units: 450_000})];
 	const ix = await assetProgram.methods

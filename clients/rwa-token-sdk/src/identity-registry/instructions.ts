@@ -75,6 +75,7 @@ export async function getCreateIdentityAccountIx(
 			signer: args.signer
 				? args.signer
 				: getIdentityRegistryPda(args.assetMint),
+			walletIdentity: getWalletIdentityAccountPda(args.assetMint, args.owner),
 		})
 		.instruction();
 	return ix;

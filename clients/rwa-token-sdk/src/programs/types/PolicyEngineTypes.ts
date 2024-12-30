@@ -674,24 +674,24 @@ export type PolicyEngine = {
           "name": "identityRegistryAccount"
         },
         {
-          "name": "destinationIdentityAccount"
+          "name": "sourceWalletIdentity"
+        },
+        {
+          "name": "destinationWalletIdentity"
         },
         {
           "name": "sourceIdentityAccount"
         },
         {
-          "name": "destinationTrackerAccount",
-          "writable": true
+          "name": "destinationIdentityAccount"
         },
         {
           "name": "sourceTrackerAccount",
           "writable": true
         },
         {
-          "name": "destinationWalletIdentity"
-        },
-        {
-          "name": "sourceWalletIdentity"
+          "name": "destinationTrackerAccount",
+          "writable": true
         }
       ],
       "args": [
@@ -1473,6 +1473,9 @@ export type PolicyEngine = {
           },
           {
             "name": "mapping",
+            "docs": [
+              "generic mapping for levels"
+            ],
             "type": {
               "array": [
                 "u8",
@@ -1482,6 +1485,10 @@ export type PolicyEngine = {
           },
           {
             "name": "issuancePolicies",
+            "docs": [
+              "policies to apply on issuance",
+              "these are partially for storage only"
+            ],
             "type": {
               "defined": {
                 "name": "issuancePolicies"
@@ -1491,7 +1498,7 @@ export type PolicyEngine = {
           {
             "name": "policies",
             "docs": [
-              "initial max len"
+              "policies to check on transfers or balance changes"
             ],
             "type": {
               "vec": {
@@ -1503,6 +1510,9 @@ export type PolicyEngine = {
           },
           {
             "name": "counters",
+            "docs": [
+              "counters to track the number of holders depending on filters"
+            ],
             "type": {
               "vec": {
                 "defined": {
@@ -1513,6 +1523,9 @@ export type PolicyEngine = {
           },
           {
             "name": "counterLimits",
+            "docs": [
+              "limits to apply on existing counters"
+            ],
             "type": {
               "vec": {
                 "defined": {

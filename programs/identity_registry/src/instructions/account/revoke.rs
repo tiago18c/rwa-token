@@ -21,7 +21,7 @@ pub struct RevokeIdentityAccount<'info> {
         seeds = [identity_registry.key().as_ref(), identity_account.owner.as_ref()],
         bump,
         constraint = identity_account.owner == owner,
-        constraint = identity_account.num_wallets == 0
+        constraint = identity_account.num_wallets == 1
     )]
     pub identity_account: Box<Account<'info, IdentityAccount>>,
 }

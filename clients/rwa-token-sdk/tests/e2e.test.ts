@@ -124,7 +124,7 @@ describe("e2e tests", async () => {
 		const identityAccount = await getIdentityAccountFromOwner(mint, setup.user1.toString(), rwaClient.provider);
 		expect(identityAccount).toBeTruthy();
 		expect(identityAccount!.owner.toString()).toBe(setup.user1.toString());
-		expect(identityAccount!.numWallets).toBe(0);
+		expect(identityAccount!.numWallets).toBe(1);
 	});
 
 	test("update asset metadata", async () => {
@@ -410,8 +410,42 @@ describe("e2e tests", async () => {
 		const identityAccount = getIdentityAccountPda(mint, setup.user1.toString());
 		const walletIdentityAccounts = await getWalletIdentityAccountsWithFilter(identityAccount.toBase58(), rwaClient.provider);
 		expect(walletIdentityAccounts).toBeTruthy();
-		expect(walletIdentityAccounts!.length).toBe(1);
-		expect(walletIdentityAccounts![0].wallet.toString()).toBe(setup.user4.toString());
+		expect(walletIdentityAccounts!.length).toBe(2);
+		expect(walletIdentityAccounts!.some(walletIdentityAccount => walletIdentityAccount.wallet.toString() === setup.user4.toString())).toBe(true);
+		expect(walletIdentityAccounts!.some(walletIdentityAccount => walletIdentityAccount.wallet.toString() === setup.user1.toString())).toBe(true);
+	});
+
+	test("issue to wallet identity account", async () => {
+		const issueToWalletIdentityAccountIx = await rwaClient.assetController.issueTokenIxns({
+			authority: setup.authority.toString(),
+			payer: setup.payer.toString(),
+			owner: setup.user1.toString(),
+			wallet: setup.user4.toString(),
+			assetMint: mint,
+			amount: 100,
+		});
+		const txnId = await sendAndConfirmTransaction(
+			rwaClient.provider.connection,
+			new Transaction().add(...issueToWalletIdentityAccountIx),
+			[setup.payerKp, setup.authorityKp]
+		);
+		expect(txnId).toBeTruthy();
+	});
+
+	test("transfer from wallet identity account", async () => {
+		const transferFromWalletIdentityAccountIx = await rwaClient.assetController.transfer({
+			from: setup.user4.toString(),
+			to: setup.user1.toString(),
+			assetMint: mint,
+			amount: 100,
+			decimals,
+		});
+		const txnId = await sendAndConfirmTransaction(
+			rwaClient.provider.connection,
+			new Transaction().add(...transferFromWalletIdentityAccountIx),
+			[setup.payerKp, setup.user4Kp]
+		);
+		expect(txnId).toBeTruthy();
 	});
 
 	test("detach wallet identity account", async () => {

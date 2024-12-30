@@ -4,6 +4,7 @@ use anchor_spl::token_2022::spl_token_2022::extension::StateWithExtensions;
 use anchor_spl::token_2022::spl_token_2022::extension::BaseStateWithExtensions;
 use anchor_spl::token_2022::spl_token_2022::extension::transfer_hook::TransferHookAccount;
 use anchor_spl::token_2022::spl_token_2022::state::Account as Token2022Account;
+use spl_tlv_account_resolution::pubkey_data::PubkeyData;
 use spl_tlv_account_resolution::{
     account::ExtraAccountMeta, seeds::Seed, state::ExtraAccountMetaList,
 };
@@ -79,65 +80,32 @@ pub fn get_meta_list_size() -> Result<usize> {
 
 pub fn get_extra_account_metas() -> Result<Vec<ExtraAccountMeta>> {
     Ok(vec![
-        // policy engine account
+        // [5] policy engine account
         ExtraAccountMeta::new_with_seeds(&[Seed::AccountKey { index: 1 }], false, true)?,
-        // identity program
+        // [6] identity program
         ExtraAccountMeta::new_with_pubkey(&identity_registry::id(), false, false)?,
-        // identity registry account
+        // [7] identity registry account
         ExtraAccountMeta::new_external_pda_with_seeds(
             6,
             &[Seed::AccountKey { index: 1 }],
             false,
             false,
         )?,
-        // destination identity account
+        // [8] source wallet identity
         ExtraAccountMeta::new_external_pda_with_seeds(
             6,
             &[
-                Seed::AccountKey { index: 7 },
-                Seed::AccountData {
-                    // to pubkey
-                    account_index: 2, // to token account
-                    data_index: 32,
-                    length: 32,
-                },
-            ],
-            false,
-            false,
-        )?,
-        // source identity account
-        ExtraAccountMeta::new_external_pda_with_seeds(
-            6,
-            &[
-                Seed::AccountKey { index: 7 },
                 Seed::AccountData {
                     account_index: 0,
                     data_index: 32,
                     length: 32,
                 },
-            ],
-            false,
-            false,
-        )?,
-        // destination tracker account
-        ExtraAccountMeta::new_with_seeds(
-            &[
                 Seed::AccountKey { index: 1 },
-                Seed::AccountKey { index: 8 },
             ],
             false,
-            true,
-        )?,
-        // source tracker account
-        ExtraAccountMeta::new_with_seeds(
-            &[
-                Seed::AccountKey { index: 1 },
-                Seed::AccountKey { index: 9 },
-            ],
             false,
-            true,
         )?,
-        // destination wallet identity
+        // [9] destination wallet identity
         ExtraAccountMeta::new_external_pda_with_seeds(
             6,
             &[
@@ -151,19 +119,35 @@ pub fn get_extra_account_metas() -> Result<Vec<ExtraAccountMeta>> {
             false,
             false,
         )?,
-        // source wallet identity
-        ExtraAccountMeta::new_external_pda_with_seeds(
-            6,
+        // [10] source identity account
+        ExtraAccountMeta::new_with_pubkey_data(
+            &PubkeyData::AccountData { account_index: 8, data_index: 8 },
+            false,
+            false,
+        )?,
+        // [11] destination identity account
+        ExtraAccountMeta::new_with_pubkey_data(
+            &PubkeyData::AccountData { account_index: 9, data_index: 8 },
+            false,
+            false,
+        )?,
+        // [12] source tracker account
+        ExtraAccountMeta::new_with_seeds(
             &[
-                Seed::AccountData {
-                    account_index: 0,
-                    data_index: 32,
-                    length: 32,
-                },
                 Seed::AccountKey { index: 1 },
+                Seed::AccountKey { index: 10 },
             ],
             false,
+            true,
+        )?,
+        // [13] destination tracker account
+        ExtraAccountMeta::new_with_seeds(
+            &[
+                Seed::AccountKey { index: 1 },
+                Seed::AccountKey { index: 11 },
+            ],
             false,
+            true,
         )?,
     ])
 }
