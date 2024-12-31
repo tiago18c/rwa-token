@@ -740,7 +740,10 @@
           ]
         },
         {
-          "name": "identity_account"
+          "name": "identity_account",
+          "relations": [
+            "wallet_identity_account"
+          ]
         },
         {
           "name": "tracker_account",
@@ -767,8 +770,7 @@
           "writable": true
         },
         {
-          "name": "wallet_identity_account",
-          "optional": true
+          "name": "wallet_identity_account"
         }
       ],
       "args": [
@@ -1187,6 +1189,19 @@
         30,
         90,
         210
+      ]
+    },
+    {
+      "name": "WalletIdentity",
+      "discriminator": [
+        101,
+        142,
+        55,
+        104,
+        168,
+        77,
+        57,
+        85
       ]
     }
   ],
@@ -2197,6 +2212,22 @@
             "type": {
               "option": "string"
             }
+          }
+        ]
+      }
+    },
+    {
+      "name": "WalletIdentity",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "identity_account",
+            "type": "pubkey"
+          },
+          {
+            "name": "wallet",
+            "type": "pubkey"
           }
         ]
       }

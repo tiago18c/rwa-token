@@ -44,8 +44,8 @@ pub struct IssueTokens<'info> {
     pub policy_engine_program: Program<'info, PolicyEngine>,
     #[account(mut)]
     pub policy_engine: Box<Account<'info, PolicyEngineAccount>>,
-    /// CHECK: checked in handler
-    pub wallet_identity_account: Option<UncheckedAccount<'info>>,
+    #[account(has_one = identity_account)]
+    pub wallet_identity_account: Account<'info, WalletIdentity>,
 }
 
 impl<'info> IssueTokens<'info> {
@@ -85,16 +85,10 @@ impl<'info> IssueTokens<'info> {
     }
 }
 
-pub fn handler(ctx: Context<IssueTokens>, amount: u64, issuance_timestamp: i64) -> Result<()> {
-    // either to is the wallet related to the identity account
-    // or we have a wallet identity account that links a wallet to an identity account
-    let wallet_identity = ctx.accounts.wallet_identity_account.as_ref().and_then(|v| WalletIdentity::try_deserialize(&mut &v.data.borrow()[..]).ok());
-    
+pub fn handler(ctx: Context<IssueTokens>, amount: u64, issuance_timestamp: i64) -> Result<()> {    
     require!(
         ctx.accounts.to.key() == ctx.accounts.identity_account.owner 
-        || (wallet_identity.is_some() 
-            && wallet_identity.as_ref().unwrap().wallet == ctx.accounts.to.key() 
-            && wallet_identity.as_ref().unwrap().identity_account == ctx.accounts.identity_account.key()),
+        || ctx.accounts.wallet_identity_account.wallet == ctx.accounts.to.key(),
         AssetControllerErrors::InvalidIdentityAccounts
     );
 

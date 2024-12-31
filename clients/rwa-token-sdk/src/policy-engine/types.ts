@@ -37,6 +37,7 @@ export type FilterInnerTuple = IdlTypes<PolicyEngineIdlTypes>["filterInner"]["tu
 export type FilterInnerMultiple = IdlTypes<PolicyEngineIdlTypes>["filterInner"]["multiple"];
 
 export type Data = IdlTypes<PolicyEngineIdlTypes>["filterData"];
+export type FilterLevel = IdlTypes<PolicyEngineIdlTypes>["filterLevel"];
 export type FilterTarget = IdlTypes<PolicyEngineIdlTypes>["filterTarget"];
 export type FilterMode = IdlTypes<PolicyEngineIdlTypes>["filterMode"];
 

@@ -746,7 +746,10 @@ export type AssetController = {
           ]
         },
         {
-          "name": "identityAccount"
+          "name": "identityAccount",
+          "relations": [
+            "walletIdentityAccount"
+          ]
         },
         {
           "name": "trackerAccount",
@@ -773,8 +776,7 @@ export type AssetController = {
           "writable": true
         },
         {
-          "name": "walletIdentityAccount",
-          "optional": true
+          "name": "walletIdentityAccount"
         }
       ],
       "args": [
@@ -1193,6 +1195,19 @@ export type AssetController = {
         30,
         90,
         210
+      ]
+    },
+    {
+      "name": "walletIdentity",
+      "discriminator": [
+        101,
+        142,
+        55,
+        104,
+        168,
+        77,
+        57,
+        85
       ]
     }
   ],
@@ -2203,6 +2218,22 @@ export type AssetController = {
             "type": {
               "option": "string"
             }
+          }
+        ]
+      }
+    },
+    {
+      "name": "walletIdentity",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "identityAccount",
+            "type": "pubkey"
+          },
+          {
+            "name": "wallet",
+            "type": "pubkey"
           }
         ]
       }
