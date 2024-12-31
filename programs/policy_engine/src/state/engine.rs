@@ -306,7 +306,7 @@ pub enum PolicyType {
     TransferPause,
     ForbiddenIdentityGroup,
     ForceFullTransfer,
-    BlockFlowbackEndTime { time: i64, target_level: u8 },
+    BlockFlowbackEndTime { time: i64 },
 }
 
 pub fn get_policy_engine_pda(asset_mint: Pubkey) -> Pubkey {
@@ -563,7 +563,7 @@ impl PolicyEngineAccount {
                         }
                     }
                 }
-                PolicyType::BlockFlowbackEndTime { time, target_level: _ } => {
+                PolicyType::BlockFlowbackEndTime { time } => {
                     if self.enforce_filters_on_transfer(source_identity, source_country, destination_identity, destination_country, &policy.identity_filter, timestamp).is_ok() {
                         if *time == 0 || *time > timestamp {
                             return Err(PolicyEngineErrors::Flowback.into());

@@ -2114,10 +2114,6 @@ export type AssetController = {
               {
                 "name": "time",
                 "type": "i64"
-              },
-              {
-                "name": "targetLevel",
-                "type": "u8"
               }
             ]
           }
