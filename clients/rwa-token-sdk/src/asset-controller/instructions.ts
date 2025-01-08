@@ -653,51 +653,8 @@ export type RevokeTokensArgs = {
 export async function getRevokeTokensIx(
 	args: RevokeTokensArgs,
 	provider: AnchorProvider
-): Promise<TransactionInstruction[]> {
+): Promise<TransactionInstruction> {
 	const assetProgram = getAssetControllerProgram(provider);
-	const remainingAccounts = [
-		{
-			pubkey: getExtraMetasListPda(args.assetMint),
-			isWritable: false,
-			isSigner: false,
-		},
-		{
-			pubkey: policyEngineProgramId,
-			isWritable: false,
-			isSigner: false,
-		},
-		{
-			pubkey: getPolicyEnginePda(args.assetMint),
-			isWritable: true,
-			isSigner: false,
-		},
-		{
-			pubkey: identityRegistryProgramId,
-			isWritable: false,
-			isSigner: false,
-		},
-		{
-			pubkey: getIdentityRegistryPda(args.assetMint),
-			isWritable: false,
-			isSigner: false,
-		},
-		{
-			pubkey: getWalletIdentityAccountPda(args.assetMint, args.wallet || args.owner),
-			isWritable: false,
-			isSigner: false,
-		},
-		{
-			pubkey: getIdentityAccountPda(args.assetMint, args.owner),
-			isWritable: false,
-			isSigner: false,
-		},
-		{
-			pubkey: getTrackerAccountPda(args.assetMint, args.owner),
-			isWritable: true,
-			isSigner: false,
-		},
-	];
-	const ixs: TransactionInstruction[] = [ComputeBudgetProgram.setComputeUnitLimit({units: 450_000})];
 	const ix = await assetProgram.methods
 		.revokeTokens(new BN(args.amount))
 		.accountsStrict({
@@ -715,14 +672,13 @@ export async function getRevokeTokensIx(
 			identityRegistry: getIdentityRegistryPda(args.assetMint),
 			identityAccount: getIdentityAccountPda(args.assetMint, args.owner),
 			trackerAccount: getTrackerAccountPda(args.assetMint, args.owner),
-			walletIdentityAccount: getWalletIdentityAccountPda(args.assetMint, args.owner),
+			walletIdentityAccount: getWalletIdentityAccountPda(args.assetMint,  args.wallet || args.owner),
 			policyEngineProgram: policyEngineProgramId,
 			associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
 			systemProgram: SystemProgram.programId,
 		})
 		.instruction();
-	ixs.push(ix);
-	return ixs;
+	return ix;
 }
 
 export type SeizeTokensArgs = {

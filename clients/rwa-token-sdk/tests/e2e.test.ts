@@ -338,7 +338,7 @@ describe("e2e tests", async () => {
 		}, rwaClient.provider);
 		const txnId = await sendAndConfirmTransaction(
 			rwaClient.provider.connection,
-			new Transaction().add(...revokeIx),
+			new Transaction().add(revokeIx),
 			[setup.payerKp, setup.authorityKp],
 			{skipPreflight: true}
 		);
