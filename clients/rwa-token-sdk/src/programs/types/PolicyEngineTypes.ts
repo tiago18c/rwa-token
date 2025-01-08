@@ -700,6 +700,100 @@ export type PolicyEngine = {
           "type": "u64"
         }
       ]
+    },
+    {
+      "name": "setCounters",
+      "discriminator": [
+        127,
+        151,
+        147,
+        141,
+        171,
+        53,
+        28,
+        135
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "signer",
+          "signer": true
+        },
+        {
+          "name": "policyEngine",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "changedCounters",
+          "type": "bytes"
+        },
+        {
+          "name": "values",
+          "type": {
+            "vec": "u64"
+          }
+        }
+      ]
+    },
+    {
+      "name": "updateCountersOnBurn",
+      "discriminator": [
+        22,
+        151,
+        139,
+        67,
+        21,
+        61,
+        191,
+        236
+      ],
+      "accounts": [
+        {
+          "name": "assetController",
+          "signer": true
+        },
+        {
+          "name": "assetMint",
+          "relations": [
+            "policyEngine",
+            "identityRegistry"
+          ]
+        },
+        {
+          "name": "policyEngine",
+          "writable": true
+        },
+        {
+          "name": "destinationAccount"
+        },
+        {
+          "name": "identityRegistry",
+          "relations": [
+            "identityAccount"
+          ]
+        },
+        {
+          "name": "identityAccount",
+          "relations": [
+            "destinationTrackerAccount"
+          ]
+        },
+        {
+          "name": "destinationTrackerAccount",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
     }
   ],
   "accounts": [
@@ -916,6 +1010,11 @@ export type PolicyEngine = {
       "code": 6031,
       "name": "maxSupplyExceeded",
       "msg": "Max supply exceeded"
+    },
+    {
+      "code": 6032,
+      "name": "counterNotFound",
+      "msg": "Counter not found"
     }
   ],
   "types": [

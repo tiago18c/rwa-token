@@ -466,7 +466,6 @@ impl PolicyEngineAccount {
         Ok(())
     }
 
-
     /// enforces different types of policies
     #[inline(never)]
     #[allow(clippy::too_many_arguments)]
@@ -902,6 +901,17 @@ impl PolicyEngineAccount {
                 result
             }
         }
+    }
+
+    pub fn set_counters(&mut self, changed_counters: Vec<u8>, values: Vec<u64>) -> Result<()> {
+        
+        for (i, counter_id) in changed_counters.iter().enumerate() {
+            let counter = self.counters.iter_mut().find(|counter| counter.id == *counter_id).ok_or(PolicyEngineErrors::CounterNotFound)?;
+            if counter.value != values[i] {
+                counter.value = values[i];
+            }
+        }
+        Ok(())
     }
 
 }

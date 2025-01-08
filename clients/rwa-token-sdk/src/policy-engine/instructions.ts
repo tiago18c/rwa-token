@@ -12,7 +12,7 @@ import {
 	getTrackerAccountPda,
 } from "./utils";
 import { type PolicyType, type IdentityFilter, Counter, CounterLimit, IssuancePolicies } from "./types";
-import { type AnchorProvider } from "@coral-xyz/anchor";
+import { BN, type AnchorProvider } from "@coral-xyz/anchor";
 import { getIdentityAccountPda, getIdentityRegistryPda } from "../identity-registry";
 
 /** Represents the arguments required to create a policy engine account. */
@@ -111,6 +111,33 @@ export async function getChangeIssuancePoliciesIx(
 	const policyProgram = getPolicyEngineProgram(provider);
 	const ix = await policyProgram.methods
 		.changeIssuancePolicies(args.issuancePolicies)
+		.accountsStrict({
+			signer: new PublicKey(args.authority),
+			payer: args.payer,
+			policyEngine: getPolicyEnginePda(args.assetMint),
+		})
+		.instruction();
+	return {
+		ixs: [ix],
+		signers: [],
+	};
+}
+
+export type SetCountersArgs = {
+	authority: string;
+	payer: string;
+	assetMint: string;
+	changedCounters: number[];
+	values: BN[];
+}
+
+export async function getSetCountersIx(
+	args: SetCountersArgs,
+	provider: AnchorProvider
+): Promise<IxReturn> {
+	const policyProgram = getPolicyEngineProgram(provider);
+	const ix = await policyProgram.methods
+		.setCounters(Buffer.from(args.changedCounters), args.values)
 		.accountsStrict({
 			signer: new PublicKey(args.authority),
 			payer: args.payer,

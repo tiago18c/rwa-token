@@ -13,6 +13,8 @@ import {
 	getChangeMappingIx,
 	getDetachFromPolicyEngineIx,
 	getPolicyEnginePda,
+	getSetCountersIx,
+	SetCountersArgs,
 } from "../policy-engine";
 import { type RwaClient } from "./Client";
 import { type PublicKey } from "@solana/web3.js";
@@ -83,6 +85,14 @@ export class PolicyEngine {
 			this.rwaClient.provider
 		);
 		return changeIssuancePoliciesIx;
+	}
+
+	async setCounters(policyArgs: SetCountersArgs): Promise<IxReturn> {
+		const setCountersIx = await getSetCountersIx(
+			policyArgs,
+			this.rwaClient.provider
+		);
+		return setCountersIx;
 	}
 
 	/**

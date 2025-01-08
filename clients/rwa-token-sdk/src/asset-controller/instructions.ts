@@ -687,27 +687,12 @@ export async function getRevokeTokensIx(
 			isSigner: false,
 		},
 		{
-			pubkey: getWalletIdentityAccountPda(args.assetMint, getAssetControllerPda(args.assetMint).toString()),
-			isWritable: false,
-			isSigner: false,
-		},
-		{
 			pubkey: getIdentityAccountPda(args.assetMint, args.owner),
 			isWritable: false,
 			isSigner: false,
 		},
 		{
-			pubkey: getIdentityAccountPda(args.assetMint, getAssetControllerPda(args.assetMint).toString()),
-			isWritable: false,
-			isSigner: false,
-		},
-		{
 			pubkey: getTrackerAccountPda(args.assetMint, args.owner),
-			isWritable: true,
-			isSigner: false,
-		},
-		{
-			pubkey: getTrackerAccountPda(args.assetMint, getAssetControllerPda(args.assetMint).toString()),
 			isWritable: true,
 			isSigner: false,
 		},
@@ -726,10 +711,15 @@ export async function getRevokeTokensIx(
 				false,
 				TOKEN_2022_PROGRAM_ID
 			),
+			policyEngine: getPolicyEnginePda(args.assetMint),
+			identityRegistry: getIdentityRegistryPda(args.assetMint),
+			identityAccount: getIdentityAccountPda(args.assetMint, args.owner),
+			trackerAccount: getTrackerAccountPda(args.assetMint, args.owner),
+			walletIdentityAccount: getWalletIdentityAccountPda(args.assetMint, args.owner),
+			policyEngineProgram: policyEngineProgramId,
 			associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
 			systemProgram: SystemProgram.programId,
 		})
-		.remainingAccounts(remainingAccounts)
 		.instruction();
 	ixs.push(ix);
 	return ixs;

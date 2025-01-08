@@ -382,8 +382,33 @@ describe("counter tests", async () => {
 		expect(policyAccount?.counters[1].value.toNumber()).toBe(1);
 		expect(policyAccount?.counters[2].value.toNumber()).toBe(2);
 		expect(policyAccount?.counters[3].value.toNumber()).toBe(2);
-		expect(policyAccount?.counters[5].value.toNumber()).toBe(3);
 		expect(policyAccount?.counters[4].value.toNumber()).toBe(1);
+		expect(policyAccount?.counters[5].value.toNumber()).toBe(3);
+	});
+
+	test("set counters", async () => {
+		const setCountersIx = await rwaClient.policyEngine.setCounters({
+			authority: setup.authority.toString(),
+			payer: setup.payer.toString(),
+			assetMint: mint,
+			changedCounters: [1],
+			values: [new BN(1000)],
+		});
+		const txnId = await sendAndConfirmTransaction(
+			rwaClient.provider.connection,
+			new Transaction().add(...setCountersIx.ixs),
+			[setup.payerKp, setup.authorityKp]
+		);
+		expect(txnId).toBeTruthy();
+
+		const policyAccount = await getPolicyEngineAccount(mint, rwaClient.provider);
+		console.log(policyAccount?.counters);
+		expect(policyAccount?.counters[0].value.toNumber()).toBe(1);
+		expect(policyAccount?.counters[1].value.toNumber()).toBe(1000);
+		expect(policyAccount?.counters[2].value.toNumber()).toBe(2);
+		expect(policyAccount?.counters[3].value.toNumber()).toBe(2);
+		expect(policyAccount?.counters[4].value.toNumber()).toBe(1);
+		expect(policyAccount?.counters[5].value.toNumber()).toBe(3);
 	});
 });
 

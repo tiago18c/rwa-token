@@ -813,7 +813,11 @@ export type AssetController = {
         },
         {
           "name": "assetMint",
-          "writable": true
+          "writable": true,
+          "relations": [
+            "identityRegistry",
+            "trackerAccount"
+          ]
         },
         {
           "name": "assetController",
@@ -829,6 +833,33 @@ export type AssetController = {
         {
           "name": "revokeTokenAccount",
           "writable": true
+        },
+        {
+          "name": "identityRegistry",
+          "relations": [
+            "identityAccount"
+          ]
+        },
+        {
+          "name": "identityAccount",
+          "relations": [
+            "walletIdentityAccount"
+          ]
+        },
+        {
+          "name": "trackerAccount",
+          "writable": true
+        },
+        {
+          "name": "policyEngineProgram",
+          "address": "4wyusm2nxncvNyiVej5mZ1k1mVPhfG41oNvHx4BWiYMq"
+        },
+        {
+          "name": "policyEngine",
+          "writable": true
+        },
+        {
+          "name": "walletIdentityAccount"
         },
         {
           "name": "tokenProgram",

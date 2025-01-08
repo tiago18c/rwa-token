@@ -807,7 +807,11 @@
         },
         {
           "name": "asset_mint",
-          "writable": true
+          "writable": true,
+          "relations": [
+            "identity_registry",
+            "tracker_account"
+          ]
         },
         {
           "name": "asset_controller",
@@ -823,6 +827,33 @@
         {
           "name": "revoke_token_account",
           "writable": true
+        },
+        {
+          "name": "identity_registry",
+          "relations": [
+            "identity_account"
+          ]
+        },
+        {
+          "name": "identity_account",
+          "relations": [
+            "wallet_identity_account"
+          ]
+        },
+        {
+          "name": "tracker_account",
+          "writable": true
+        },
+        {
+          "name": "policy_engine_program",
+          "address": "4wyusm2nxncvNyiVej5mZ1k1mVPhfG41oNvHx4BWiYMq"
+        },
+        {
+          "name": "policy_engine",
+          "writable": true
+        },
+        {
+          "name": "wallet_identity_account"
         },
         {
           "name": "token_program",

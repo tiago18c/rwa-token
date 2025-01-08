@@ -66,4 +66,6 @@ pub enum PolicyEngineErrors {
     BackdatingNotAllowed,
     #[msg("Max supply exceeded")]
     MaxSupplyExceeded,
+    #[msg("Counter not found")]
+    CounterNotFound,
 }

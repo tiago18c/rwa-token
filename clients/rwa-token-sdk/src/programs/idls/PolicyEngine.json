@@ -694,6 +694,100 @@
           "type": "u64"
         }
       ]
+    },
+    {
+      "name": "set_counters",
+      "discriminator": [
+        127,
+        151,
+        147,
+        141,
+        171,
+        53,
+        28,
+        135
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "signer",
+          "signer": true
+        },
+        {
+          "name": "policy_engine",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "changed_counters",
+          "type": "bytes"
+        },
+        {
+          "name": "values",
+          "type": {
+            "vec": "u64"
+          }
+        }
+      ]
+    },
+    {
+      "name": "update_counters_on_burn",
+      "discriminator": [
+        22,
+        151,
+        139,
+        67,
+        21,
+        61,
+        191,
+        236
+      ],
+      "accounts": [
+        {
+          "name": "asset_controller",
+          "signer": true
+        },
+        {
+          "name": "asset_mint",
+          "relations": [
+            "policy_engine",
+            "identity_registry"
+          ]
+        },
+        {
+          "name": "policy_engine",
+          "writable": true
+        },
+        {
+          "name": "destination_account"
+        },
+        {
+          "name": "identity_registry",
+          "relations": [
+            "identity_account"
+          ]
+        },
+        {
+          "name": "identity_account",
+          "relations": [
+            "destination_tracker_account"
+          ]
+        },
+        {
+          "name": "destination_tracker_account",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
     }
   ],
   "accounts": [
@@ -910,6 +1004,11 @@
       "code": 6031,
       "name": "MaxSupplyExceeded",
       "msg": "Max supply exceeded"
+    },
+    {
+      "code": 6032,
+      "name": "CounterNotFound",
+      "msg": "Counter not found"
     }
   ],
   "types": [

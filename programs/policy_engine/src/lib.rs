@@ -63,6 +63,10 @@ pub mod policy_engine {
         instructions::issue::handler(ctx, amount, issuance_timestamp)
     }
 
+    pub fn update_counters_on_burn(ctx: Context<UpdateCountersOnBurnAccounts>, amount: u64) -> Result<()> {
+        instructions::update_counters_on_burn::handler(ctx, amount)
+    }
+
     pub fn enforce_policy_on_levels_change(ctx: Context<EnforcePolicyOnLevelsChange>, new_levels: NewLevelsArgs, new_country: u8, enforce_limits: bool) -> Result<()> {
         instructions::enforce_policy_on_levels_change::handler(ctx, new_levels, new_country, enforce_limits)
     }
@@ -81,5 +85,9 @@ pub mod policy_engine {
 
     pub fn change_issuance_policies(ctx: Context<ChangeIssuancePolicies>, issuance_policies: IssuancePolicies) -> Result<()> {
         instructions::engine::change_issuance_policies::handler(ctx, issuance_policies)
+    }
+
+    pub fn set_counters(ctx: Context<SetCounters>, changed_counters: Vec<u8>, values: Vec<u64>) -> Result<()> {
+        instructions::engine::set_counters::handler(ctx, changed_counters, values)
     }
 }
