@@ -475,7 +475,7 @@ export type InterestBearingMintArgs = {
  * @returns - {@link TransactionInstruction}
  * */
 export async function getUpdateInterestBearingMintRateIx(
-	args: { rate: number, authority: string } & CommonArgs,
+	args: InterestBearingMintArgs,
 	provider: AnchorProvider
 ): Promise<TransactionInstruction> {
 	const assetProgram = getAssetControllerProgram(provider);

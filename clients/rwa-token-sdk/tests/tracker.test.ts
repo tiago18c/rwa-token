@@ -8,7 +8,6 @@ import {
 } from "../src";
 import { setupTests } from "./setup";
 import {
-	Commitment,
 	type ConfirmOptions,
 	Connection,
 	Transaction,
@@ -187,16 +186,12 @@ describe("test suite to test tracker account is being updated correctly on trans
 			};
 	
 			const transferIxs = await rwaClient.assetController.transfer(transferArgs);
-			let commitment: Commitment = "processed";
-			if (i < 4) {
-				commitment = "finalized";
-			}
+
 			const txnId = await sendAndConfirmTransaction(
 				rwaClient.provider.connection,
 				new Transaction().add(...transferIxs),
 				[setup.user1Kp],
 				{
-				//	commitment,
 					skipPreflight: true,
 				}
 			);

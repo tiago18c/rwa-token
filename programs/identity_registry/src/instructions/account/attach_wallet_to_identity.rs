@@ -38,15 +38,20 @@ pub struct AttachWalletToIdentity<'info> {
     pub system_program: Program<'info, System>,
 }
 
-
 pub fn handler(ctx: Context<AttachWalletToIdentity>, wallet: Pubkey) -> Result<()> {
-    require!(ctx.accounts.identity_registry.allow_multiple_wallets, IdentityRegistryErrors::MultipleWalletsNotAllowed);
+    require!(
+        ctx.accounts.identity_registry.allow_multiple_wallets,
+        IdentityRegistryErrors::MultipleWalletsNotAllowed
+    );
     require!(
         ctx.accounts.authority.key() == ctx.accounts.identity_account.owner
             || ctx.accounts.authority.key() == ctx.accounts.identity_registry.authority,
         IdentityRegistryErrors::UnauthorizedSigner
     );
-    require!(ctx.accounts.new_wallet_identity_account.data_is_empty(), IdentityRegistryErrors::WalletAlreadyInUse);
+    require!(
+        ctx.accounts.new_wallet_identity_account.data_is_empty(),
+        IdentityRegistryErrors::WalletAlreadyInUse
+    );
     ctx.accounts.identity_account.add_wallet()?;
     ctx.accounts.wallet_identity.identity_account = ctx.accounts.identity_account.key();
     ctx.accounts.wallet_identity.wallet = wallet;

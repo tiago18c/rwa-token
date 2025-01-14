@@ -33,18 +33,37 @@ pub struct EnforcePolicyOnLevelsChange<'info> {
     pub policy_engine: Box<Account<'info, PolicyEngineAccount>>,
 }
 
-pub fn handler(ctx: Context<EnforcePolicyOnLevelsChange>, new_levels: NewLevelsArgs, new_country: u8, enforce_limits: bool) -> Result<()> {
-
+pub fn handler(
+    ctx: Context<EnforcePolicyOnLevelsChange>,
+    new_levels: NewLevelsArgs,
+    new_country: u8,
+    enforce_limits: bool,
+) -> Result<()> {
     let engine = ctx.accounts.policy_engine.as_mut();
     let balance = ctx.accounts.tracker_account.total_amount;
 
     let previous_levels = ctx.accounts.identity_account.levels.as_slice();
     let timestamp = Clock::get()?.unix_timestamp;
 
-    let new_levels: Vec<IdentityLevel> = new_levels.levels.iter().map(|level| IdentityLevel { level: level.level, expiry: level.expiry }).collect();
+    let new_levels: Vec<IdentityLevel> = new_levels
+        .levels
+        .iter()
+        .map(|level| IdentityLevel {
+            level: level.level,
+            expiry: level.expiry,
+        })
+        .collect();
 
     if balance != 0 {
-        engine.update_and_enforce_policy_and_counters_on_levels_change(previous_levels, &new_levels, ctx.accounts.identity_account.country, new_country, timestamp, balance, enforce_limits)?;
+        engine.update_and_enforce_policy_and_counters_on_levels_change(
+            previous_levels,
+            &new_levels,
+            ctx.accounts.identity_account.country,
+            new_country,
+            timestamp,
+            balance,
+            enforce_limits,
+        )?;
     }
 
     Ok(())

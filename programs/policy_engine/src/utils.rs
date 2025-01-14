@@ -1,8 +1,8 @@
 use crate::PolicyEngineErrors;
 use anchor_lang::prelude::*;
-use anchor_spl::token_2022::spl_token_2022::extension::StateWithExtensions;
-use anchor_spl::token_2022::spl_token_2022::extension::BaseStateWithExtensions;
 use anchor_spl::token_2022::spl_token_2022::extension::transfer_hook::TransferHookAccount;
+use anchor_spl::token_2022::spl_token_2022::extension::BaseStateWithExtensions;
+use anchor_spl::token_2022::spl_token_2022::extension::StateWithExtensions;
 use anchor_spl::token_2022::spl_token_2022::state::Account as Token2022Account;
 use spl_tlv_account_resolution::pubkey_data::PubkeyData;
 use spl_tlv_account_resolution::{
@@ -56,12 +56,12 @@ pub fn assert_is_transferring(account: &AccountInfo) -> Result<()> {
     let account_data = account.try_borrow_data()?;
     let token_account = StateWithExtensions::<Token2022Account>::unpack(&account_data)?;
     let account_extension = token_account.get_extension::<TransferHookAccount>()?;
- 
+
     // can assume if its not transferring, it wasn't called by token22
     if !bool::from(account_extension.transferring) {
         return Err(PolicyEngineErrors::InvalidCpiTransferProgram.into());
     }
- 
+
     Ok(())
 }
 
@@ -121,13 +121,19 @@ pub fn get_extra_account_metas() -> Result<Vec<ExtraAccountMeta>> {
         )?,
         // [10] source identity account
         ExtraAccountMeta::new_with_pubkey_data(
-            &PubkeyData::AccountData { account_index: 8, data_index: 8 },
+            &PubkeyData::AccountData {
+                account_index: 8,
+                data_index: 8,
+            },
             false,
             false,
         )?,
         // [11] destination identity account
         ExtraAccountMeta::new_with_pubkey_data(
-            &PubkeyData::AccountData { account_index: 9, data_index: 8 },
+            &PubkeyData::AccountData {
+                account_index: 9,
+                data_index: 8,
+            },
             false,
             false,
         )?,

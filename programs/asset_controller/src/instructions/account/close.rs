@@ -4,7 +4,6 @@ use anchor_spl::{
     token_interface::{close_account, CloseAccount, Mint, Token2022, TokenAccount},
 };
 
-
 #[derive(Accounts)]
 #[instruction()]
 pub struct CloseTokenAccount<'info> {
@@ -24,9 +23,7 @@ pub struct CloseTokenAccount<'info> {
     pub associated_token_program: Program<'info, AssociatedToken>,
 }
 
-
 pub fn handler(ctx: Context<CloseTokenAccount>) -> Result<()> {
-    
     let accounts = CloseAccount {
         authority: ctx.accounts.owner.to_account_info(),
         account: ctx.accounts.token_account.to_account_info(),

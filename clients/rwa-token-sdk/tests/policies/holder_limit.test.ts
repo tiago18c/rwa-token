@@ -1,7 +1,6 @@
 import { BN, Wallet } from "@coral-xyz/anchor";
 import {
 	ChangeCountersArgs,
-	getChangeCountersIx,
 	getPolicyEngineAccount,
 	getTransferTokensIxs,
 	RwaClient,
@@ -63,7 +62,8 @@ describe("test additional policies", async () => {
 			assetMint: mint,
 			levels: [1],
 			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60)],
-			signer: setup.authorityKp.publicKey.toString()
+			signer: setup.authorityKp.publicKey.toString(),
+			country: 0,
 		});
 		await sendAndConfirmTransaction(
 			setup.provider.connection,
@@ -77,7 +77,8 @@ describe("test additional policies", async () => {
 			assetMint: mint,
 			levels: [1],
 			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60)],
-			signer: setup.authorityKp.publicKey.toString()
+			signer: setup.authorityKp.publicKey.toString(),
+			country: 0,
 		});
 		await sendAndConfirmTransaction(
 			setup.provider.connection,
@@ -91,7 +92,8 @@ describe("test additional policies", async () => {
 			assetMint: mint,
 			levels: [2],
 			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60)],
-			signer: setup.authorityKp.publicKey.toString()
+			signer: setup.authorityKp.publicKey.toString(),
+			country: 0,
 		});
 		await sendAndConfirmTransaction(
 			setup.provider.connection,
@@ -215,7 +217,8 @@ describe("test additional policies", async () => {
 				assetMint: mint,
 				levels: [1],
 				expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60)],
-				signer: setup.authorityKp.publicKey.toString()
+				signer: setup.authorityKp.publicKey.toString(),
+				country: 0,
 			});
 			await sendAndConfirmTransaction(
 				setup.provider.connection,
@@ -231,8 +234,6 @@ describe("test additional policies", async () => {
 				decimals,
 				createTa: true,
 			}, rwaClient.provider);
-
-			const policyEngine = await getPolicyEngineAccount(mint, rwaClient.provider);
 
 			await expect(sendAndConfirmTransaction(
 				setup.provider.connection,

@@ -1,23 +1,9 @@
 import { BN, Wallet } from "@coral-xyz/anchor";
 import {
 	type AttachPolicyArgs,
-	CreateDataAccountArgs,
-	DeleteDataAccountArgs,
-	getDataAccountsWithFilter,
-	getFreezeTokenIx,
-	getRevokeTokensIx,
 	getSetupUserIxs,
-	getThawTokenIx,
 	getTrackerAccount,
 	type IssueTokenArgs,
-	type TransferTokensArgs,
-	type UpdateDataAccountArgs,
-	VoidTokensArgs,
-	getIdentityAccount,
-	getPolicyEngineAccount,
-	getSeizeTokensIx,
-	getWalletIdentityAccountsWithFilter,
-	getIdentityAccountPda,
 	getIdentityAccountFromOwner,
 } from "../../src";
 import { setupTests } from "../setup";
@@ -31,13 +17,12 @@ import { expect, test, describe } from "vitest";
 import { type Config } from "../../src/classes/types";
 import { RwaClient } from "../../src/classes";
 
-describe("e2e tests", async () => {
+describe("level change policies tests", async () => {
 	let rwaClient: RwaClient;
 	let mint: string;
 	const setup = await setupTests();
 
 	const decimals = 2;
-	let dataAccount: string;
 
 	test("setup provider", async () => {
 		const connectionUrl = process.env.RPC_URL ?? "http://localhost:8899";
@@ -73,7 +58,7 @@ describe("e2e tests", async () => {
 			setupAssetControllerArgs
 		);
 		mint = setupIx.signers[0].publicKey.toString();
-		var tomorrow = Date.now() / 1000 + 24 * 60 * 60;
+		const tomorrow = Date.now() / 1000 + 24 * 60 * 60;
 
 		const setupUserIxs = await getSetupUserIxs({
 			assetMint: mint,
@@ -113,6 +98,7 @@ describe("e2e tests", async () => {
 			[setup.payerKp, setup.authorityKp, ...setupUser2Ixs.signers, ...setupUser3Ixs.signers]
 		);
 		expect(txnId).toBeTruthy();
+		expect(txnId2).toBeTruthy();
 		const trackerAccount = await getTrackerAccount(
 			mint,
 			setup.user1.toString(),
@@ -279,11 +265,12 @@ describe("e2e tests", async () => {
 			payer: setup.payer.toString(),
 		});
 		
-		expect(sendAndConfirmTransaction(
+		await expect(sendAndConfirmTransaction(
 			setup.provider.connection,
 			new Transaction().add(addLevelIx),
-			[setup.payerKp, setup.authorityKp]
-		)).rejects.toThrowError(/Error Code: MaxBalanceExceeded. Error Number: 6010/);
+			[setup.payerKp, setup.authorityKp],
+			{skipPreflight: true}
+		)).rejects.toThrowError(/"InstructionError":\[0,\{"Custom":6010\}\]/);
 	});
 
 	test("add levels to identity account2", async () => {
@@ -296,11 +283,12 @@ describe("e2e tests", async () => {
 			payer: setup.payer.toString(),
 		});
 		
-		expect(sendAndConfirmTransaction(
+		await expect(sendAndConfirmTransaction(
 			setup.provider.connection,
 			new Transaction().add(addLevelIx),
-			[setup.payerKp, setup.authorityKp]
-		)).rejects.toThrowError(/Error Code: MinBalanceExceeded. Error Number: 6011/);
+			[setup.payerKp, setup.authorityKp],
+			{skipPreflight: true}
+		)).rejects.toThrowError(/"InstructionError":\[0,\{"Custom":6011\}\]/);
 	});
 
 	test("add levels to identity account3", async () => {

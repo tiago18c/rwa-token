@@ -138,7 +138,12 @@ impl<'info> CreateAssetController<'info> {
             cpi_accounts,
             signer_seeds,
         );
-        create_policy_engine(cpi_ctx, self.authority.key(), delegate, enforce_policy_issuance)?;
+        create_policy_engine(
+            cpi_ctx,
+            self.authority.key(),
+            delegate,
+            enforce_policy_issuance,
+        )?;
         Ok(())
     }
 
@@ -160,7 +165,12 @@ impl<'info> CreateAssetController<'info> {
             cpi_accounts,
             signer_seeds,
         );
-        create_identity_registry(cpi_ctx, self.authority.key(), delegate, allow_multiple_wallets)?;
+        create_identity_registry(
+            cpi_ctx,
+            self.authority.key(),
+            delegate,
+            allow_multiple_wallets,
+        )?;
         Ok(())
     }
 
@@ -234,12 +244,18 @@ pub fn handler(ctx: Context<CreateAssetController>, args: CreateAssetControllerA
     });
 
     // create policy registry
-    ctx.accounts
-        .create_policy_engine(args.delegate, &[&signer_seeds], args.enforce_policy_issuance)?;
+    ctx.accounts.create_policy_engine(
+        args.delegate,
+        &[&signer_seeds],
+        args.enforce_policy_issuance,
+    )?;
 
     // create identity registry
-    ctx.accounts
-        .create_identity_registry(args.delegate, &[&signer_seeds], args.allow_multiple_wallets)?;
+    ctx.accounts.create_identity_registry(
+        args.delegate,
+        &[&signer_seeds],
+        args.allow_multiple_wallets,
+    )?;
 
     // create data registry
     ctx.accounts

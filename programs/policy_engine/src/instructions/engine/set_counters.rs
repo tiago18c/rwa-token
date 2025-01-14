@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 
-use crate::state::*;
 use crate::error::PolicyEngineErrors;
+use crate::state::*;
 #[derive(Accounts)]
 pub struct SetCounters<'info> {
     pub payer: Signer<'info>,
@@ -18,7 +18,10 @@ pub fn handler(
     changed_counters: Vec<u8>,
     values: Vec<u64>,
 ) -> Result<()> {
-    require!(changed_counters.len() == values.len(), PolicyEngineErrors::InvalidInstructionData);
+    require!(
+        changed_counters.len() == values.len(),
+        PolicyEngineErrors::InvalidInstructionData
+    );
 
     ctx.accounts
         .policy_engine

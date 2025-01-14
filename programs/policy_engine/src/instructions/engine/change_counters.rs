@@ -25,16 +25,15 @@ pub fn handler(
     removed_counters: Vec<u8>,
     added_counters: Vec<Counter>,
 ) -> Result<()> {
-    let size_diff = ctx.accounts
+    let size_diff = ctx
+        .accounts
         .policy_engine
         .update_counters(removed_counters, added_counters)?;
 
-
     let space = if size_diff > 0 {
         ctx.accounts.policy_engine.to_account_info().data_len() + size_diff as usize
-
     } else {
-        ctx.accounts.policy_engine.to_account_info().data_len() - (-1*size_diff) as usize
+        ctx.accounts.policy_engine.to_account_info().data_len() - (-1 * size_diff) as usize
     };
 
     let rent = Rent::get()?.minimum_balance(space);
@@ -48,14 +47,41 @@ pub fn handler(
                     to: ctx.accounts.policy_engine.to_account_info(),
                 },
             ),
-            rent.checked_sub(ctx.accounts.policy_engine.to_account_info().lamports()).unwrap(),
+            rent.checked_sub(ctx.accounts.policy_engine.to_account_info().lamports())
+                .unwrap(),
         )?;
     } else if rent < ctx.accounts.policy_engine.to_account_info().lamports() {
-        let diff = ctx.accounts.policy_engine.to_account_info().lamports().checked_sub(rent).unwrap();
-        **ctx.accounts.payer.to_account_info().lamports.borrow_mut() = ctx.accounts.payer.to_account_info().lamports().checked_add(diff).unwrap();
-        **ctx.accounts.policy_engine.to_account_info().lamports.borrow_mut() = ctx.accounts.policy_engine.to_account_info().lamports().checked_sub(diff).unwrap();
+        let diff = ctx
+            .accounts
+            .policy_engine
+            .to_account_info()
+            .lamports()
+            .checked_sub(rent)
+            .unwrap();
+        **ctx.accounts.payer.to_account_info().lamports.borrow_mut() = ctx
+            .accounts
+            .payer
+            .to_account_info()
+            .lamports()
+            .checked_add(diff)
+            .unwrap();
+        **ctx
+            .accounts
+            .policy_engine
+            .to_account_info()
+            .lamports
+            .borrow_mut() = ctx
+            .accounts
+            .policy_engine
+            .to_account_info()
+            .lamports()
+            .checked_sub(diff)
+            .unwrap();
     }
 
-    ctx.accounts.policy_engine.to_account_info().realloc(space, false)?;
+    ctx.accounts
+        .policy_engine
+        .to_account_info()
+        .realloc(space, false)?;
     Ok(())
 }

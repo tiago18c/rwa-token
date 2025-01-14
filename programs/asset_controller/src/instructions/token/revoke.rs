@@ -41,7 +41,6 @@ pub struct RevokeTokens<'info> {
 }
 
 impl<'info> RevokeTokens<'info> {
-
     fn burn_tokens(&self, amount: u64, signer_seeds: &[&[&[u8]]]) -> Result<()> {
         let accounts = Burn {
             mint: self.asset_mint.to_account_info(),
@@ -89,8 +88,8 @@ pub fn handler<'info>(
         &get_bump_in_seed_form(&ctx.bumps.asset_controller),
     ];
     ctx.accounts.burn_tokens(amount, &[&signer_seeds])?;
-    ctx.accounts.update_counters_on_burn(amount, &[&signer_seeds])?;
-
+    ctx.accounts
+        .update_counters_on_burn(amount, &[&signer_seeds])?;
 
     Ok(())
 }

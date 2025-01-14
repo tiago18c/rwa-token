@@ -21,5 +21,5 @@ pub enum IdentityRegistryErrors {
     #[msg("Wallet already in use")]
     WalletAlreadyInUse,
     #[msg("Invalid level")]
-    InvalidLevel
+    InvalidLevel,
 }

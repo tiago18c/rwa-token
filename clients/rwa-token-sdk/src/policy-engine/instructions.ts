@@ -101,7 +101,7 @@ export type ChangeIssuancePoliciesArgs = {
 	authority: string;
 	payer: string;
 	assetMint: string;
-	issuancePolicies: any;
+	issuancePolicies: IssuancePolicies;
 }
 
 export async function getChangeIssuancePoliciesIx(

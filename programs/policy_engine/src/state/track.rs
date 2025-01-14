@@ -50,7 +50,11 @@ impl TrackerAccount {
         let min_timestamp = timestamp - max_timeframe;
         self.transfers
             .retain(|transfer| transfer.timestamp >= min_timestamp);
-        self.transfers.push(Transfer { amount, timestamp, side });
+        self.transfers.push(Transfer {
+            amount,
+            timestamp,
+            side,
+        });
         // return error if the transfer history is too large
         if self.transfers.len() > MAX_TRANSFER_HISTORY {
             return Err(PolicyEngineErrors::TransferHistoryFull.into());

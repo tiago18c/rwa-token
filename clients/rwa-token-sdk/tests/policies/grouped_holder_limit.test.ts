@@ -2,10 +2,7 @@ import { BN, Wallet } from "@coral-xyz/anchor";
 import {
 	ChangeCounterLimitsArgs,
 	ChangeCountersArgs,
-	getPolicyEngineAccount,
-	getPolicyEngineProgram,
 	getTransferTokensIxs,
-	Policy,
 	RwaClient,
 } from "../../src";
 import { setupTests } from "../setup";
@@ -65,7 +62,8 @@ describe("test additional policies", async () => {
 			assetMint: mint,
 			levels: [1,2],
 			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60), new BN(Date.now() / 1000 + 24 * 60 * 60)],
-			signer: setup.authorityKp.publicKey.toString()
+			signer: setup.authorityKp.publicKey.toString(),
+			country: 0,
 		});
 
 		await sendAndConfirmTransaction(
@@ -81,7 +79,8 @@ describe("test additional policies", async () => {
 			assetMint: mint,
 			levels: [1,2],
 			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60), new BN(Date.now() / 1000 + 24 * 60 * 60)],
-			signer: setup.authorityKp.publicKey.toString()
+			signer: setup.authorityKp.publicKey.toString(),
+			country: 0,
 		});
 		await sendAndConfirmTransaction(
 			setup.provider.connection,
@@ -96,7 +95,8 @@ describe("test additional policies", async () => {
 			assetMint: mint,
 			levels: [1,2],
 			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60), new BN(Date.now() / 1000 + 24 * 60 * 60)],
-			signer: setup.authorityKp.publicKey.toString()
+			signer: setup.authorityKp.publicKey.toString(),
+			country: 0,
 		});
 		await sendAndConfirmTransaction(
 			setup.provider.connection,
@@ -202,7 +202,7 @@ describe("test additional policies", async () => {
 				new Transaction().add(...issueTokens),
 				[setup.payerKp, setup.authorityKp],
 				{ skipPreflight: true }
-				);
+			);
 		});
 
 		test("transfer to new holder within limit", async () => {
@@ -246,7 +246,8 @@ describe("test additional policies", async () => {
 				assetMint: mint,
 				levels: [1,2,3],
 				expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60), new BN(Date.now() / 1000 + 24 * 60 * 60), new BN(Date.now() / 1000 + 24 * 60 * 60)],
-				signer: setup.authorityKp.publicKey.toString()
+				signer: setup.authorityKp.publicKey.toString(),
+				country: 0,
 			});
 			await sendAndConfirmTransaction(
 				setup.provider.connection,

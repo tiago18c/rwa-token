@@ -13,7 +13,6 @@ import {
 	type TransferTokensArgs,
 	type UpdateDataAccountArgs,
 	VoidTokensArgs,
-	getIdentityAccount,
 	getPolicyEngineAccount,
 	getSeizeTokensIx,
 	getWalletIdentityAccountsWithFilter,
@@ -73,7 +72,7 @@ describe("e2e tests", async () => {
 			setupAssetControllerArgs
 		);
 		mint = setupIx.signers[0].publicKey.toString();
-		var tomorrow = Date.now() / 1000 + 24 * 60 * 60;
+		const tomorrow = Date.now() / 1000 + 24 * 60 * 60;
 
 		const setupUserIxs = await getSetupUserIxs({
 			assetMint: mint,
@@ -113,6 +112,7 @@ describe("e2e tests", async () => {
 			[setup.payerKp, setup.authorityKp, ...setupUser2Ixs.signers, ...setupUser3Ixs.signers]
 		);
 		expect(txnId).toBeTruthy();
+		expect(txnId2).toBeTruthy();
 		const trackerAccount = await getTrackerAccount(
 			mint,
 			setup.user1.toString(),

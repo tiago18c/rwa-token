@@ -1,7 +1,6 @@
 import { type Idl, Program, type Provider, utils } from "@coral-xyz/anchor";
 import { PublicKey } from "@solana/web3.js";
 import { type PolicyEngineIdlTypes } from "../programs/types";
-import { utf8 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 import { getIdentityAccountPda } from "../identity-registry";
 
 import * as PolicyEngineIdl from "../programs/idls/PolicyEngine.json";
@@ -59,7 +58,7 @@ export const getPolicyEnginerEventAuthority = () => PublicKey.findProgramAddress
  */
 export const getExtraMetasListPda = (assetMint: string) =>
 	PublicKey.findProgramAddressSync(
-		[utf8.encode("extra-account-metas"), new PublicKey(assetMint).toBuffer()],
+		[utils.bytes.utf8.encode("extra-account-metas"), new PublicKey(assetMint).toBuffer()],
 		policyEngineProgramId
 	)[0];
 

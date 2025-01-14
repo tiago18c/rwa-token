@@ -18,6 +18,8 @@ pub fn handler(
     ctx: Context<ChangeIssuancePolicies>,
     issuance_policies: IssuancePolicies,
 ) -> Result<()> {
-    ctx.accounts.policy_engine.change_issuance_policies(issuance_policies);
+    ctx.accounts
+        .policy_engine
+        .change_issuance_policies(issuance_policies);
     Ok(())
 }

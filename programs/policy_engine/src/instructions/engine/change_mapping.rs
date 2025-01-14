@@ -19,7 +19,10 @@ pub fn handler(
     mapping_source: Vec<u8>,
     mapping_value: Vec<u8>,
 ) -> Result<()> {
-    require!(mapping_source.len() == mapping_value.len(), PolicyEngineErrors::InvalidInstructionData);
+    require!(
+        mapping_source.len() == mapping_value.len(),
+        PolicyEngineErrors::InvalidInstructionData
+    );
     ctx.accounts
         .policy_engine
         .change_mapping(mapping_source, mapping_value);

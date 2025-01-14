@@ -4,7 +4,7 @@ import {
 	RwaClient,
 } from "../../src";
 import { setupTests } from "../setup";
-import { ConfirmOptions, Connection, StakeInstruction, Transaction, sendAndConfirmTransaction } from "@solana/web3.js";
+import { ConfirmOptions, Connection, Transaction, sendAndConfirmTransaction } from "@solana/web3.js";
 import { expect, test, describe } from "vitest";
 import { Config } from "../../src/classes/types";
 
@@ -59,7 +59,8 @@ describe("test additional policies", async () => {
 			assetMint: mint,
 			levels: [1],
 			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60)],
-			signer: setup.authorityKp.publicKey.toString()
+			signer: setup.authorityKp.publicKey.toString(),
+			country: 0,
 		});
 		await sendAndConfirmTransaction(
 			setup.provider.connection,
@@ -73,7 +74,8 @@ describe("test additional policies", async () => {
 			assetMint: mint,
 			levels: [2],
 			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60)],
-			signer: setup.authorityKp.publicKey.toString()
+			signer: setup.authorityKp.publicKey.toString(),
+			country: 0,
 		});
 		await sendAndConfirmTransaction(
 			setup.provider.connection,
@@ -218,7 +220,7 @@ describe("test additional policies", async () => {
 				new Transaction().add(...transferTokensIxs),
 				[setup.user2Kp],
 				{skipPreflight: true}
-			)).rejects.toThrowError(/"InstructionError\":\[0,\{\"Custom\":6011\}\]/);
+			)).rejects.toThrowError(/"InstructionError":\[0,\{"Custom":6011\}\]/);
 			// currentBalance remains unchanged as this is a transfer within the group
 		});
 

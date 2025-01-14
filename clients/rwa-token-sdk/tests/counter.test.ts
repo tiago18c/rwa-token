@@ -1,23 +1,9 @@
 import { BN, Wallet } from "@coral-xyz/anchor";
 import {
-	type AttachPolicyArgs,
-	CreateDataAccountArgs,
-	DeleteDataAccountArgs,
-	getDataAccountsWithFilter,
-	getFreezeTokenIx,
-	getRevokeTokensIx,
 	getSetupUserIxs,
-	getThawTokenIx,
 	getTrackerAccount,
 	type IssueTokenArgs,
-	type TransferTokensArgs,
-	type UpdateDataAccountArgs,
-	VoidTokensArgs,
-	getIdentityAccount,
 	getPolicyEngineAccount,
-	getSeizeTokensIx,
-	getWalletIdentityAccountsWithFilter,
-	getIdentityAccountPda,
 	getIdentityAccountFromOwner,
 } from "../src";
 import { setupTests } from "./setup";
@@ -37,7 +23,6 @@ describe("counter tests", async () => {
 	const setup = await setupTests();
 
 	const decimals = 2;
-	let dataAccount: string;
 
 	test("setup provider", async () => {
 		const connectionUrl = process.env.RPC_URL ?? "http://localhost:8899";
@@ -74,7 +59,7 @@ describe("counter tests", async () => {
 			setupAssetControllerArgs
 		);
 		mint = setupIx.signers[0].publicKey.toString();
-		var tomorrow = Date.now() / 1000 + 24 * 60 * 60;
+		const tomorrow = Date.now() / 1000 + 24 * 60 * 60;
 
 		const setupUserIxs = await getSetupUserIxs({
 			assetMint: mint,
@@ -132,6 +117,7 @@ describe("counter tests", async () => {
 			[setup.payerKp, setup.authorityKp, ...setupUser2Ixs.signers, ...setupUser3Ixs.signers, ...setupUser4Ixs.signers, ...setupUser5Ixs.signers]
 		);
 		expect(txnId).toBeTruthy();
+		expect(txnId2).toBeTruthy();
 		const trackerAccount = await getTrackerAccount(
 			mint,
 			setup.user1.toString(),

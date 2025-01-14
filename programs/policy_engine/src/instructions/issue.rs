@@ -1,13 +1,7 @@
-use crate::{
-    PolicyEngineAccount, TrackerAccount
-};
-use anchor_lang::
-    prelude::*
-;
+use crate::{PolicyEngineAccount, TrackerAccount};
+use anchor_lang::prelude::*;
 use anchor_spl::token_interface::{Mint, TokenAccount};
-use identity_registry::{
-    IdentityAccount, IdentityRegistryAccount, SKIP_POLICY_LEVEL
-};
+use identity_registry::{IdentityAccount, IdentityRegistryAccount, SKIP_POLICY_LEVEL};
 
 #[derive(Accounts)]
 #[instruction(amount: u64)]
@@ -35,16 +29,23 @@ pub struct EnforcePolicyIssuanceAccounts<'info> {
     pub destination_tracker_account: Box<Account<'info, TrackerAccount>>,
 }
 
-pub fn handler(ctx: Context<EnforcePolicyIssuanceAccounts>, amount: u64, issuance_timestamp: i64) -> Result<()> {
-
+pub fn handler(
+    ctx: Context<EnforcePolicyIssuanceAccounts>,
+    amount: u64,
+    issuance_timestamp: i64,
+) -> Result<()> {
     // TODO: refactor skip policy level check
     // if user has identity skip level, skip enforcing policy
-    if ctx.accounts.identity_account.levels.contains(&SKIP_POLICY_LEVEL) {
+    if ctx
+        .accounts
+        .identity_account
+        .levels
+        .contains(&SKIP_POLICY_LEVEL)
+    {
         return Ok(());
     }
 
-
-    let tracker_account : &mut TrackerAccount = &mut ctx.accounts.destination_tracker_account;
+    let tracker_account: &mut TrackerAccount = &mut ctx.accounts.destination_tracker_account;
 
     tracker_account.update_balance_mint(amount)?;
 
@@ -53,8 +54,13 @@ pub fn handler(ctx: Context<EnforcePolicyIssuanceAccounts>, amount: u64, issuanc
     }
 
     if tracker_account.total_amount == amount {
-        let changed_counters = ctx.accounts.policy_engine.increase_holders_count(&ctx.accounts.identity_account.levels, ctx.accounts.identity_account.country)?;
-        ctx.accounts.policy_engine.enforce_counters_on_increment(&changed_counters)?;
+        let changed_counters = ctx.accounts.policy_engine.increase_holders_count(
+            &ctx.accounts.identity_account.levels,
+            ctx.accounts.identity_account.country,
+        )?;
+        ctx.accounts
+            .policy_engine
+            .enforce_counters_on_increment(&changed_counters)?;
     }
 
     // evaluate policies

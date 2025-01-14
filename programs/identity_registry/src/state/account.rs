@@ -27,7 +27,14 @@ pub struct IdentityLevel {
 
 impl IdentityAccount {
     pub const VERSION: u8 = 1;
-    pub fn new(&mut self, owner: Pubkey, identity_registry: Pubkey, level: u8, expiry: i64, country: u8) {
+    pub fn new(
+        &mut self,
+        owner: Pubkey,
+        identity_registry: Pubkey,
+        level: u8,
+        expiry: i64,
+        country: u8,
+    ) {
         self.identity_registry = identity_registry;
         self.owner = owner;
         self.version = Self::VERSION;
@@ -44,7 +51,10 @@ impl IdentityAccount {
             if self.levels.iter().any(|l| l.level == levels[i]) {
                 return Err(IdentityRegistryErrors::LevelAlreadyPresent.into());
             }
-            self.levels.push(IdentityLevel { level: levels[i], expiry: expiries[i] });
+            self.levels.push(IdentityLevel {
+                level: levels[i],
+                expiry: expiries[i],
+            });
         }
         Ok(())
     }

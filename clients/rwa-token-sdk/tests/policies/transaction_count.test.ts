@@ -55,7 +55,7 @@ describe("test transaction count velocity policy", async () => {
 		mint = setupAssetController.signers[0].publicKey.toString();
 		expect(txnId).toBeTruthy();
 
-		var tomorrow = Date.now() / 1000 + 24 * 60 * 60;
+		const tomorrow = Date.now() / 1000 + 24 * 60 * 60;
 		// Setup users
 		const setupUser1 = await rwaClient.identityRegistry.setupUserIxns({
 			payer: setup.payer.toString(),
@@ -63,7 +63,8 @@ describe("test transaction count velocity policy", async () => {
 			assetMint: mint,
 			levels: [1],
 			expiry: [new BN(tomorrow)],
-			signer: setup.authorityKp.publicKey.toString()
+			signer: setup.authorityKp.publicKey.toString(),
+			country: 0,
 		});
 		await sendAndConfirmTransaction(
 			setup.provider.connection,
@@ -77,7 +78,8 @@ describe("test transaction count velocity policy", async () => {
 			assetMint: mint,
 			levels: [1],
 			expiry: [new BN(tomorrow)],
-			signer: setup.authorityKp.publicKey.toString()
+			signer: setup.authorityKp.publicKey.toString(),
+			country: 0,
 		});
 		await sendAndConfirmTransaction(
 			setup.provider.connection,

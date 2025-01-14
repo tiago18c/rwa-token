@@ -1,8 +1,8 @@
 use std::str::FromStr;
 
+use crate::utils::POLICY_ENGINE_ID;
 use crate::{cpi_enforce_policy_on_levels_change, state::*};
 use anchor_lang::prelude::*;
-use crate::utils::POLICY_ENGINE_ID;
 
 #[derive(Accounts)]
 #[instruction(levels: Vec<u8>, expiries: Vec<i64>)]
@@ -25,7 +25,7 @@ pub struct AddLevelToIdentityAccount<'info> {
     )]
     pub identity_account: Box<Account<'info, IdentityAccount>>,
     pub system_program: Program<'info, System>,
-    
+
     #[account(address = Pubkey::from_str(POLICY_ENGINE_ID).unwrap())]
     /// CHECK: hardcoded address check
     pub policy_engine_program: UncheckedAccount<'info>,
@@ -38,28 +38,33 @@ pub struct AddLevelToIdentityAccount<'info> {
     pub asset_mint: UncheckedAccount<'info>,
 }
 
-pub fn handler(ctx: Context<AddLevelToIdentityAccount>, levels: Vec<u8>, expiries: Vec<i64>, enforce_limits: bool) -> Result<()> {
+pub fn handler(
+    ctx: Context<AddLevelToIdentityAccount>,
+    levels: Vec<u8>,
+    expiries: Vec<i64>,
+    enforce_limits: bool,
+) -> Result<()> {
     require_eq!(levels.len(), expiries.len());
 
     let signer_seeds = [
         &ctx.accounts.asset_mint.key().to_bytes()[..],
         &[ctx.accounts.identity_registry.bump][..],
-        ];
-        
+    ];
+
     ctx.accounts.identity_account.add_levels(levels, expiries)?;
     let new_levels = ctx.accounts.identity_account.levels.clone();
 
     cpi_enforce_policy_on_levels_change(
-        ctx.accounts.identity_account.to_account_info(), 
-        ctx.accounts.identity_registry.to_account_info(), 
-        ctx.accounts.asset_mint.to_account_info(), 
-        ctx.accounts.tracker_account.to_account_info(), 
-        ctx.accounts.policy_engine.to_account_info(), 
-        ctx.accounts.policy_engine_program.to_account_info(), 
-        &new_levels, 
+        ctx.accounts.identity_account.to_account_info(),
+        ctx.accounts.identity_registry.to_account_info(),
+        ctx.accounts.asset_mint.to_account_info(),
+        ctx.accounts.tracker_account.to_account_info(),
+        ctx.accounts.policy_engine.to_account_info(),
+        ctx.accounts.policy_engine_program.to_account_info(),
+        &new_levels,
         ctx.accounts.identity_account.country,
         enforce_limits,
-        &[&signer_seeds[..]]
+        &[&signer_seeds[..]],
     )?;
     Ok(())
 }

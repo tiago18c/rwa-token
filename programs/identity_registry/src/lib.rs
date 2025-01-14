@@ -96,9 +96,7 @@ pub mod identity_registry {
     }
 
     /// detach token account from identity account
-    pub fn detach_wallet_from_identity(
-        ctx: Context<DetachWalletFromIdentity>,
-    ) -> Result<()> {
+    pub fn detach_wallet_from_identity(ctx: Context<DetachWalletFromIdentity>) -> Result<()> {
         instructions::account::detach_wallet_from_identity::handler(ctx)
     }
 

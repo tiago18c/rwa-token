@@ -1,9 +1,8 @@
 use crate::state::*;
 use anchor_lang::prelude::*;
-use anchor_spl::{token_interface::{Mint, Token2022, TokenAccount}};
+use anchor_spl::token_interface::{Mint, Token2022, TokenAccount};
 use rwa_utils::get_bump_in_seed_form;
 use spl_token_2022::instruction::transfer_checked;
-use spl_transfer_hook_interface::onchain::add_extra_accounts_for_execute_cpi;
 
 #[derive(Accounts)]
 #[instruction()]
@@ -51,7 +50,12 @@ impl<'info> SeizeTokens<'info> {
         ];
 
         account_infos.extend(remaining_accounts.iter().map(|account| account.clone()));
-        ix.accounts.extend(remaining_accounts.iter().map(|account| AccountMeta { pubkey: *account.key, is_signer: account.is_signer, is_writable: account.is_writable }));
+        ix.accounts
+            .extend(remaining_accounts.iter().map(|account| AccountMeta {
+                pubkey: *account.key,
+                is_signer: account.is_signer,
+                is_writable: account.is_writable,
+            }));
 
         anchor_lang::solana_program::program::invoke_signed(&ix, &account_infos, signer_seeds)
             .map_err(Into::into)

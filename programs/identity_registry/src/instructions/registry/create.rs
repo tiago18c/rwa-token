@@ -30,8 +30,12 @@ pub fn handler(
     delegate: Option<Pubkey>,
     require_identity_creation: Option<bool>,
 ) -> Result<()> {
-    ctx.accounts
-        .identity_registry_account
-        .new(ctx.accounts.asset_mint.key(), authority, delegate, require_identity_creation.unwrap_or(false), ctx.bumps.identity_registry_account);
+    ctx.accounts.identity_registry_account.new(
+        ctx.accounts.asset_mint.key(),
+        authority,
+        delegate,
+        require_identity_creation.unwrap_or(false),
+        ctx.bumps.identity_registry_account,
+    );
     Ok(())
 }

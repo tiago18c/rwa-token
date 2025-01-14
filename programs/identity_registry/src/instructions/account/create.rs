@@ -21,7 +21,7 @@ pub struct CreateIdentityAccount<'info> {
         constraint = level != 0,
     )]
     pub identity_account: Box<Account<'info, IdentityAccount>>,
-    
+
     #[account(
         init,
         seeds = [owner.key().as_ref(), identity_registry.asset_mint.as_ref()],
@@ -34,10 +34,20 @@ pub struct CreateIdentityAccount<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<CreateIdentityAccount>, owner: Pubkey, level: u8, expiry: i64, country: u8) -> Result<()> {
-    ctx.accounts
-        .identity_account
-        .new(owner, ctx.accounts.identity_registry.key(), level, expiry, country);
+pub fn handler(
+    ctx: Context<CreateIdentityAccount>,
+    owner: Pubkey,
+    level: u8,
+    expiry: i64,
+    country: u8,
+) -> Result<()> {
+    ctx.accounts.identity_account.new(
+        owner,
+        ctx.accounts.identity_registry.key(),
+        level,
+        expiry,
+        country,
+    );
     ctx.accounts.wallet_identity.identity_account = ctx.accounts.identity_account.key();
     ctx.accounts.wallet_identity.wallet = owner;
     Ok(())

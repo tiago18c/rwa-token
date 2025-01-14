@@ -7,13 +7,13 @@ pub struct DetachWalletFromIdentity<'info> {
     pub payer: Signer<'info>,
     #[account(mut)]
     pub authority: Signer<'info>,
-    
+
     #[account(mut,
         has_one = identity_account,
         close = payer
     )]
     pub wallet_identity: Box<Account<'info, WalletIdentity>>,
-    
+
     #[account(
         mut,
         // in this context, the investor is not authorized to detach the wallet
@@ -25,7 +25,6 @@ pub struct DetachWalletFromIdentity<'info> {
 
     pub identity_registry: Box<Account<'info, IdentityRegistryAccount>>,
 }
-
 
 pub fn handler(ctx: Context<DetachWalletFromIdentity>) -> Result<()> {
     ctx.accounts.identity_account.remove_wallet()?;

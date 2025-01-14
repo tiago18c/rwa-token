@@ -21,8 +21,7 @@ pub struct RemoveLevelFromIdentityAccount<'info> {
     )]
     pub identity_account: Box<Account<'info, IdentityAccount>>,
     pub system_program: Program<'info, System>,
-    
-    
+
     #[account(address = Pubkey::from_str(POLICY_ENGINE_ID).unwrap())]
     /// CHECK: hardcoded address check
     pub policy_engine_program: UncheckedAccount<'info>,
@@ -35,32 +34,39 @@ pub struct RemoveLevelFromIdentityAccount<'info> {
     pub asset_mint: UncheckedAccount<'info>,
 }
 
-pub fn handler(ctx: Context<RemoveLevelFromIdentityAccount>, levels: Vec<u8>, enforce_limits: bool) -> Result<()> {
-    
+pub fn handler(
+    ctx: Context<RemoveLevelFromIdentityAccount>,
+    levels: Vec<u8>,
+    enforce_limits: bool,
+) -> Result<()> {
     let signer_seeds = [
         &ctx.accounts.asset_mint.key().to_bytes()[..],
         &[ctx.accounts.identity_registry.bump][..],
-        ];
+    ];
 
     let count = levels.len();
-        
+
     ctx.accounts.identity_account.remove_levels(levels)?;
     let previous_levels = ctx.accounts.identity_account.levels.clone();
-    
+
     cpi_enforce_policy_on_levels_change(
-        ctx.accounts.identity_account.to_account_info(), 
-        ctx.accounts.identity_registry.to_account_info(), 
-        ctx.accounts.asset_mint.to_account_info(), 
-        ctx.accounts.tracker_account.to_account_info(), 
-        ctx.accounts.policy_engine.to_account_info(), 
-        ctx.accounts.policy_engine_program.to_account_info(), 
-        &previous_levels, 
+        ctx.accounts.identity_account.to_account_info(),
+        ctx.accounts.identity_registry.to_account_info(),
+        ctx.accounts.asset_mint.to_account_info(),
+        ctx.accounts.tracker_account.to_account_info(),
+        ctx.accounts.policy_engine.to_account_info(),
+        ctx.accounts.policy_engine_program.to_account_info(),
+        &previous_levels,
         ctx.accounts.identity_account.country,
         enforce_limits,
-        &[&signer_seeds[..]]
+        &[&signer_seeds[..]],
     )?;
 
-    ctx.accounts.identity_account.to_account_info().realloc(ctx.accounts.identity_account.to_account_info().data_len() - IdentityLevel::INIT_SPACE * count, false)?;
+    ctx.accounts.identity_account.to_account_info().realloc(
+        ctx.accounts.identity_account.to_account_info().data_len()
+            - IdentityLevel::INIT_SPACE * count,
+        false,
+    )?;
 
     Ok(())
 }

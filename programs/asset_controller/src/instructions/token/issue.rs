@@ -64,7 +64,12 @@ impl<'info> IssueTokens<'info> {
         Ok(())
     }
 
-    fn enforce_policy_issuance(&self, amount: u64, issuance_timestamp: i64, signer_seeds: &[&[&[u8]]]) -> Result<()> {
+    fn enforce_policy_issuance(
+        &self,
+        amount: u64,
+        issuance_timestamp: i64,
+        signer_seeds: &[&[&[u8]]],
+    ) -> Result<()> {
         let accounts = policy_engine::cpi::accounts::EnforcePolicyIssuanceAccounts {
             asset_mint: self.asset_mint.to_account_info(),
             policy_engine: self.policy_engine.to_account_info(),
@@ -85,13 +90,12 @@ impl<'info> IssueTokens<'info> {
     }
 }
 
-pub fn handler(ctx: Context<IssueTokens>, amount: u64, issuance_timestamp: i64) -> Result<()> {    
+pub fn handler(ctx: Context<IssueTokens>, amount: u64, issuance_timestamp: i64) -> Result<()> {
     require!(
-        ctx.accounts.to.key() == ctx.accounts.identity_account.owner 
-        || ctx.accounts.wallet_identity_account.wallet == ctx.accounts.to.key(),
+        ctx.accounts.to.key() == ctx.accounts.identity_account.owner
+            || ctx.accounts.wallet_identity_account.wallet == ctx.accounts.to.key(),
         AssetControllerErrors::InvalidIdentityAccounts
     );
-
 
     let asset_mint = ctx.accounts.asset_mint.key();
     let signer_seeds = [
@@ -99,6 +103,7 @@ pub fn handler(ctx: Context<IssueTokens>, amount: u64, issuance_timestamp: i64) 
         &get_bump_in_seed_form(&ctx.bumps.asset_controller),
     ];
     ctx.accounts.issue_tokens(amount, &[&signer_seeds])?;
-    ctx.accounts.enforce_policy_issuance(amount, issuance_timestamp, &[&signer_seeds])?;
+    ctx.accounts
+        .enforce_policy_issuance(amount, issuance_timestamp, &[&signer_seeds])?;
     Ok(())
 }

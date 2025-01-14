@@ -1,13 +1,7 @@
-use crate::{
-    PolicyEngineAccount, TrackerAccount
-};
-use anchor_lang::
-    prelude::*
-;
+use crate::{PolicyEngineAccount, TrackerAccount};
+use anchor_lang::prelude::*;
 use anchor_spl::token_interface::{Mint, TokenAccount};
-use identity_registry::{
-    IdentityAccount, IdentityRegistryAccount, SKIP_POLICY_LEVEL
-};
+use identity_registry::{IdentityAccount, IdentityRegistryAccount};
 
 #[derive(Accounts)]
 #[instruction(amount: u64)]
@@ -36,8 +30,7 @@ pub struct UpdateCountersOnBurnAccounts<'info> {
 }
 
 pub fn handler(ctx: Context<UpdateCountersOnBurnAccounts>, amount: u64) -> Result<()> {
-
-    let tracker_account : &mut TrackerAccount = &mut ctx.accounts.destination_tracker_account;
+    let tracker_account: &mut TrackerAccount = &mut ctx.accounts.destination_tracker_account;
 
     tracker_account.update_balance_burn(amount)?;
 
@@ -46,8 +39,13 @@ pub fn handler(ctx: Context<UpdateCountersOnBurnAccounts>, amount: u64) -> Resul
     }
 
     if tracker_account.total_amount == 0u64 {
-        let changed_counters = ctx.accounts.policy_engine.decrease_holders_count(&ctx.accounts.identity_account.levels, ctx.accounts.identity_account.country)?;
-        ctx.accounts.policy_engine.enforce_counters_on_decrement(&changed_counters)?;
+        let changed_counters = ctx.accounts.policy_engine.decrease_holders_count(
+            &ctx.accounts.identity_account.levels,
+            ctx.accounts.identity_account.country,
+        )?;
+        ctx.accounts
+            .policy_engine
+            .enforce_counters_on_decrement(&changed_counters)?;
     }
 
     Ok(())

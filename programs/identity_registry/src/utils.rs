@@ -1,4 +1,7 @@
-use anchor_lang::{prelude::*, solana_program::{instruction::Instruction, program::invoke_signed, pubkey::Pubkey}};
+use anchor_lang::{
+    prelude::*,
+    solana_program::{instruction::Instruction, program::invoke_signed, pubkey::Pubkey},
+};
 
 use crate::IdentityLevel;
 
@@ -9,18 +12,17 @@ pub fn get_identity_registry_pda(asset_mint: Pubkey) -> Pubkey {
 }
 
 pub fn cpi_enforce_policy_on_levels_change<'info>(
-        identity_account: AccountInfo<'info>, 
-        identity_registry: AccountInfo<'info>, 
-        asset_mint: AccountInfo<'info>, 
-        tracker_account: AccountInfo<'info>, 
-        policy_engine: AccountInfo<'info>, 
-        policy_program: AccountInfo<'info>, 
-        new_levels: &[IdentityLevel],
-        new_country: u8,
-        enforce_limits: bool,
-        signer_seeds: &[&[&[u8]]]
-    ) -> Result<()> {
-
+    identity_account: AccountInfo<'info>,
+    identity_registry: AccountInfo<'info>,
+    asset_mint: AccountInfo<'info>,
+    tracker_account: AccountInfo<'info>,
+    policy_engine: AccountInfo<'info>,
+    policy_program: AccountInfo<'info>,
+    new_levels: &[IdentityLevel],
+    new_country: u8,
+    enforce_limits: bool,
+    signer_seeds: &[&[&[u8]]],
+) -> Result<()> {
     let mut data: Vec<u8> = vec![236, 18, 123, 137, 253, 244, 32, 248];
     data.extend(new_levels.try_to_vec()?);
     data.extend(new_country.try_to_vec()?);
@@ -47,8 +49,6 @@ pub fn cpi_enforce_policy_on_levels_change<'info>(
         ],
         signer_seeds,
     )?;
-    
-
 
     Ok(())
 }

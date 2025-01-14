@@ -17,16 +17,32 @@ pub struct IdentityRegistryAccount {
 }
 
 /// level if attached to user account, will skip any policy checks
-pub const SKIP_POLICY_LEVEL: IdentityLevel = IdentityLevel { level: u8::MAX, expiry: i64::MAX };
+pub const SKIP_POLICY_LEVEL: IdentityLevel = IdentityLevel {
+    level: u8::MAX,
+    expiry: i64::MAX,
+};
 
 /// level to be used if user does not have any identity
-pub const NO_IDENTITY_LEVEL: IdentityLevel = IdentityLevel { level: u8::MAX - 1, expiry: i64::MAX };
+pub const NO_IDENTITY_LEVEL: IdentityLevel = IdentityLevel {
+    level: u8::MAX - 1,
+    expiry: i64::MAX,
+};
 
-pub const NO_TRACKER_LEVEL: IdentityLevel = IdentityLevel { level: u8::MAX - 2, expiry: i64::MAX };
+pub const NO_TRACKER_LEVEL: IdentityLevel = IdentityLevel {
+    level: u8::MAX - 2,
+    expiry: i64::MAX,
+};
 
 impl IdentityRegistryAccount {
     pub const VERSION: u8 = 1;
-    pub fn new(&mut self, asset_mint: Pubkey, authority: Pubkey, delegate: Option<Pubkey>, allow_multiple_wallets: bool, bump: u8) {
+    pub fn new(
+        &mut self,
+        asset_mint: Pubkey,
+        authority: Pubkey,
+        delegate: Option<Pubkey>,
+        allow_multiple_wallets: bool,
+        bump: u8,
+    ) {
         self.asset_mint = asset_mint;
         self.authority = authority;
         self.delegate = delegate.unwrap_or(authority);
