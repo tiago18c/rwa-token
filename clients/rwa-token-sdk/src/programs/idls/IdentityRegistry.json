@@ -149,21 +149,6 @@
           }
         },
         {
-          "name": "new_wallet_identity_account",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "account",
-                "path": "identity_registry"
-              },
-              {
-                "kind": "arg",
-                "path": "wallet"
-              }
-            ]
-          }
-        },
-        {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
         }

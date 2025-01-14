@@ -102,7 +102,6 @@ export async function getAttachWalletToIdentityIx(
 			identityRegistry: getIdentityRegistryPda(args.assetMint),
 			walletIdentity: getWalletIdentityAccountPda(args.assetMint, args.wallet),
 			systemProgram: SystemProgram.programId,
-			newWalletIdentityAccount: getIdentityAccountPda(args.assetMint, args.wallet),
 		})
 		.instruction();
 	return ix;

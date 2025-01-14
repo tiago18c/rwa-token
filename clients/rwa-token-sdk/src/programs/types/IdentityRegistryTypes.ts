@@ -155,21 +155,6 @@ export type IdentityRegistry = {
           }
         },
         {
-          "name": "newWalletIdentityAccount",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "account",
-                "path": "identityRegistry"
-              },
-              {
-                "kind": "arg",
-                "path": "wallet"
-              }
-            ]
-          }
-        },
-        {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
         }
