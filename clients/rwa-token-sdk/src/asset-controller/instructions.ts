@@ -737,7 +737,7 @@ export async function getSeizeTokensIx(
 			isSigner: false,
 		},
 		{
-			pubkey: getIdentityAccountPda(args.assetMint, args.from),
+			pubkey: getIdentityAccountPda(args.assetMint, args.wallet || args.from),
 			isWritable: false,
 			isSigner: false,
 		},
@@ -747,7 +747,7 @@ export async function getSeizeTokensIx(
 			isSigner: false,
 		},
 		{
-			pubkey: getTrackerAccountPda(args.assetMint, args.from),
+			pubkey: getTrackerAccountPda(args.assetMint, args.wallet || args.from),
 			isWritable: true,
 			isSigner: false,
 		},
@@ -768,7 +768,7 @@ export async function getSeizeTokensIx(
 			assetController: getAssetControllerPda(args.assetMint),
 			sourceTokenAccount: getAssociatedTokenAddressSync(
 				new PublicKey(args.assetMint),
-				new PublicKey(args.from),
+				new PublicKey(args.wallet || args.from),
 				false,
 				TOKEN_2022_PROGRAM_ID
 			),
