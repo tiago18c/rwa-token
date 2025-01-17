@@ -24,4 +24,13 @@ pub struct RevokeIdentityAccount<'info> {
         constraint = identity_account.num_wallets == 1
     )]
     pub identity_account: Box<Account<'info, IdentityAccount>>,
+
+    #[account(
+        mut,
+        close = payer,
+        seeds = [owner.key().as_ref(), identity_registry.asset_mint.as_ref()],
+        bump,
+        has_one = identity_account,
+    )]
+    pub wallet_identity: Box<Account<'info, WalletIdentity>>,
 }
