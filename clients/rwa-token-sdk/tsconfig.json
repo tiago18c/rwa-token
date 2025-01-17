@@ -1,11 +1,12 @@
 {
     "compilerOptions": {
-        "lib": ["es5", "es6", "esnext.asynciterable", "es2018", "esnext.bigint", "DOM"],
+        "lib": ["es6", "es2020"],
         "types": ["node"],
-        "target": "ES2015",
-        "module": "commonjs",
+        "target": "es6",
+        "module": "es6",
         "moduleResolution": "node",
         "outDir": "dist",
+        "declarationDir": "dist/dts",
         "declaration": true,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
