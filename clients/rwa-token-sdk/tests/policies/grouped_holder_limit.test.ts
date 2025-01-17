@@ -1,4 +1,4 @@
-import { BN, Wallet } from "@coral-xyz/anchor";
+import { AnchorProvider, BN, Wallet } from "@coral-xyz/anchor";
 import {
 	ChangeCounterLimitsArgs,
 	ChangeCountersArgs,
@@ -32,7 +32,8 @@ describe("test additional policies", async () => {
 			confirmationOptions,
 		};
 
-		rwaClient = new RwaClient(config, new Wallet(setup.payerKp));
+		const provider = new AnchorProvider(connection, new Wallet(setup.payerKp), confirmationOptions);
+		rwaClient = new RwaClient(config, provider);
 
 		// Create asset controller
 		const createAssetControllerArgs = {

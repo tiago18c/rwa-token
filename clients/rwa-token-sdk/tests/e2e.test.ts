@@ -1,4 +1,4 @@
-import { BN, Wallet } from "@coral-xyz/anchor";
+import { AnchorProvider, BN, Wallet } from "@coral-xyz/anchor";
 import {
 	type AttachPolicyArgs,
 	CreateDataAccountArgs,
@@ -54,7 +54,9 @@ describe("e2e tests", async () => {
 			confirmationOptions,
 		};
 
-		rwaClient = new RwaClient(config, new Wallet(setup.payerKp));
+		const provider = new AnchorProvider(connection, new Wallet(setup.payerKp), confirmationOptions);
+
+		rwaClient = new RwaClient(config, provider);
 	});
 
 	test("initialize asset controller", async () => {

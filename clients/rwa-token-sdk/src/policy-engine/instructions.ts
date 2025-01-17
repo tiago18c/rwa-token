@@ -12,7 +12,7 @@ import {
 	getTrackerAccountPda,
 } from "./utils";
 import { type PolicyType, type IdentityFilter, Counter, CounterLimit, IssuancePolicies } from "./types";
-import { BN, type AnchorProvider } from "@coral-xyz/anchor";
+import { BN, Provider } from "@coral-xyz/anchor";
 import { getIdentityAccountPda, getIdentityRegistryPda } from "../identity-registry";
 
 /** Represents the arguments required to create a policy engine account. */
@@ -29,7 +29,7 @@ export type CreatePolicyEngineArgs = {
  */
 export async function getCreatePolicyEngineIx(
 	args: CreatePolicyEngineArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<TransactionInstruction> {
 	const policyProgram = getPolicyEngineProgram(provider);
 	const ix = await policyProgram.methods
@@ -79,7 +79,7 @@ export type DetachPolicyArgs = {
  */
 export async function getAttachToPolicyEngineIx(
 	args: AttachPolicyArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<IxReturn> {
 	const policyProgram = getPolicyEngineProgram(provider);
 	const ix = await policyProgram.methods
@@ -106,7 +106,7 @@ export type ChangeIssuancePoliciesArgs = {
 
 export async function getChangeIssuancePoliciesIx(
 	args: ChangeIssuancePoliciesArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<IxReturn> {
 	const policyProgram = getPolicyEngineProgram(provider);
 	const ix = await policyProgram.methods
@@ -133,7 +133,7 @@ export type SetCountersArgs = {
 
 export async function getSetCountersIx(
 	args: SetCountersArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<IxReturn> {
 	const policyProgram = getPolicyEngineProgram(provider);
 	const ix = await policyProgram.methods
@@ -160,7 +160,7 @@ export type ChangeMappingArgs = {
 
 export async function getChangeMappingIx(
 	args: ChangeMappingArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<IxReturn> {
 	const policyProgram = getPolicyEngineProgram(provider);
 	const ix = await policyProgram.methods
@@ -197,7 +197,7 @@ export type ChangeCountersArgs = {
  */
 export async function getChangeCountersIx(
 	args: ChangeCountersArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<IxReturn> {
 	const policyProgram = getPolicyEngineProgram(provider);
 	const ix = await policyProgram.methods
@@ -236,7 +236,7 @@ export type ChangeCounterLimitsArgs = {
  */
 export async function getChangeCounterLimitsIx(
 	args: ChangeCounterLimitsArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<IxReturn> {
 	const policyProgram = getPolicyEngineProgram(provider);
 	const ix = await policyProgram.methods
@@ -267,7 +267,7 @@ export async function getChangeCounterLimitsIx(
  */
 export async function getDetachFromPolicyEngineIx(
 	args: DetachPolicyArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<IxReturn> {
 	const policyProgram = getPolicyEngineProgram(provider);
 	const ix = await policyProgram.methods
@@ -293,7 +293,7 @@ export interface CreateTrackerAccountArgs {
 
 export async function getCreateTrackerAccountIx(
 	args: CreateTrackerAccountArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<TransactionInstruction> {
 	const policyProgram = getPolicyEngineProgram(provider);
 	const trackerAccount = getTrackerAccountPda(args.assetMint, args.owner);

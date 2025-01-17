@@ -44,7 +44,7 @@ import {
 	assetControllerProgramId,
 	getAssetControllerEventAuthority,
 } from "./utils";
-import { type AnchorProvider, BN } from "@coral-xyz/anchor";
+import { type Provider, BN } from "@coral-xyz/anchor";
 
 /** Represents arguments for creating an on chain asset controller. */
 export type CreateAssetControllerIx = {
@@ -65,7 +65,7 @@ export type CreateAssetControllerIx = {
  */
 export async function getCreateAssetControllerIx(
 	args: CreateAssetControllerIx,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<TransactionInstruction> {
 	const assetProgram = getAssetControllerProgram(provider);
 	const ix = await assetProgram.methods
@@ -115,7 +115,7 @@ export type UpdateAssetMetadataArgs = {
  */
 export async function getUpdateAssetMetadataIx(
 	args: UpdateAssetMetadataArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<TransactionInstruction> {
 	const assetProgram = getAssetControllerProgram(provider);
 	const ix = await assetProgram.methods
@@ -155,7 +155,7 @@ export type IssueTokenArgs = {
  */
 export async function getIssueTokensIx(
 	args: IssueTokenArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<TransactionInstruction[]> {
 	const assetProgram = getAssetControllerProgram(provider);
 	const ix = await assetProgram.methods
@@ -192,7 +192,7 @@ export type VoidTokensArgs = {
 
 export async function getVoidTokensIx(
 	args: VoidTokensArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<TransactionInstruction> {
 	const assetProgram = getAssetControllerProgram(provider);
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
@@ -231,7 +231,7 @@ export type TransferTokensArgs = {
  */
 export async function getTransferTokensIxs(
 	args: TransferTokensArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<TransactionInstruction[]> {
 	const destinationWalletIdentityPda = getWalletIdentityAccountPda(args.assetMint, args.to);
 	const destinationWalletIdentityAccount = await getWalletIdentityAccount(destinationWalletIdentityPda, provider);
@@ -378,7 +378,7 @@ export type SetupAssetControllerArgs = {
  */
 export async function getSetupAssetControllerIxs(
 	args: SetupAssetControllerArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<IxReturn> {
 	const mintKp = new Keypair();
 	const mint = mintKp.publicKey;
@@ -418,7 +418,7 @@ export type SetupUserArgs = {
  */
 export async function getSetupUserIxs(
 	args: SetupUserArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<IxReturn> {
 	const ixs: TransactionInstruction[] = [];
 	const identityAccountIx = await getCreateIdentityAccountIx(
@@ -476,7 +476,7 @@ export type InterestBearingMintArgs = {
  * */
 export async function getUpdateInterestBearingMintRateIx(
 	args: InterestBearingMintArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<TransactionInstruction> {
 	const assetProgram = getAssetControllerProgram(provider);
 	const ix = await assetProgram.methods
@@ -506,7 +506,7 @@ export type MemoTranferArgs = {
  * */
 export async function getEnableMemoTransferIx(
 	args: MemoTranferArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<TransactionInstruction> {
 	const assetProgram = getAssetControllerProgram(provider);
 	const ix = await assetProgram.methods
@@ -533,7 +533,7 @@ export async function getEnableMemoTransferIx(
  * */
 export async function getDisableMemoTransferIx(
 	args: MemoTranferArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<TransactionInstruction> {
 	const assetProgram = getAssetControllerProgram(provider);
 	const ix = await assetProgram.methods
@@ -560,7 +560,7 @@ export type CloseMintArgs = {
  */
 export async function getCloseMintIx(
 	args: CloseMintArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<TransactionInstruction> {
 	const assetProgram = getAssetControllerProgram(provider);
 	const ix = await assetProgram.methods
@@ -587,7 +587,7 @@ export type FreezeTokenArgs = {
  */
 export async function getFreezeTokenIx(
 	args: FreezeTokenArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<TransactionInstruction> {
 	const assetProgram = getAssetControllerProgram(provider);
 	const ix = await assetProgram.methods
@@ -615,7 +615,7 @@ export async function getFreezeTokenIx(
  * */
 export async function getThawTokenIx(
 	args: FreezeTokenArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<TransactionInstruction> {
 	const assetProgram = getAssetControllerProgram(provider);
 	const ix = await assetProgram.methods
@@ -652,7 +652,7 @@ export type RevokeTokensArgs = {
  * */
 export async function getRevokeTokensIx(
 	args: RevokeTokensArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<TransactionInstruction> {
 	const assetProgram = getAssetControllerProgram(provider);
 	const ix = await assetProgram.methods
@@ -697,7 +697,7 @@ export type SeizeTokensArgs = {
  * */
 export async function getSeizeTokensIx(
 	args: SeizeTokensArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<TransactionInstruction[]> {
 	const assetProgram = getAssetControllerProgram(provider);
 	const remainingAccounts = [		

@@ -1,4 +1,4 @@
-import { BN, Wallet } from "@coral-xyz/anchor";
+import { AnchorProvider, BN, Wallet } from "@coral-xyz/anchor";
 import {
 	getCloseMintIx,
 	getDisableMemoTransferIx,
@@ -41,8 +41,9 @@ describe("extension tests", async () => {
 			rpcUrl: connectionUrl,
 			confirmationOptions,
 		};
+		const provider = new AnchorProvider(connection, new Wallet(setup.payerKp), confirmationOptions);
 
-		rwaClient = new RwaClient(config, new Wallet(setup.payerKp));
+		rwaClient = new RwaClient(config, provider);
 	});
 
 	test("initalize asset controller", async () => {

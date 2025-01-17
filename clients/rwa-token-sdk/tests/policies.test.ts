@@ -1,5 +1,5 @@
 
-import { BN, Wallet } from "@coral-xyz/anchor";
+import { AnchorProvider, BN, Wallet } from "@coral-xyz/anchor";
 import {
 	getPolicyEnginePda, getPolicyEngineProgram, getTransferTokensIxs, 
 	RwaClient,
@@ -31,8 +31,9 @@ describe("test policy setup", async () => {
 			rpcUrl: connectionUrl,
 			confirmationOptions,
 		};
+		const provider = new AnchorProvider(connection, new Wallet(setup.payerKp), confirmationOptions);
 
-		rwaClient = new RwaClient(config, new Wallet(setup.payerKp));
+		rwaClient = new RwaClient(config, provider);
 	});
 
 	test("setup registries", async () => {

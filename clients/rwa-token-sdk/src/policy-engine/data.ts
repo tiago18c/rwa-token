@@ -1,4 +1,4 @@
-import { type AnchorProvider } from "@coral-xyz/anchor";
+import { Provider } from "@coral-xyz/anchor";
 import { type PolicyEngineAccount, type  TrackerAccount } from "./types";
 import { getPolicyEnginePda, getPolicyEngineProgram, getTrackerAccountPda } from "./utils";
 import { GetProgramAccountsFilter, PublicKey } from "@solana/web3.js";
@@ -8,7 +8,7 @@ import { GetProgramAccountsFilter, PublicKey } from "@solana/web3.js";
  * @param assetMint - The string representation of the asset mint.
  * @returns A promise resolving to {@link PolicyEngineAccount}, or `undefined` if it doesn't exist.
  */
-export async function getPolicyEngineAccount(assetMint: string, provider: AnchorProvider): Promise<PolicyEngineAccount | undefined> {
+export async function getPolicyEngineAccount(assetMint: string, provider: Provider): Promise<PolicyEngineAccount | undefined> {
 	const policyEngineProgram = getPolicyEngineProgram(provider);
 	const policyEnginePda = getPolicyEnginePda(assetMint);
 	return policyEngineProgram.account.policyEngineAccount.fetch(policyEnginePda).catch(() : undefined => undefined);
@@ -29,7 +29,7 @@ export const POLICY_ENGINE_DELEGATE_OFFSET = 73;
  * @param filter - The filter to apply to the policy engine accounts.
  * @returns A promise resolving to an array of {@link PolicyEngineAccount}, or `undefined` if it doesn't exist.
  */
-export async function getPolicyEngineAccountsWithFilter(filter: PolicyEngineFilter, provider: AnchorProvider): Promise<PolicyEngineAccount[] | undefined> {
+export async function getPolicyEngineAccountsWithFilter(filter: PolicyEngineFilter, provider: Provider): Promise<PolicyEngineAccount[] | undefined> {
 	const { assetMint, authority, delegate } = filter;
 	const policyEngineProgram = getPolicyEngineProgram(provider);
 	const filters: GetProgramAccountsFilter[] = [];
@@ -58,7 +58,7 @@ export async function getPolicyEngineAccountsWithFilter(filter: PolicyEngineFilt
 export async function getTrackerAccount(
 	assetMint: string,
 	owner: string,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<TrackerAccount | undefined> {
 	const policyEngineProgram = getPolicyEngineProgram(provider);
 	const trackerPda = getTrackerAccountPda(assetMint, owner);

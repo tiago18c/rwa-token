@@ -10,7 +10,7 @@ import {
 	getIdentityRegistryPda,
 	getWalletIdentityAccountPda,
 } from "./utils";
-import { BN, type AnchorProvider } from "@coral-xyz/anchor";
+import { BN, Provider } from "@coral-xyz/anchor";
 import { getPolicyEnginePda, getTrackerAccountPda, policyEngineProgramId } from "../policy-engine/utils";
 
 /** Represents arguments for creating an on identity registry on chain. */
@@ -27,7 +27,7 @@ export type CreateIdentityRegistryArgs = {
  */
 export async function getCreateIdentityRegistryIx(
 	args: CreateIdentityRegistryArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<TransactionInstruction> {
 	const identityProgram = getIdentityRegistryProgram(provider);
 	const ix = await identityProgram.methods
@@ -62,7 +62,7 @@ export type CreateIdentityAccountArgs = {
  */
 export async function getCreateIdentityAccountIx(
 	args: CreateIdentityAccountArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<TransactionInstruction> {
 	const identityProgram = getIdentityRegistryProgram(provider);
 	const ix = await identityProgram.methods
@@ -89,7 +89,7 @@ export type AttachWalletToIdentityArgs = {
 
 export async function getAttachWalletToIdentityIx(
 	args: AttachWalletToIdentityArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<TransactionInstruction> {
 	const identityProgram = getIdentityRegistryProgram(provider);
 	const ix = await identityProgram.methods
@@ -109,7 +109,7 @@ export async function getAttachWalletToIdentityIx(
 
 export async function getDetachWalletFromIdentityIx(
 	args: AttachWalletToIdentityArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<TransactionInstruction> {
 	const identityProgram = getIdentityRegistryProgram(provider);
 	const ix = await identityProgram.methods
@@ -139,7 +139,7 @@ export type ChangeCountryArgs = {
  */
 export async function getChangeCountryIx(
 	args: ChangeCountryArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<TransactionInstruction> {
 	const identityProgram = getIdentityRegistryProgram(provider);
 	const ix = await identityProgram.methods
@@ -174,7 +174,7 @@ export type AddLevelToIdentityAccountArgs = {
  */
 export async function getAddLevelToIdentityAccount(
 	args: AddLevelToIdentityAccountArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<TransactionInstruction> {
 	const identityProgram = getIdentityRegistryProgram(provider);
 	const ix = await identityProgram.methods
@@ -208,7 +208,7 @@ export type RemoveLevelFromIdentityAccountArgs = {
  */
 export async function getRemoveLevelFromIdentityAccount(
 	args: RemoveLevelFromIdentityAccountArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<TransactionInstruction> {
 	const identityProgram = getIdentityRegistryProgram(provider);
 	const ix = await identityProgram.methods

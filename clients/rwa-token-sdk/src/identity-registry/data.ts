@@ -1,4 +1,4 @@
-import { type AnchorProvider } from "@coral-xyz/anchor";
+import { type Provider } from "@coral-xyz/anchor";
 import { type IdentityRegistryAccount, type IdentityAccount, WalletIdentityAccount } from "./types";
 import {
 	getIdentityAccountPda,
@@ -14,7 +14,7 @@ import { GetProgramAccountsFilter, PublicKey } from "@solana/web3.js";
  */
 export async function getIdentityRegistryAccount(
 	assetMint: string,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<IdentityRegistryAccount | undefined> {
 	const identityRegistryProgram = getIdentityRegistryProgram(provider);
 	const identityRegistryPda = getIdentityRegistryPda(assetMint);
@@ -39,7 +39,7 @@ export const IDENTITY_REGISTRY_DELEGATE_OFFSET = 73;
  */
 export async function getIdentityRegistryAccountsWithFilter(
 	filter: IdentityRegistryFilter,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<IdentityRegistryAccount[] | undefined> {
 	const { assetMint, authority, delegate } = filter;
 	const identityRegistryProgram = getIdentityRegistryProgram(provider);
@@ -70,7 +70,7 @@ export async function getIdentityRegistryAccountsWithFilter(
 export async function getIdentityAccountFromOwner(
 	assetMint: string,
 	owner: string,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<IdentityAccount | undefined> {
 	const identityAccountPda = getIdentityAccountPda(assetMint, owner);
 	return getIdentityAccount(identityAccountPda, provider);
@@ -78,7 +78,7 @@ export async function getIdentityAccountFromOwner(
 
 export async function getIdentityAccount(
 	accountAddress: PublicKey,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<IdentityAccount | undefined> {
 	const identityRegistryProgram = getIdentityRegistryProgram(provider);
 	return identityRegistryProgram.account.identityAccount
@@ -87,7 +87,7 @@ export async function getIdentityAccount(
 
 export async function getWalletIdentityAccount(
 	accountAddress: PublicKey,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<WalletIdentityAccount | undefined> {
 	const identityRegistryProgram = getIdentityRegistryProgram(provider);
 	return identityRegistryProgram.account.walletIdentity
@@ -111,7 +111,7 @@ export const IDENTITY_ACCOUNT_OWNER_OFFSET = 41;
  */
 export async function getIdentityAccountsWithFilter(
 	filter: IdentityAccountFilter,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<IdentityAccount[] | undefined> {
 	const { assetMint, registry, owner } = filter;
 	const identityRegistryProgram = getIdentityRegistryProgram(provider);
@@ -138,7 +138,7 @@ export const WALLET_IDENTITY_ACCOUNT_OWNER_OFFSET = 8;
 
 export async function getWalletIdentityAccountsWithFilter(
 	owner: string,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<WalletIdentityAccount[] | undefined> {
 	const identityRegistryProgram = getIdentityRegistryProgram(provider);
 
