@@ -68,4 +68,6 @@ pub enum PolicyEngineErrors {
     MaxSupplyExceeded,
     #[msg("Counter not found")]
     CounterNotFound,
+    #[msg("Data is not empty")]
+    DataIsNotEmpty,
 }
