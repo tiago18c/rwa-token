@@ -1,5 +1,5 @@
 {
-  "address": "7Zis9Cg1pa3PMRCMfJBgzoQThoBA21QMrkmEnx6nZdQQ",
+  "address": "GZsnjqT3c5zbHqsctrJ4EG4rbEfo7ZXyyUG7aDJNmxfA",
   "metadata": {
     "name": "identity_registry",
     "version": "0.0.1",
@@ -640,6 +640,26 @@
                 "kind": "account",
                 "path": "identity_account.owner",
                 "account": "IdentityAccount"
+              }
+            ]
+          },
+          "relations": [
+            "wallet_identity"
+          ]
+        },
+        {
+          "name": "wallet_identity",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "owner"
+              },
+              {
+                "kind": "account",
+                "path": "identity_registry.asset_mint",
+                "account": "IdentityRegistryAccount"
               }
             ]
           }

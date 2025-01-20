@@ -4,7 +4,7 @@ import { PublicKey } from "@solana/web3.js";
 import { type DataRegistryIdlTypes } from "../programs/types";
 
 export const dataRegistryProgramId = new PublicKey(
-	"8Bp1xoRscjuHoG1KT41zAaujGTx2fyB2uzTt8GTeWZX8"
+	"JDxF8P4SctW8rB5s5FbupPFYecKFqLSv7fTES3cFei3b"
 );
 
 /**

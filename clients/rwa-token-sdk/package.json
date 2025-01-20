@@ -1,6 +1,6 @@
 {
   "name": "@dstoken-solana/rwa-token-sdk",
-  "version": "0.0.33",
+  "version": "0.0.38",
   "description": "RWA Token SDK for the development of permissioned tokens on SVM blockchains.",
   "homepage": "https://github.com/bridgesplit/rwa-token#readme",
   "main": "dist/index.js",
@@ -38,18 +38,18 @@
     "dotenv": "^16.4.4"
   },
   "devDependencies": {
+    "@rollup/plugin-json": "^6.1.0",
     "@typescript-eslint/eslint-plugin": "^7.6.0",
     "@typescript-eslint/parser": "^7.6.0",
     "eslint": ">=8.56.0",
     "eslint-config-xo": "^0.44.0",
     "eslint-config-xo-typescript": "^3.0.0",
-    "typedoc": "^0.25.13",
-    "typescript": ">=5.0.0",
-    "vitest": "^1.5.2",
-    "@rollup/plugin-json": "^6.1.0",
     "rollup": "^2.56.3",
     "rollup-plugin-dts": "^6.1.1",
-    "rollup-plugin-typescript2": "^0.36.0"
+    "rollup-plugin-typescript2": "^0.36.0",
+    "typedoc": "^0.25.13",
+    "typescript": ">=5.0.0",
+    "vitest": "^1.5.2"
   },
   "author": "Standard Labs, Inc.",
   "contributors": [

@@ -1,12 +1,12 @@
 {
     "compilerOptions": {
-        "lib": ["es6", "es2020"],
+        "lib": ["ES5", "es2015"],
         "types": ["node"],
-        "target": "es6",
-        "module": "es6",
+        "target": "ES5",
+        "module": "CommonJS",
         "moduleResolution": "node",
         "outDir": "dist",
-        "declarationDir": "dist/dts",
+        "declarationDir": "dist",
         "declaration": true,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
@@ -18,7 +18,7 @@
         "noFallthroughCasesInSwitch": true,
         "allowSyntheticDefaultImports": true,
         "strictNullChecks": true,
-        "skipLibCheck": true,
+        "skipLibCheck": true
     },
     "exclude": [
         "tests", // Add this line to exclude the "tests" directory from the build output

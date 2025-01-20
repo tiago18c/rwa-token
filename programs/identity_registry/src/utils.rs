@@ -5,7 +5,7 @@ use anchor_lang::{
 
 use crate::IdentityLevel;
 
-pub const POLICY_ENGINE_ID: &str = "4wyusm2nxncvNyiVej5mZ1k1mVPhfG41oNvHx4BWiYMq";
+pub const POLICY_ENGINE_ID: &str = "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2";
 
 pub fn get_identity_registry_pda(asset_mint: Pubkey) -> Pubkey {
     Pubkey::find_program_address(&[asset_mint.as_ref()], &crate::ID).0

@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/asset_controller.json`.
  */
 export type AssetController = {
-  "address": "2fJZj6eLMvdGkHTePvbXGjh9x1hHSMvkBPhTcAAPvBMa",
+  "address": "7tXjmbkZVY3Gmg9kDBebcNXT1yC5pyoxxXVLwdbv9tvP",
   "metadata": {
     "name": "assetController",
     "version": "0.0.1",
@@ -336,15 +336,15 @@ export type AssetController = {
         },
         {
           "name": "policyEngine",
-          "address": "4wyusm2nxncvNyiVej5mZ1k1mVPhfG41oNvHx4BWiYMq"
+          "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
         },
         {
           "name": "identityRegistry",
-          "address": "7Zis9Cg1pa3PMRCMfJBgzoQThoBA21QMrkmEnx6nZdQQ"
+          "address": "GZsnjqT3c5zbHqsctrJ4EG4rbEfo7ZXyyUG7aDJNmxfA"
         },
         {
           "name": "dataRegistry",
-          "address": "8Bp1xoRscjuHoG1KT41zAaujGTx2fyB2uzTt8GTeWZX8"
+          "address": "JDxF8P4SctW8rB5s5FbupPFYecKFqLSv7fTES3cFei3b"
         },
         {
           "name": "systemProgram",
@@ -769,7 +769,7 @@ export type AssetController = {
         },
         {
           "name": "policyEngineProgram",
-          "address": "4wyusm2nxncvNyiVej5mZ1k1mVPhfG41oNvHx4BWiYMq"
+          "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
         },
         {
           "name": "policyEngine",
@@ -852,7 +852,7 @@ export type AssetController = {
         },
         {
           "name": "policyEngineProgram",
-          "address": "4wyusm2nxncvNyiVej5mZ1k1mVPhfG41oNvHx4BWiYMq"
+          "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
         },
         {
           "name": "policyEngine",

@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/policy_engine.json`.
  */
 export type PolicyEngine = {
-  "address": "4wyusm2nxncvNyiVej5mZ1k1mVPhfG41oNvHx4BWiYMq",
+  "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2",
   "metadata": {
     "name": "policyEngine",
     "version": "0.0.1",
@@ -668,7 +668,7 @@ export type PolicyEngine = {
         },
         {
           "name": "identityRegistry",
-          "address": "7Zis9Cg1pa3PMRCMfJBgzoQThoBA21QMrkmEnx6nZdQQ"
+          "address": "GZsnjqT3c5zbHqsctrJ4EG4rbEfo7ZXyyUG7aDJNmxfA"
         },
         {
           "name": "identityRegistryAccount"

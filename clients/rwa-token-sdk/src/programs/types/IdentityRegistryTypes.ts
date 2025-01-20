@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/identity_registry.json`.
  */
 export type IdentityRegistry = {
-  "address": "7Zis9Cg1pa3PMRCMfJBgzoQThoBA21QMrkmEnx6nZdQQ",
+  "address": "GZsnjqT3c5zbHqsctrJ4EG4rbEfo7ZXyyUG7aDJNmxfA",
   "metadata": {
     "name": "identityRegistry",
     "version": "0.0.1",
@@ -646,6 +646,26 @@ export type IdentityRegistry = {
                 "kind": "account",
                 "path": "identity_account.owner",
                 "account": "identityAccount"
+              }
+            ]
+          },
+          "relations": [
+            "walletIdentity"
+          ]
+        },
+        {
+          "name": "walletIdentity",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "owner"
+              },
+              {
+                "kind": "account",
+                "path": "identity_registry.asset_mint",
+                "account": "identityRegistryAccount"
               }
             ]
           }
