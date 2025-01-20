@@ -1,4 +1,4 @@
-import { type AnchorProvider } from "@coral-xyz/anchor";
+import { Provider } from "@coral-xyz/anchor";
 import { type AssetControllerAccount } from "./types";
 import {
 	getAssetControllerPda,
@@ -13,14 +13,12 @@ import { GetProgramAccountsFilter, PublicKey } from "@solana/web3.js";
  */
 export async function getAssetControllerAccount(
 	assetMint: string,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<AssetControllerAccount | undefined> {
 	const assetProgram = getAssetControllerProgram(provider);
 	const assetControllerPda = getAssetControllerPda(assetMint);
 	return assetProgram.account.assetControllerAccount
-		.fetch(assetControllerPda)
-		.then((account) => account)
-		.catch(() => undefined);
+		.fetch(assetControllerPda).catch(() : undefined => undefined);
 }
 
 export interface AssetControllerDataFilter {
@@ -41,7 +39,7 @@ export const ASSET_CONTROLLER_DELEGATE_OFFSET = 73;
  */
 export async function getAssetControllerAccountsWithFilter(
 	filter: Omit<AssetControllerDataFilter, "owner">,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<AssetControllerAccount[] | undefined> {
 	const { assetMint, authority, delegate } = filter;
 	const assetProgram = getAssetControllerProgram(provider);

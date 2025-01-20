@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/identity_registry.json`.
  */
 export type IdentityRegistry = {
-  "address": "idtynCMYbdisCTv4FrCWPSQboZb1uM4TV2cPi79yxQf",
+  "address": "GZsnjqT3c5zbHqsctrJ4EG4rbEfo7ZXyyUG7aDJNmxfA",
   "metadata": {
     "name": "identityRegistry",
     "version": "0.0.1",
@@ -62,12 +62,177 @@ export type IdentityRegistry = {
         {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "policyEngineProgram"
+        },
+        {
+          "name": "policyEngine",
+          "writable": true
+        },
+        {
+          "name": "trackerAccount"
+        },
+        {
+          "name": "assetMint",
+          "relations": [
+            "identityRegistry"
+          ]
         }
       ],
       "args": [
         {
-          "name": "level",
+          "name": "levels",
+          "type": "bytes"
+        },
+        {
+          "name": "expiries",
+          "type": {
+            "vec": "i64"
+          }
+        },
+        {
+          "name": "enforceLimits",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "attachWalletToIdentity",
+      "docs": [
+        "attach token account to identity account"
+      ],
+      "discriminator": [
+        61,
+        129,
+        252,
+        190,
+        8,
+        202,
+        179,
+        90
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "identityAccount",
+          "writable": true
+        },
+        {
+          "name": "identityRegistry",
+          "relations": [
+            "identityAccount"
+          ]
+        },
+        {
+          "name": "assetMint",
+          "relations": [
+            "identityRegistry"
+          ]
+        },
+        {
+          "name": "walletIdentity",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "wallet"
+              },
+              {
+                "kind": "account",
+                "path": "assetMint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "wallet",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "changeCountry",
+      "discriminator": [
+        208,
+        227,
+        224,
+        246,
+        9,
+        254,
+        62,
+        179
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "signer",
+          "signer": true
+        },
+        {
+          "name": "identityRegistry"
+        },
+        {
+          "name": "identityAccount",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "identityRegistry"
+              },
+              {
+                "kind": "account",
+                "path": "identity_account.owner",
+                "account": "identityAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "policyEngineProgram"
+        },
+        {
+          "name": "policyEngine",
+          "writable": true
+        },
+        {
+          "name": "trackerAccount"
+        },
+        {
+          "name": "assetMint",
+          "relations": [
+            "identityRegistry"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "newCountry",
           "type": "u8"
+        },
+        {
+          "name": "enforceLimits",
+          "type": "bool"
         }
       ]
     },
@@ -117,6 +282,23 @@ export type IdentityRegistry = {
           }
         },
         {
+          "name": "walletIdentity",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "owner"
+              },
+              {
+                "kind": "account",
+                "path": "identity_registry.asset_mint",
+                "account": "identityRegistryAccount"
+              }
+            ]
+          }
+        },
+        {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
         }
@@ -128,6 +310,14 @@ export type IdentityRegistry = {
         },
         {
           "name": "level",
+          "type": "u8"
+        },
+        {
+          "name": "expiry",
+          "type": "i64"
+        },
+        {
+          "name": "country",
           "type": "u8"
         }
       ]
@@ -188,6 +378,12 @@ export type IdentityRegistry = {
           "type": {
             "option": "pubkey"
           }
+        },
+        {
+          "name": "allowMultipleWallets",
+          "type": {
+            "option": "bool"
+          }
         }
       ]
     },
@@ -220,6 +416,109 @@ export type IdentityRegistry = {
         {
           "name": "delegate",
           "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "detachWalletFromIdentity",
+      "docs": [
+        "detach token account from identity account"
+      ],
+      "discriminator": [
+        166,
+        70,
+        236,
+        254,
+        166,
+        116,
+        201,
+        50
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "walletIdentity",
+          "writable": true
+        },
+        {
+          "name": "identityAccount",
+          "writable": true,
+          "relations": [
+            "walletIdentity"
+          ]
+        },
+        {
+          "name": "identityRegistry",
+          "relations": [
+            "identityAccount"
+          ]
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "refreshLevelToIdentityAccount",
+      "docs": [
+        "add level to identity account"
+      ],
+      "discriminator": [
+        23,
+        68,
+        237,
+        111,
+        144,
+        169,
+        239,
+        91
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "signer",
+          "signer": true
+        },
+        {
+          "name": "identityRegistry"
+        },
+        {
+          "name": "identityAccount",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "identityRegistry"
+              },
+              {
+                "kind": "account",
+                "path": "identity_account.owner",
+                "account": "identityAccount"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "level",
+          "type": "u8"
+        },
+        {
+          "name": "expiry",
+          "type": "i64"
         }
       ]
     },
@@ -271,12 +570,29 @@ export type IdentityRegistry = {
         {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "policyEngineProgram"
+        },
+        {
+          "name": "policyEngine",
+          "writable": true
+        },
+        {
+          "name": "trackerAccount"
+        },
+        {
+          "name": "assetMint"
         }
       ],
       "args": [
         {
-          "name": "level",
-          "type": "u8"
+          "name": "levels",
+          "type": "bytes"
+        },
+        {
+          "name": "enforceLimits",
+          "type": "bool"
         }
       ]
     },
@@ -332,6 +648,26 @@ export type IdentityRegistry = {
                 "account": "identityAccount"
               }
             ]
+          },
+          "relations": [
+            "walletIdentity"
+          ]
+        },
+        {
+          "name": "walletIdentity",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "owner"
+              },
+              {
+                "kind": "account",
+                "path": "identity_registry.asset_mint",
+                "account": "identityRegistryAccount"
+              }
+            ]
           }
         }
       ],
@@ -369,6 +705,19 @@ export type IdentityRegistry = {
         125,
         78
       ]
+    },
+    {
+      "name": "walletIdentity",
+      "discriminator": [
+        101,
+        142,
+        55,
+        104,
+        168,
+        77,
+        57,
+        85
+      ]
     }
   ],
   "errors": [
@@ -391,6 +740,36 @@ export type IdentityRegistry = {
       "code": 6003,
       "name": "unauthorizedSigner",
       "msg": "Unauthorized signer"
+    },
+    {
+      "code": 6004,
+      "name": "limitReached",
+      "msg": "Identity limit reached"
+    },
+    {
+      "code": 6005,
+      "name": "tokenAccountAlreadyInitialized",
+      "msg": "Token account is already initialized"
+    },
+    {
+      "code": 6006,
+      "name": "identityCreationRequired",
+      "msg": "Identity creation must be enforced for this feature"
+    },
+    {
+      "code": 6007,
+      "name": "multipleWalletsNotAllowed",
+      "msg": "Multiple wallets are not allowed"
+    },
+    {
+      "code": 6008,
+      "name": "walletAlreadyInUse",
+      "msg": "Wallet already in use"
+    },
+    {
+      "code": 6009,
+      "name": "invalidLevel",
+      "msg": "Invalid level"
     }
   ],
   "types": [
@@ -421,8 +800,38 @@ export type IdentityRegistry = {
             "type": "pubkey"
           },
           {
+            "name": "numWallets",
+            "type": "u16"
+          },
+          {
+            "name": "country",
+            "type": "u8"
+          },
+          {
             "name": "levels",
-            "type": "bytes"
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "identityLevel"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "identityLevel",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "level",
+            "type": "u8"
+          },
+          {
+            "name": "expiry",
+            "type": "i64"
           }
         ]
       }
@@ -434,6 +843,10 @@ export type IdentityRegistry = {
         "fields": [
           {
             "name": "version",
+            "type": "u8"
+          },
+          {
+            "name": "bump",
             "type": "u8"
           },
           {
@@ -455,6 +868,26 @@ export type IdentityRegistry = {
             "docs": [
               "registry delegate"
             ],
+            "type": "pubkey"
+          },
+          {
+            "name": "allowMultipleWallets",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "walletIdentity",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "identityAccount",
+            "type": "pubkey"
+          },
+          {
+            "name": "wallet",
             "type": "pubkey"
           }
         ]

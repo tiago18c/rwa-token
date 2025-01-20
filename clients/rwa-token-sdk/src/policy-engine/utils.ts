@@ -1,12 +1,13 @@
 import { type Idl, Program, type Provider, utils } from "@coral-xyz/anchor";
-import { PolicyEngineIdl } from "../programs/idls";
 import { PublicKey } from "@solana/web3.js";
 import { type PolicyEngineIdlTypes } from "../programs/types";
-import { utf8 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
+import { getIdentityAccountPda } from "../identity-registry";
+
+import * as PolicyEngineIdl from "../programs/idls/PolicyEngine.json";
 
 /** Program address for the policy engine program. */
 export const policyEngineProgramId = new PublicKey(
-	"po1cPf1eyUJJPqULw4so3T4JU9pdFn83CDyuLEKFAau"
+	"FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
 );
 
 /**
@@ -33,17 +34,6 @@ export const getPolicyEnginePda = (assetMint: string) =>
 	)[0];
 
 /**
- * Retrieves the policy account pda for a specific asset mint.
- * @param assetMint - The string representation of the asset's mint address.
- * @returns The policy accounts pda.
- */
-export const getPolicyAccountPda = (assetMint: string) =>
-	PublicKey.findProgramAddressSync(
-		[getPolicyEnginePda(assetMint).toBuffer()],
-		policyEngineProgramId
-	)[0];
-
-/**
  * Retrieves the tracker pda for a specific asset controller mint and owner.
  * @param assetMint - The string representation of the asset's mint address.
  * @param owner - The string representation of asset's owner.
@@ -51,7 +41,7 @@ export const getPolicyAccountPda = (assetMint: string) =>
  */
 export const getTrackerAccountPda = (assetMint: string, owner: string) =>
 	PublicKey.findProgramAddressSync(
-		[new PublicKey(assetMint).toBuffer(), new PublicKey(owner).toBuffer()],
+		[new PublicKey(assetMint).toBuffer(), getIdentityAccountPda(assetMint, owner).toBuffer()],
 		policyEngineProgramId
 	)[0];
 
@@ -68,7 +58,7 @@ export const getPolicyEnginerEventAuthority = () => PublicKey.findProgramAddress
  */
 export const getExtraMetasListPda = (assetMint: string) =>
 	PublicKey.findProgramAddressSync(
-		[utf8.encode("extra-account-metas"), new PublicKey(assetMint).toBuffer()],
+		[utils.bytes.utf8.encode("extra-account-metas"), new PublicKey(assetMint).toBuffer()],
 		policyEngineProgramId
 	)[0];
 

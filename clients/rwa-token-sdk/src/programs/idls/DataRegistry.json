@@ -1,5 +1,5 @@
 {
-  "address": "dataeP5X1e7XsWN1ovDSEDP5cqaEUnKBmHE5iZhXPVw",
+  "address": "JDxF8P4SctW8rB5s5FbupPFYecKFqLSv7fTES3cFei3b",
   "metadata": {
     "name": "data_registry",
     "version": "0.0.1",
@@ -167,6 +167,7 @@
       "accounts": [
         {
           "name": "signer",
+          "writable": true,
           "signer": true
         },
         {

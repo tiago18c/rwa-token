@@ -1,6 +1,6 @@
-import { type AnchorProvider } from "@coral-xyz/anchor";
-import { type PolicyEngineAccount, type PolicyAccount, TrackerAccount } from "./types";
-import { getPolicyAccountPda, getPolicyEnginePda, getPolicyEngineProgram, getTrackerAccountPda } from "./utils";
+import { Provider } from "@coral-xyz/anchor";
+import { type PolicyEngineAccount, type  TrackerAccount } from "./types";
+import { getPolicyEnginePda, getPolicyEngineProgram, getTrackerAccountPda } from "./utils";
 import { GetProgramAccountsFilter, PublicKey } from "@solana/web3.js";
 
 /**
@@ -8,12 +8,10 @@ import { GetProgramAccountsFilter, PublicKey } from "@solana/web3.js";
  * @param assetMint - The string representation of the asset mint.
  * @returns A promise resolving to {@link PolicyEngineAccount}, or `undefined` if it doesn't exist.
  */
-export async function getPolicyEngineAccount(assetMint: string, provider: AnchorProvider): Promise<PolicyEngineAccount | undefined> {
+export async function getPolicyEngineAccount(assetMint: string, provider: Provider): Promise<PolicyEngineAccount | undefined> {
 	const policyEngineProgram = getPolicyEngineProgram(provider);
 	const policyEnginePda = getPolicyEnginePda(assetMint);
-	return policyEngineProgram.account.policyEngineAccount.fetch(policyEnginePda)
-		.then(account => account)
-		.catch(() => undefined);
+	return policyEngineProgram.account.policyEngineAccount.fetch(policyEnginePda).catch(() : undefined => undefined);
 }
 
 export interface PolicyEngineFilter {
@@ -31,7 +29,7 @@ export const POLICY_ENGINE_DELEGATE_OFFSET = 73;
  * @param filter - The filter to apply to the policy engine accounts.
  * @returns A promise resolving to an array of {@link PolicyEngineAccount}, or `undefined` if it doesn't exist.
  */
-export async function getPolicyEngineAccountsWithFilter(filter: PolicyEngineFilter, provider: AnchorProvider): Promise<PolicyEngineAccount[] | undefined> {
+export async function getPolicyEngineAccountsWithFilter(filter: PolicyEngineFilter, provider: Provider): Promise<PolicyEngineAccount[] | undefined> {
 	const { assetMint, authority, delegate } = filter;
 	const policyEngineProgram = getPolicyEngineProgram(provider);
 	const filters: GetProgramAccountsFilter[] = [];
@@ -50,18 +48,6 @@ export async function getPolicyEngineAccountsWithFilter(filter: PolicyEngineFilt
 	return policyAccounts.map(account => policyEngineProgram.coder.accounts.decode("PolicyEngineAccount", account.account.data));
 }
 
-/**
- * Retrieves a policy account associated with a specific asset mint.
- * @param assetMint - The string representation of the asset mint.
- * @returns A promise resolving to the fetched policy account, or `undefined` if it doesn't exist.
- */
-export async function getPolicyAccount(assetMint: string, provider: AnchorProvider): Promise<PolicyAccount | undefined> {
-	const policyEngineProgram = getPolicyEngineProgram(provider);
-	const policyAccountPda = getPolicyAccountPda(assetMint);
-	return policyEngineProgram.account.policyAccount.fetch(policyAccountPda);
-}
-
-
 
 /**
  * Retrieves a tracker account pda associated with a specific asset mint and owner.
@@ -72,9 +58,9 @@ export async function getPolicyAccount(assetMint: string, provider: AnchorProvid
 export async function getTrackerAccount(
 	assetMint: string,
 	owner: string,
-	provider: AnchorProvider
-): Promise<TrackerAccount> {
+	provider: Provider
+): Promise<TrackerAccount | undefined> {
 	const policyEngineProgram = getPolicyEngineProgram(provider);
 	const trackerPda = getTrackerAccountPda(assetMint, owner);
-	return await policyEngineProgram.account.trackerAccount.fetch(trackerPda);
+	return await policyEngineProgram.account.trackerAccount.fetch(trackerPda).catch(() : undefined => undefined);
 }

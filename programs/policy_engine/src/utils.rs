@@ -1,35 +1,13 @@
-use crate::{state::*, PolicyEngineErrors};
-use anchor_lang::{
-    prelude::*,
-    solana_program::sysvar::{self, instructions::get_instruction_relative},
-};
-use anchor_spl::token_2022;
+use crate::PolicyEngineErrors;
+use anchor_lang::prelude::*;
+use anchor_spl::token_2022::spl_token_2022::extension::transfer_hook::TransferHookAccount;
+use anchor_spl::token_2022::spl_token_2022::extension::BaseStateWithExtensions;
+use anchor_spl::token_2022::spl_token_2022::extension::StateWithExtensions;
+use anchor_spl::token_2022::spl_token_2022::state::Account as Token2022Account;
+use spl_tlv_account_resolution::pubkey_data::PubkeyData;
 use spl_tlv_account_resolution::{
     account::ExtraAccountMeta, seeds::Seed, state::ExtraAccountMetaList,
 };
-
-pub fn enforce_identity_filter(identity: &[u8], identity_filter: IdentityFilter) -> Result<()> {
-    match identity_filter.comparision_type {
-        ComparisionType::Or => {
-            // if any level is in the identities array, return Ok
-            for level in identity.iter() {
-                if *level != 0 && identity_filter.identity_levels.contains(level) {
-                    return Ok(());
-                }
-            }
-            Err(PolicyEngineErrors::IdentityFilterFailed.into())
-        }
-        ComparisionType::And => {
-            // if all levels are in the identities array, return Ok
-            for level in identity_filter.identity_levels.iter() {
-                if *level != 0 && !identity.contains(level) {
-                    return Err(PolicyEngineErrors::IdentityFilterFailed.into());
-                }
-            }
-            Ok(())
-        }
-    }
-}
 
 pub fn get_total_amount_transferred_in_timeframe(
     transfers: &Vec<Transfer>,
@@ -61,85 +39,26 @@ pub fn get_total_transactions_in_timeframe(
     total_transactions
 }
 
+#[derive(InitSpace, AnchorDeserialize, AnchorSerialize, Copy, Clone, PartialEq)]
+pub enum Side {
+    Buy,
+    Sell,
+}
+
 #[derive(InitSpace, AnchorDeserialize, AnchorSerialize, Copy, Clone)]
 pub struct Transfer {
     pub amount: u64,
     pub timestamp: i64,
+    pub side: Side,
 }
 
-/// enforces different types of policies
-#[inline(never)]
-pub fn enforce_policy(
-    policies: Vec<Policy>,
-    amount: u64,
-    timestamp: i64,
-    identity: &[u8],
-    balance: u64,
-    transfers: &Vec<Transfer>,
-) -> Result<()> {
-    for policy in policies.iter() {
-        match policy.policy_type {
-            PolicyType::IdentityApproval => {
-                enforce_identity_filter(identity, policy.identity_filter)?;
-            }
-            PolicyType::TransactionAmountLimit { limit } => {
-                if enforce_identity_filter(identity, policy.identity_filter).is_ok()
-                    && amount > limit
-                {
-                    return Err(PolicyEngineErrors::TransactionAmountLimitExceeded.into());
-                }
-            }
-            PolicyType::TransactionAmountVelocity { limit, timeframe } => {
-                if enforce_identity_filter(identity, policy.identity_filter).is_ok() {
-                    let total_amount_transferred =
-                        get_total_amount_transferred_in_timeframe(transfers, timeframe, timestamp);
+pub fn assert_is_transferring(account: &AccountInfo) -> Result<()> {
+    let account_data = account.try_borrow_data()?;
+    let token_account = StateWithExtensions::<Token2022Account>::unpack(&account_data)?;
+    let account_extension = token_account.get_extension::<TransferHookAccount>()?;
 
-                    if total_amount_transferred + amount > limit {
-                        return Err(PolicyEngineErrors::TransactionAmountVelocityExceeded.into());
-                    }
-                }
-            }
-            PolicyType::TransactionCountVelocity { limit, timeframe } => {
-                if enforce_identity_filter(identity, policy.identity_filter).is_ok() {
-                    let total_transactions =
-                        get_total_transactions_in_timeframe(transfers, timeframe, timestamp);
-                    if total_transactions + 1 > limit {
-                        return Err(PolicyEngineErrors::TransactionCountVelocityExceeded.into());
-                    }
-                }
-            }
-            PolicyType::MaxBalance { limit } => {
-                if enforce_identity_filter(identity, policy.identity_filter).is_ok()
-                    && amount + balance > limit
-                {
-                    return Err(PolicyEngineErrors::MaxBalanceExceeded.into());
-                }
-            }
-        }
-    }
-    Ok(())
-}
-
-pub const TRANSFER_HOOK_MINT_INDEX: usize = 1;
-
-pub fn verify_cpi_program_is_token22(
-    instructions_program: &AccountInfo,
-    amount: u64,
-    mint: Pubkey,
-) -> Result<()> {
-    let ix_relative = get_instruction_relative(0, instructions_program)?;
-    if ix_relative.program_id != token_2022::ID {
-        return Err(PolicyEngineErrors::InvalidCpiTransferProgram.into());
-    }
-    if ix_relative.data[1..9] != amount.to_le_bytes() {
-        return Err(PolicyEngineErrors::InvalidCpiTransferAmount.into());
-    }
-    // make sure transfer mint is same
-    if let Some(account) = ix_relative.accounts.get(TRANSFER_HOOK_MINT_INDEX) {
-        if account.pubkey != mint {
-            return Err(PolicyEngineErrors::InvalidCpiTransferMint.into());
-        }
-    } else {
+    // can assume if its not transferring, it wasn't called by token22
+    if !bool::from(account_extension.transferring) {
         return Err(PolicyEngineErrors::InvalidCpiTransferProgram.into());
     }
 
@@ -161,48 +80,80 @@ pub fn get_meta_list_size() -> Result<usize> {
 
 pub fn get_extra_account_metas() -> Result<Vec<ExtraAccountMeta>> {
     Ok(vec![
-        // policy engine account
-        ExtraAccountMeta::new_with_seeds(&[Seed::AccountKey { index: 1 }], false, false)?,
-        // identity program
+        // [5] policy engine account
+        ExtraAccountMeta::new_with_seeds(&[Seed::AccountKey { index: 1 }], false, true)?,
+        // [6] identity program
         ExtraAccountMeta::new_with_pubkey(&identity_registry::id(), false, false)?,
-        // identity registry account
+        // [7] identity registry account
         ExtraAccountMeta::new_external_pda_with_seeds(
             6,
             &[Seed::AccountKey { index: 1 }],
             false,
             false,
         )?,
-        // user identity account
+        // [8] source wallet identity
         ExtraAccountMeta::new_external_pda_with_seeds(
             6,
             &[
-                Seed::AccountKey { index: 7 },
                 Seed::AccountData {
-                    // to pubkey
-                    account_index: 2, // to token account
+                    account_index: 0,
                     data_index: 32,
                     length: 32,
                 },
+                Seed::AccountKey { index: 1 },
             ],
             false,
             false,
         )?,
-        // user tracker account
-        ExtraAccountMeta::new_with_seeds(
+        // [9] destination wallet identity
+        ExtraAccountMeta::new_external_pda_with_seeds(
+            6,
             &[
-                Seed::AccountKey { index: 1 },
                 Seed::AccountData {
                     account_index: 2,
                     data_index: 32,
                     length: 32,
                 },
+                Seed::AccountKey { index: 1 },
+            ],
+            false,
+            false,
+        )?,
+        // [10] source identity account
+        ExtraAccountMeta::new_with_pubkey_data(
+            &PubkeyData::AccountData {
+                account_index: 8,
+                data_index: 8,
+            },
+            false,
+            false,
+        )?,
+        // [11] destination identity account
+        ExtraAccountMeta::new_with_pubkey_data(
+            &PubkeyData::AccountData {
+                account_index: 9,
+                data_index: 8,
+            },
+            false,
+            false,
+        )?,
+        // [12] source tracker account
+        ExtraAccountMeta::new_with_seeds(
+            &[
+                Seed::AccountKey { index: 1 },
+                Seed::AccountKey { index: 10 },
             ],
             false,
             true,
         )?,
-        // policy account
-        ExtraAccountMeta::new_with_seeds(&[Seed::AccountKey { index: 5 }], false, true)?,
-        // instructions program
-        ExtraAccountMeta::new_with_pubkey(&sysvar::instructions::id(), false, false)?,
+        // [13] destination tracker account
+        ExtraAccountMeta::new_with_seeds(
+            &[
+                Seed::AccountKey { index: 1 },
+                Seed::AccountKey { index: 11 },
+            ],
+            false,
+            true,
+        )?,
     ])
 }

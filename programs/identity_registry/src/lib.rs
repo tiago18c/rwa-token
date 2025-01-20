@@ -12,10 +12,11 @@ pub use utils::*;
 
 use anchor_lang::prelude::*;
 
-declare_id!("idtynCMYbdisCTv4FrCWPSQboZb1uM4TV2cPi79yxQf");
+declare_id!("GZsnjqT3c5zbHqsctrJ4EG4rbEfo7ZXyyUG7aDJNmxfA");
 
 #[program]
 pub mod identity_registry {
+
     use super::*;
 
     /// registry functions
@@ -24,8 +25,9 @@ pub mod identity_registry {
         ctx: Context<CreateIdentityRegistry>,
         authority: Pubkey,
         delegate: Option<Pubkey>,
+        allow_multiple_wallets: Option<bool>,
     ) -> Result<()> {
-        instructions::registry::create::handler(ctx, authority, delegate)
+        instructions::registry::create::handler(ctx, authority, delegate, allow_multiple_wallets)
     }
 
     /// delegate identity registry
@@ -42,24 +44,38 @@ pub mod identity_registry {
         ctx: Context<CreateIdentityAccount>,
         owner: Pubkey,
         level: u8,
+        expiry: i64,
+        country: u8,
     ) -> Result<()> {
-        instructions::account::create::handler(ctx, owner, level)
+        instructions::account::create::handler(ctx, owner, level, expiry, country)
     }
 
     /// add level to identity account
     pub fn add_level_to_identity_account(
         ctx: Context<AddLevelToIdentityAccount>,
-        level: u8,
+        levels: Vec<u8>,
+        expiries: Vec<i64>,
+        enforce_limits: bool,
     ) -> Result<()> {
-        instructions::account::add::handler(ctx, level)
+        instructions::account::add::handler(ctx, levels, expiries, enforce_limits)
+    }
+
+    /// add level to identity account
+    pub fn refresh_level_to_identity_account(
+        ctx: Context<RefreshLevelToIdentityAccount>,
+        level: u8,
+        expiry: i64,
+    ) -> Result<()> {
+        instructions::account::refresh::handler(ctx, level, expiry)
     }
 
     /// remove level from identity account
     pub fn remove_level_from_identity_account(
         ctx: Context<RemoveLevelFromIdentityAccount>,
-        level: u8,
+        levels: Vec<u8>,
+        enforce_limits: bool,
     ) -> Result<()> {
-        instructions::account::remove::handler(ctx, level)
+        instructions::account::remove::handler(ctx, levels, enforce_limits)
     }
 
     /// revoke user identity account by closing account
@@ -69,5 +85,26 @@ pub mod identity_registry {
     ) -> Result<()> {
         // no extra steps needed, identity account is being properly closed
         Ok(())
+    }
+
+    /// attach token account to identity account
+    pub fn attach_wallet_to_identity(
+        ctx: Context<AttachWalletToIdentity>,
+        wallet: Pubkey,
+    ) -> Result<()> {
+        instructions::account::attach_wallet_to_identity::handler(ctx, wallet)
+    }
+
+    /// detach token account from identity account
+    pub fn detach_wallet_from_identity(ctx: Context<DetachWalletFromIdentity>) -> Result<()> {
+        instructions::account::detach_wallet_from_identity::handler(ctx)
+    }
+
+    pub fn change_country(
+        ctx: Context<ChangeCountry>,
+        new_country: u8,
+        enforce_limits: bool,
+    ) -> Result<()> {
+        instructions::account::change_country::handler(ctx, new_country, enforce_limits)
     }
 }

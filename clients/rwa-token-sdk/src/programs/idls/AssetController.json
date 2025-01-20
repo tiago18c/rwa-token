@@ -1,5 +1,5 @@
 {
-  "address": "acpcFrzEYKjVLvZGWueTV8vyDjhu3oKC7sN38QELLan",
+  "address": "7tXjmbkZVY3Gmg9kDBebcNXT1yC5pyoxxXVLwdbv9tvP",
   "metadata": {
     "name": "asset_controller",
     "version": "0.0.1",
@@ -330,15 +330,15 @@
         },
         {
           "name": "policy_engine",
-          "address": "po1cPf1eyUJJPqULw4so3T4JU9pdFn83CDyuLEKFAau"
+          "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
         },
         {
           "name": "identity_registry",
-          "address": "idtynCMYbdisCTv4FrCWPSQboZb1uM4TV2cPi79yxQf"
+          "address": "GZsnjqT3c5zbHqsctrJ4EG4rbEfo7ZXyyUG7aDJNmxfA"
         },
         {
           "name": "data_registry",
-          "address": "dataeP5X1e7XsWN1ovDSEDP5cqaEUnKBmHE5iZhXPVw"
+          "address": "JDxF8P4SctW8rB5s5FbupPFYecKFqLSv7fTES3cFei3b"
         },
         {
           "name": "system_program",
@@ -656,7 +656,11 @@
         },
         {
           "name": "asset_mint",
-          "writable": true
+          "writable": true,
+          "relations": [
+            "identity_registry",
+            "tracker_account"
+          ]
         },
         {
           "name": "asset_controller",
@@ -730,6 +734,22 @@
           }
         },
         {
+          "name": "identity_registry",
+          "relations": [
+            "identity_account"
+          ]
+        },
+        {
+          "name": "identity_account",
+          "relations": [
+            "wallet_identity_account"
+          ]
+        },
+        {
+          "name": "tracker_account",
+          "writable": true
+        },
+        {
           "name": "token_program",
           "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
         },
@@ -740,12 +760,27 @@
         {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "policy_engine_program",
+          "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
+        },
+        {
+          "name": "policy_engine",
+          "writable": true
+        },
+        {
+          "name": "wallet_identity_account"
         }
       ],
       "args": [
         {
           "name": "amount",
           "type": "u64"
+        },
+        {
+          "name": "issuance_timestamp",
+          "type": "i64"
         }
       ]
     },
@@ -772,7 +807,11 @@
         },
         {
           "name": "asset_mint",
-          "writable": true
+          "writable": true,
+          "relations": [
+            "identity_registry",
+            "tracker_account"
+          ]
         },
         {
           "name": "asset_controller",
@@ -786,65 +825,35 @@
           }
         },
         {
-          "name": "authority_token_account",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "account",
-                "path": "asset_controller"
-              },
-              {
-                "kind": "account",
-                "path": "token_program"
-              },
-              {
-                "kind": "account",
-                "path": "asset_mint"
-              }
-            ],
-            "program": {
-              "kind": "const",
-              "value": [
-                140,
-                151,
-                37,
-                143,
-                78,
-                36,
-                137,
-                241,
-                187,
-                61,
-                16,
-                41,
-                20,
-                142,
-                13,
-                131,
-                11,
-                90,
-                19,
-                153,
-                218,
-                255,
-                16,
-                132,
-                4,
-                142,
-                123,
-                216,
-                219,
-                233,
-                248,
-                89
-              ]
-            }
-          }
-        },
-        {
           "name": "revoke_token_account",
           "writable": true
+        },
+        {
+          "name": "identity_registry",
+          "relations": [
+            "identity_account"
+          ]
+        },
+        {
+          "name": "identity_account",
+          "relations": [
+            "wallet_identity_account"
+          ]
+        },
+        {
+          "name": "tracker_account",
+          "writable": true
+        },
+        {
+          "name": "policy_engine_program",
+          "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
+        },
+        {
+          "name": "policy_engine",
+          "writable": true
+        },
+        {
+          "name": "wallet_identity_account"
         },
         {
           "name": "token_program",
@@ -857,6 +866,61 @@
         {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "seize_tokens",
+      "docs": [
+        "seize shares of the rwa asset"
+      ],
+      "discriminator": [
+        79,
+        30,
+        69,
+        54,
+        78,
+        1,
+        16,
+        23
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "asset_mint"
+        },
+        {
+          "name": "asset_controller",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "asset_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "destination_token_account",
+          "writable": true
+        },
+        {
+          "name": "source_token_account",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
         }
       ],
       "args": [
@@ -888,7 +952,10 @@
         },
         {
           "name": "asset_mint",
-          "writable": true
+          "writable": true,
+          "relations": [
+            "identity_registry_account"
+          ]
         },
         {
           "name": "asset_controller",
@@ -900,6 +967,10 @@
               }
             ]
           }
+        },
+        {
+          "name": "identity_registry_account",
+          "writable": true
         },
         {
           "name": "token_account",
@@ -1098,6 +1169,71 @@
         52,
         105
       ]
+    },
+    {
+      "name": "IdentityAccount",
+      "discriminator": [
+        194,
+        90,
+        181,
+        160,
+        182,
+        206,
+        116,
+        158
+      ]
+    },
+    {
+      "name": "IdentityRegistryAccount",
+      "discriminator": [
+        154,
+        254,
+        118,
+        4,
+        115,
+        36,
+        125,
+        78
+      ]
+    },
+    {
+      "name": "PolicyEngineAccount",
+      "discriminator": [
+        124,
+        85,
+        205,
+        80,
+        2,
+        18,
+        26,
+        45
+      ]
+    },
+    {
+      "name": "TrackerAccount",
+      "discriminator": [
+        83,
+        95,
+        166,
+        148,
+        57,
+        30,
+        90,
+        210
+      ]
+    },
+    {
+      "name": "WalletIdentity",
+      "discriminator": [
+        101,
+        142,
+        55,
+        104,
+        168,
+        77,
+        57,
+        85
+      ]
     }
   ],
   "events": [
@@ -1173,6 +1309,21 @@
       "code": 6008,
       "name": "InvalidPdaPassedIn",
       "msg": "Pda passed in for transfer is wrong"
+    },
+    {
+      "code": 6009,
+      "name": "TokenAccountNotInitialized",
+      "msg": "Token account is not initialized"
+    },
+    {
+      "code": 6010,
+      "name": "TokenAccountAlreadyInitialized",
+      "msg": "Token account is already initialized"
+    },
+    {
+      "code": 6011,
+      "name": "InvalidIdentityAccounts",
+      "msg": "Invalid identity accounts"
     }
   ],
   "types": [
@@ -1248,6 +1399,93 @@
       }
     },
     {
+      "name": "Counter",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "value",
+            "type": "u64"
+          },
+          {
+            "name": "id",
+            "type": "u8"
+          },
+          {
+            "name": "identity_filter",
+            "type": {
+              "defined": {
+                "name": "IdentityFilter"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "CounterLimit",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "HoldersLimit",
+            "fields": [
+              {
+                "name": "max",
+                "type": "u64"
+              },
+              {
+                "name": "min",
+                "type": "u64"
+              },
+              {
+                "name": "counter_id",
+                "type": "u8"
+              }
+            ]
+          },
+          {
+            "name": "GroupedHoldersLimit",
+            "fields": [
+              {
+                "name": "max",
+                "type": "u64"
+              },
+              {
+                "name": "min",
+                "type": "u64"
+              },
+              {
+                "name": "counters",
+                "type": "bytes"
+              }
+            ]
+          },
+          {
+            "name": "PercentageLimit",
+            "fields": [
+              {
+                "name": "higher_counter_id",
+                "type": "u8"
+              },
+              {
+                "name": "lower_counter_id",
+                "type": "u8"
+              },
+              {
+                "name": "min_percentage",
+                "type": "u8"
+              },
+              {
+                "name": "max_percentage",
+                "type": "u8"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
       "name": "CreateAssetControllerArgs",
       "type": {
         "kind": "struct",
@@ -1279,6 +1517,18 @@
             "type": {
               "option": "i16"
             }
+          },
+          {
+            "name": "allow_multiple_wallets",
+            "type": {
+              "option": "bool"
+            }
+          },
+          {
+            "name": "enforce_policy_issuance",
+            "type": {
+              "option": "bool"
+            }
           }
         ]
       }
@@ -1299,6 +1549,670 @@
           {
             "name": "metadata",
             "type": "bytes"
+          }
+        ]
+      }
+    },
+    {
+      "name": "FilterComparison",
+      "repr": {
+        "kind": "rust"
+      },
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Or"
+          },
+          {
+            "name": "And"
+          }
+        ]
+      }
+    },
+    {
+      "name": "FilterData",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "level",
+            "type": {
+              "defined": {
+                "name": "FilterLevel"
+              }
+            }
+          },
+          {
+            "name": "target",
+            "type": {
+              "defined": {
+                "name": "FilterTarget"
+              }
+            }
+          },
+          {
+            "name": "mode",
+            "type": {
+              "defined": {
+                "name": "FilterMode"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "FilterInner",
+      "repr": {
+        "kind": "rust"
+      },
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Single",
+            "fields": [
+              {
+                "defined": {
+                  "name": "FilterData"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Tuple",
+            "fields": [
+              {
+                "defined": {
+                  "name": "FilterData"
+                }
+              },
+              {
+                "defined": {
+                  "name": "FilterComparison"
+                }
+              },
+              {
+                "defined": {
+                  "name": "FilterData"
+                }
+              }
+            ]
+          },
+          {
+            "name": "Multiple",
+            "fields": [
+              {
+                "defined": {
+                  "name": "FilterComparison"
+                }
+              },
+              {
+                "vec": {
+                  "defined": {
+                    "name": "FilterData"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "FilterLevel",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Level",
+            "fields": [
+              "u8"
+            ]
+          },
+          {
+            "name": "LevelMappingAny",
+            "fields": [
+              "u8"
+            ]
+          },
+          {
+            "name": "LevelMapping",
+            "fields": [
+              {
+                "name": "source",
+                "type": "u8"
+              },
+              {
+                "name": "target",
+                "type": "u8"
+              }
+            ]
+          },
+          {
+            "name": "Country",
+            "fields": [
+              "u8"
+            ]
+          },
+          {
+            "name": "CountryMapping",
+            "fields": [
+              "u8"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "FilterMode",
+      "repr": {
+        "kind": "rust"
+      },
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Include"
+          },
+          {
+            "name": "Exclude"
+          }
+        ]
+      }
+    },
+    {
+      "name": "FilterTarget",
+      "repr": {
+        "kind": "rust"
+      },
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Sender"
+          },
+          {
+            "name": "Receiver"
+          },
+          {
+            "name": "BothAnd"
+          },
+          {
+            "name": "BothOr"
+          }
+        ]
+      }
+    },
+    {
+      "name": "IdentityAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "version",
+            "docs": [
+              "version of the account"
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "identity_registry",
+            "docs": [
+              "identity registry to which the account belongs"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "docs": [
+              "owner of the identity account"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "num_wallets",
+            "type": "u16"
+          },
+          {
+            "name": "country",
+            "type": "u8"
+          },
+          {
+            "name": "levels",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "IdentityLevel"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "IdentityFilter",
+      "repr": {
+        "kind": "rust"
+      },
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Simple",
+            "fields": [
+              {
+                "defined": {
+                  "name": "FilterInner"
+                }
+              }
+            ]
+          },
+          {
+            "name": "IfThen",
+            "fields": [
+              {
+                "defined": {
+                  "name": "FilterInner"
+                }
+              },
+              {
+                "defined": {
+                  "name": "FilterInner"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "IdentityLevel",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "level",
+            "type": "u8"
+          },
+          {
+            "name": "expiry",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "IdentityRegistryAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "version",
+            "type": "u8"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "asset_mint",
+            "docs": [
+              "corresponding asset mint"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "authority",
+            "docs": [
+              "authority to manage the registry"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "delegate",
+            "docs": [
+              "registry delegate"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "allow_multiple_wallets",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "IssuancePolicies",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "disallow_backdating",
+            "type": "bool"
+          },
+          {
+            "name": "max_supply",
+            "type": "u64"
+          },
+          {
+            "name": "us_lock_period",
+            "type": "u64"
+          },
+          {
+            "name": "non_us_lock_period",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Policy",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "hash",
+            "type": "string"
+          },
+          {
+            "name": "identity_filter",
+            "type": {
+              "defined": {
+                "name": "IdentityFilter"
+              }
+            }
+          },
+          {
+            "name": "policy_type",
+            "type": {
+              "defined": {
+                "name": "PolicyType"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "PolicyEngineAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "version",
+            "docs": [
+              "version"
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "asset_mint",
+            "docs": [
+              "asset mint"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "authority",
+            "docs": [
+              "authority of the registry"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "delegate",
+            "docs": [
+              "policy delegate"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "max_timeframe",
+            "docs": [
+              "max timeframe of all the policies"
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "enforce_policy_issuance",
+            "docs": [
+              "enforce policy issuance"
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "mapping",
+            "docs": [
+              "generic mapping for levels"
+            ],
+            "type": {
+              "array": [
+                "u8",
+                256
+              ]
+            }
+          },
+          {
+            "name": "issuance_policies",
+            "docs": [
+              "policies to apply on issuance",
+              "these are partially for storage only"
+            ],
+            "type": {
+              "defined": {
+                "name": "IssuancePolicies"
+              }
+            }
+          },
+          {
+            "name": "policies",
+            "docs": [
+              "policies to check on transfers or balance changes"
+            ],
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "Policy"
+                }
+              }
+            }
+          },
+          {
+            "name": "counters",
+            "docs": [
+              "counters to track the number of holders depending on filters"
+            ],
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "Counter"
+                }
+              }
+            }
+          },
+          {
+            "name": "counter_limits",
+            "docs": [
+              "limits to apply on existing counters"
+            ],
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "CounterLimit"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "PolicyType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "IdentityApproval"
+          },
+          {
+            "name": "TransactionAmountLimit",
+            "fields": [
+              {
+                "name": "limit",
+                "type": "u64"
+              }
+            ]
+          },
+          {
+            "name": "TransactionAmountVelocity",
+            "fields": [
+              {
+                "name": "limit",
+                "type": "u64"
+              },
+              {
+                "name": "timeframe",
+                "type": "i64"
+              }
+            ]
+          },
+          {
+            "name": "TransactionCountVelocity",
+            "fields": [
+              {
+                "name": "limit",
+                "type": "u64"
+              },
+              {
+                "name": "timeframe",
+                "type": "i64"
+              }
+            ]
+          },
+          {
+            "name": "MaxBalance",
+            "fields": [
+              {
+                "name": "limit",
+                "type": "u64"
+              }
+            ]
+          },
+          {
+            "name": "MinBalance",
+            "fields": [
+              {
+                "name": "limit",
+                "type": "u64"
+              }
+            ]
+          },
+          {
+            "name": "MinMaxBalance",
+            "fields": [
+              {
+                "name": "min",
+                "type": "u64"
+              },
+              {
+                "name": "max",
+                "type": "u64"
+              }
+            ]
+          },
+          {
+            "name": "TransferPause"
+          },
+          {
+            "name": "ForbiddenIdentityGroup"
+          },
+          {
+            "name": "ForceFullTransfer"
+          },
+          {
+            "name": "BlockFlowbackEndTime",
+            "fields": [
+              {
+                "name": "time",
+                "type": "i64"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "Side",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Buy"
+          },
+          {
+            "name": "Sell"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TrackerAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "version",
+            "type": "u8"
+          },
+          {
+            "name": "asset_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "identity_account",
+            "type": "pubkey"
+          },
+          {
+            "name": "transfers",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "Transfer"
+                }
+              }
+            }
+          },
+          {
+            "name": "total_amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Transfer",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "side",
+            "type": {
+              "defined": {
+                "name": "Side"
+              }
+            }
           }
         ]
       }
@@ -1325,6 +2239,22 @@
             "type": {
               "option": "string"
             }
+          }
+        ]
+      }
+    },
+    {
+      "name": "WalletIdentity",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "identity_account",
+            "type": "pubkey"
+          },
+          {
+            "name": "wallet",
+            "type": "pubkey"
           }
         ]
       }

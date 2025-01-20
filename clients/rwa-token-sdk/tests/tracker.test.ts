@@ -1,4 +1,4 @@
-import { BN, Wallet } from "@coral-xyz/anchor";
+import { AnchorProvider, BN, Wallet } from "@coral-xyz/anchor";
 import {
 	type AttachPolicyArgs,
 	getTrackerAccount,
@@ -8,7 +8,6 @@ import {
 } from "../src";
 import { setupTests } from "./setup";
 import {
-	Commitment,
 	type ConfirmOptions,
 	Connection,
 	Transaction,
@@ -26,11 +25,12 @@ describe("test suite to test tracker account is being updated correctly on trans
 
 	test("setup provider", async () => {
 		const connectionUrl = process.env.RPC_URL ?? "http://localhost:8899";
-		const connection = new Connection(connectionUrl);
+		const connection = new Connection(connectionUrl, "processed");
 
 		const confirmationOptions: ConfirmOptions = {
 			skipPreflight: false,
 			maxRetries: 3,
+			commitment: "processed",
 		};
 
 		const config: Config = {
@@ -38,8 +38,9 @@ describe("test suite to test tracker account is being updated correctly on trans
 			rpcUrl: connectionUrl,
 			confirmationOptions,
 		};
+		const provider = new AnchorProvider(connection, new Wallet(setup.payerKp), confirmationOptions);
 
-		rwaClient = new RwaClient(config, new Wallet(setup.payerKp));
+		rwaClient = new RwaClient(config, provider);
 	});
 
 	test("initalize asset controller", async () => {
@@ -58,7 +59,7 @@ describe("test suite to test tracker account is being updated correctly on trans
 		const txnId = await sendAndConfirmTransaction(
 			rwaClient.provider.connection,
 			new Transaction().add(...setupIx.ixs),
-			[setup.payerKp, setup.authorityKp, ...setupIx.signers]
+			[setup.payerKp, ...setupIx.signers]
 		);
 		mint = setupIx.signers[0].publicKey.toString();
 		expect(txnId).toBeTruthy();
@@ -70,7 +71,9 @@ describe("test suite to test tracker account is being updated correctly on trans
 			owner: setup.user1.toString(),
 			signer: setup.authority.toString(),
 			assetMint: mint,
-			level: 1,
+			levels: [1],
+			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60)],
+			country: 1,
 		};
 		const setupIx1 = await rwaClient.identityRegistry.setupUserIxns(
 			setupUser1Args
@@ -86,7 +89,9 @@ describe("test suite to test tracker account is being updated correctly on trans
 			owner: setup.user2.toString(),
 			signer: setup.authority.toString(),
 			assetMint: mint,
-			level: 1,
+			levels: [1],
+			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60)],
+			country: 1,
 		};
 		const setupIx2 = await rwaClient.identityRegistry.setupUserIxns(
 			setupUser2Args
@@ -148,12 +153,19 @@ describe("test suite to test tracker account is being updated correctly on trans
 			assetMint: mint,
 			authority: setup.authority.toString(),
 			identityFilter: {
-				identityLevels: [1],
-				comparisionType: {or: {}}
+				simple: [ {
+					single: [
+						{
+							target: {sender: {}},
+							mode: {include: {}},
+							level: {level: [1]}	,
+						}
+					]
+				}]
 			},
 			policyType: {transactionAmountVelocity: { limit: new BN(1000000000000), timeframe: new BN(1000000000000) }} // enough limit and timeframe to allow a lot of transfers
 		};
-		const attachPolicyIx = await rwaClient.policyEngine.createPolicy(
+		const attachPolicyIx = await rwaClient.policyEngine.attachPolicy(
 			attachPolicyArgs
 		);
 		const txnId = await sendAndConfirmTransaction(
@@ -175,16 +187,13 @@ describe("test suite to test tracker account is being updated correctly on trans
 			};
 	
 			const transferIxs = await rwaClient.assetController.transfer(transferArgs);
-			let commitment: Commitment = "processed";
-			if (i < 4) {
-				commitment = "finalized";
-			}
+
 			const txnId = await sendAndConfirmTransaction(
 				rwaClient.provider.connection,
 				new Transaction().add(...transferIxs),
 				[setup.user1Kp],
 				{
-					commitment,
+					skipPreflight: true,
 				}
 			);
 			expect(txnId).toBeTruthy();
@@ -195,7 +204,7 @@ describe("test suite to test tracker account is being updated correctly on trans
 					rwaClient.provider
 				);
 				expect(trackerAccount!.transfers.length).toBe(i + 1);
-				expect(trackerAccount!.transfers.at(i)?.amount == 100);
+				expect(trackerAccount!.transfers.at(i)?.amount?.toNumber()).toBe(100);
 			}
 		}
 		const transferArgs: TransferTokensArgs = {
@@ -210,8 +219,12 @@ describe("test suite to test tracker account is being updated correctly on trans
 		expect(sendAndConfirmTransaction(
 			rwaClient.provider.connection,
 			new Transaction().add(...transferIxs),
-			[setup.user1Kp]
-		)).rejects.toThrowError(/failed \(\{"err":\{"InstructionError":\[0,\{"Custom":6015\}\]\}\}\)/);
+			[setup.user1Kp],
+			{
+			//	commitment,
+				skipPreflight: true,
+			}
+		)).rejects.toThrowError(/"InstructionError":\[0,\{"Custom":6016\}\]/);
 	});
 
 });

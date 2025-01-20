@@ -24,6 +24,8 @@ pub enum PolicyEngineErrors {
     PolicyAlreadyExists,
     #[msg("Max balance exceeded")]
     MaxBalanceExceeded,
+    #[msg("Min balance exceeded")]
+    MinBalanceExceeded,
     #[msg("Invalid CPI transfer amount")]
     InvalidCpiTransferAmount,
     #[msg("Invalid CPI transfer mint")]
@@ -34,4 +36,36 @@ pub enum PolicyEngineErrors {
     InvalidPdaPassedIn,
     #[msg("Transfer history full")]
     TransferHistoryFull,
+    #[msg("All Transfers have been paused")]
+    TransferPaused,
+    #[msg("Expected source account to transfer full amount")]
+    ForceFullTransfer,
+    #[msg("Holder limit exceeded")]
+    HolderLimitExceeded,
+    #[msg("Balance limit exceeded")]
+    BalanceLimitExceeded,
+    #[msg("Tracker account owner mismatch")]
+    TrackerAccountOwnerMismatch,
+    #[msg("Forbidden identity group")]
+    ForbiddenIdentityGroup,
+    #[msg("Invalid identity account")]
+    InvalidIdentityAccount,
+    #[msg("Holders limit exceeded")]
+    HoldersLimitExceeded,
+    #[msg("Min max balance exceeded")]
+    MinMaxBalanceExceeded,
+    #[msg("Invalid policy engine account")]
+    InvalidPolicyEngineAccount,
+    #[msg("Percentage limit exceeded")]
+    PercentageLimitExceeded,
+    #[msg("Flowback")]
+    Flowback,
+    #[msg("Invalid instruction data")]
+    InvalidInstructionData,
+    #[msg("Backdating not allowed")]
+    BackdatingNotAllowed,
+    #[msg("Max supply exceeded")]
+    MaxSupplyExceeded,
+    #[msg("Counter not found")]
+    CounterNotFound,
 }

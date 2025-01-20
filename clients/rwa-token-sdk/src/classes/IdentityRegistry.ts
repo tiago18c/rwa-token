@@ -8,6 +8,11 @@ import {
 	getRemoveLevelFromIdentityAccount,
 	getIdentityRegistryPda,
 	getIdentityAccountPda,
+	AttachWalletToIdentityArgs,
+	getAttachWalletToIdentityIx,
+	getDetachWalletFromIdentityIx,
+	ChangeCountryArgs,
+	getChangeCountryIx,
 } from "../identity-registry";
 import { type RwaClient } from "./Client";
 
@@ -34,6 +39,21 @@ export class IdentityRegistry {
 			this.rwaClient.provider
 		);
 		return setupUserIx;
+	}
+
+	async attachWalletToIdentity(attachWalletArgs: AttachWalletToIdentityArgs): Promise<TransactionInstruction> {
+		const attachWalletIx = await getAttachWalletToIdentityIx(attachWalletArgs, this.rwaClient.provider);
+		return attachWalletIx;
+	}
+
+	async detachWalletFromIdentity(detachWalletArgs: AttachWalletToIdentityArgs): Promise<TransactionInstruction> {
+		const detachWalletIx = await getDetachWalletFromIdentityIx(detachWalletArgs, this.rwaClient.provider);
+		return detachWalletIx;
+	}
+
+	async changeCountry(changeCountryArgs: ChangeCountryArgs): Promise<TransactionInstruction> {
+		const changeCountryIx = await getChangeCountryIx(changeCountryArgs, this.rwaClient.provider);
+		return changeCountryIx;
 	}
 
 	/**

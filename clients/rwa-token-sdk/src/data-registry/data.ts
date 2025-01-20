@@ -1,4 +1,4 @@
-import { type AnchorProvider } from "@coral-xyz/anchor";
+import { Provider } from "@coral-xyz/anchor";
 import { type DataRegistryAccount, type DataAccount } from "./types";
 import { getDataRegistryPda, getDataRegistryProgram } from "./utils";
 import { GetProgramAccountsFilter, PublicKey } from "@solana/web3.js";
@@ -8,12 +8,10 @@ import { GetProgramAccountsFilter, PublicKey } from "@solana/web3.js";
  * @param assetMint - The string representation of the asset mint.
  * @returns A promise resolving to the fetched data registry account, or `undefined` if it doesn't exist.
  */
-export async function getDataRegistryAccount(assetMint: string, provider: AnchorProvider): Promise<DataRegistryAccount | undefined> {
+export async function getDataRegistryAccount(assetMint: string, provider: Provider): Promise<DataRegistryAccount | undefined> {
 	const dataRegistryProgram = getDataRegistryProgram(provider);
 	const dataRegistryPda = getDataRegistryPda(assetMint);
-	return dataRegistryProgram.account.dataRegistryAccount.fetch(dataRegistryPda)
-		.then(account => account)
-		.catch(() => undefined);
+	return dataRegistryProgram.account.dataRegistryAccount.fetch(dataRegistryPda);
 }
 
 export interface DataRegistryFilter {
@@ -33,7 +31,7 @@ export const DATA_REGISTRY_DELEGATE_OFFSET = 73;
  */
 export async function getDataRegistryAccountsWithFilter(
 	filter: DataRegistryFilter,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<DataRegistryAccount[] | undefined> {
 	const { assetMint, authority, delegate } = filter;
 	const dataRegistryProgram = getDataRegistryProgram(provider);
@@ -66,7 +64,7 @@ export const DATA_ACCOUNT_TYPE_OFFSET = 41;
  * Retrieves all data accounts associated with a specific asset mint and owner.
  * @param assetMint - The string representation of the asset mint.
  */
-export async function getDataAccountsWithFilter(filter: DataAccountFilter, provider: AnchorProvider): Promise<DataAccount[] | undefined> {
+export async function getDataAccountsWithFilter(filter: DataAccountFilter, provider: Provider): Promise<DataAccount[] | undefined> {
 	const { assetMint, registry, type } = filter;
 	const dataRegistryProgram = getDataRegistryProgram(provider);
 	const filters: GetProgramAccountsFilter[] = [];

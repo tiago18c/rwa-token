@@ -1,11 +1,12 @@
 {
     "compilerOptions": {
-        "lib": ["es5", "es6", "esnext.asynciterable", "es2018", "esnext.bigint", "DOM"],
+        "lib": ["ES5", "es2015"],
         "types": ["node"],
-        "target": "ES2015",
-        "module": "commonjs",
+        "target": "ES5",
+        "module": "CommonJS",
         "moduleResolution": "node",
         "outDir": "dist",
+        "declarationDir": "dist",
         "declaration": true,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
@@ -17,7 +18,7 @@
         "noFallthroughCasesInSwitch": true,
         "allowSyntheticDefaultImports": true,
         "strictNullChecks": true,
-        "skipLibCheck": true,
+        "skipLibCheck": true
     },
     "exclude": [
         "tests", // Add this line to exclude the "tests" directory from the build output

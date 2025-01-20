@@ -1,10 +1,11 @@
 import { type Idl, Program, type Provider } from "@coral-xyz/anchor";
-import { IdentityRegistryIdl } from "../programs/idls";
 import { PublicKey } from "@solana/web3.js";
 import { type IdentityRegistryIdlTypes } from "../programs/types";
 
+import * as IdentityRegistryIdl from "../programs/idls/IdentityRegistry.json";
+
 /** Address of the identity registry program. */
-export const identityRegistryProgramId = new PublicKey("idtynCMYbdisCTv4FrCWPSQboZb1uM4TV2cPi79yxQf");
+export const identityRegistryProgramId = new PublicKey("GZsnjqT3c5zbHqsctrJ4EG4rbEfo7ZXyyUG7aDJNmxfA");
 
 export const getIdentityRegistryProgram = (provider: Provider) => new Program(
 	IdentityRegistryIdl as Idl,
@@ -29,6 +30,18 @@ export const getIdentityRegistryPda = (assetMint: string) => PublicKey.findProgr
  */
 export const getIdentityAccountPda = (assetMint: string, owner: string) => PublicKey.findProgramAddressSync(
 	[getIdentityRegistryPda(assetMint).toBuffer(), new PublicKey(owner).toBuffer()],
+	identityRegistryProgramId,
+)[0];
+
+
+/**
+ * Retrieves the wallet identity account pda public key for a specific asset mint.
+ * @param assetMint - The string representation of the asset's mint address.
+ * @param wallet - The string representation of the wallet address.
+ * @returns The identity account pda.
+ */
+export const getWalletIdentityAccountPda = (assetMint: string, wallet: string) => PublicKey.findProgramAddressSync(
+	[new PublicKey(wallet).toBuffer(), new PublicKey(assetMint).toBuffer()],
 	identityRegistryProgramId,
 )[0];
 

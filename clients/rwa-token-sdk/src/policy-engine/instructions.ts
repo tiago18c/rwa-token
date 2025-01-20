@@ -5,19 +5,21 @@ import {
 } from "@solana/web3.js";
 import { type CommonArgs, type IxReturn } from "../utils";
 import {
-	getPolicyAccountPda,
+	getExtraMetasListPda,
 	getPolicyEnginePda,
 	getPolicyEngineProgram,
 	getPolicyEnginerEventAuthority,
 	getTrackerAccountPda,
 } from "./utils";
-import { type PolicyType, type IdentityFilter } from "./types";
-import { type AnchorProvider } from "@coral-xyz/anchor";
+import { type PolicyType, type IdentityFilter, Counter, CounterLimit, IssuancePolicies } from "./types";
+import { BN, Provider } from "@coral-xyz/anchor";
+import { getIdentityAccountPda, getIdentityRegistryPda } from "../identity-registry";
 
 /** Represents the arguments required to create a policy engine account. */
 export type CreatePolicyEngineArgs = {
   authority: string;
   signer: string;
+  enforcePolicyIssuance: boolean;
 } & CommonArgs;
 
 /**
@@ -27,19 +29,21 @@ export type CreatePolicyEngineArgs = {
  */
 export async function getCreatePolicyEngineIx(
 	args: CreatePolicyEngineArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<TransactionInstruction> {
 	const policyProgram = getPolicyEngineProgram(provider);
 	const ix = await policyProgram.methods
 		.createPolicyEngine(
 			new PublicKey(args.authority),
-			args.delegate ? new PublicKey(args.delegate) : null
+			args.delegate ? new PublicKey(args.delegate) : null,
+			args.enforcePolicyIssuance
 		)
 		.accountsStrict({
 			payer: args.payer,
 			signer: args.signer,
 			assetMint: args.assetMint,
-			policyEngine: getPolicyEnginePda(args.assetMint),
+			policyEngineAccount: getPolicyEnginePda(args.assetMint),
+			extraMetasAccount: getExtraMetasListPda(args.assetMint),
 			systemProgram: SystemProgram.programId,
 		})
 		.instruction();
@@ -58,7 +62,6 @@ export type AttachPolicyArgs = {
 /** Represents the arguments required to detach a policy from an asset. */
 export type DetachPolicyArgs = {
 	authority: string;
-	owner: string;
 	assetMint: string;
 	payer: string;
 	hash: string;
@@ -74,16 +77,14 @@ export type DetachPolicyArgs = {
  * @param args {@link AttachPolicyArgs}
  * @returns - {@link IxReturn}, a list of transaction instructions and a new key pair responsible to sign it.
  */
-export async function getAttachToPolicyAccountIx(
+export async function getAttachToPolicyEngineIx(
 	args: AttachPolicyArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<IxReturn> {
 	const policyProgram = getPolicyEngineProgram(provider);
-	const policyAccount = getPolicyAccountPda(args.assetMint);
 	const ix = await policyProgram.methods
-		.attachToPolicyAccount(args.identityFilter, args.policyType)
+		.attachToPolicyEngine(args.identityFilter, args.policyType)
 		.accountsStrict({
-			policyAccount,
 			signer: new PublicKey(args.authority),
 			payer: args.payer,
 			policyEngine: getPolicyEnginePda(args.assetMint),
@@ -96,6 +97,162 @@ export async function getAttachToPolicyAccountIx(
 	};
 }
 
+export type ChangeIssuancePoliciesArgs = {
+	authority: string;
+	payer: string;
+	assetMint: string;
+	issuancePolicies: IssuancePolicies;
+}
+
+export async function getChangeIssuancePoliciesIx(
+	args: ChangeIssuancePoliciesArgs,
+	provider: Provider
+): Promise<IxReturn> {
+	const policyProgram = getPolicyEngineProgram(provider);
+	const ix = await policyProgram.methods
+		.changeIssuancePolicies(args.issuancePolicies)
+		.accountsStrict({
+			signer: new PublicKey(args.authority),
+			payer: args.payer,
+			policyEngine: getPolicyEnginePda(args.assetMint),
+		})
+		.instruction();
+	return {
+		ixs: [ix],
+		signers: [],
+	};
+}
+
+export type SetCountersArgs = {
+	authority: string;
+	payer: string;
+	assetMint: string;
+	changedCounters: number[];
+	values: BN[];
+}
+
+export async function getSetCountersIx(
+	args: SetCountersArgs,
+	provider: Provider
+): Promise<IxReturn> {
+	const policyProgram = getPolicyEngineProgram(provider);
+	const ix = await policyProgram.methods
+		.setCounters(Buffer.from(args.changedCounters), args.values)
+		.accountsStrict({
+			signer: new PublicKey(args.authority),
+			payer: args.payer,
+			policyEngine: getPolicyEnginePda(args.assetMint),
+		})
+		.instruction();
+	return {
+		ixs: [ix],
+		signers: [],
+	};
+}
+
+export type ChangeMappingArgs = {
+	authority: string;
+	payer: string;
+	assetMint: string;
+	mappingSource: number[];
+	mappingValue: number[];
+}
+
+export async function getChangeMappingIx(
+	args: ChangeMappingArgs,
+	provider: Provider
+): Promise<IxReturn> {
+	const policyProgram = getPolicyEngineProgram(provider);
+	const ix = await policyProgram.methods
+		.changeMapping(Buffer.from(args.mappingSource), Buffer.from(args.mappingValue))
+		.accountsStrict({
+			signer: new PublicKey(args.authority),
+			payer: args.payer,
+			policyEngine: getPolicyEnginePda(args.assetMint),
+		})
+		.instruction();
+	return {
+		ixs: [ix],
+		signers: [],
+	};
+}
+
+export type ChangeCountersArgs = {
+	authority: string;
+	payer: string;
+	assetMint: string;
+	removedCounters: Buffer;
+	addedCounters: Counter[];
+}
+
+/**
+ * Generate instructions to connect am policy to an asset.
+ *
+ * This function constructs an instruction to attach a policy account to an asset
+ * using the provided arguments. It calls the policy engine program to attach the policy account,
+ * and returns the generated instruction along with the required signers.
+ *
+ * @param args {@link AttachPolicyArgs}
+ * @returns - {@link IxReturn}, a list of transaction instructions and a new key pair responsible to sign it.
+ */
+export async function getChangeCountersIx(
+	args: ChangeCountersArgs,
+	provider: Provider
+): Promise<IxReturn> {
+	const policyProgram = getPolicyEngineProgram(provider);
+	const ix = await policyProgram.methods
+		.changeCounters(args.removedCounters, args.addedCounters)
+		.accountsStrict({
+			signer: new PublicKey(args.authority),
+			payer: args.payer,
+			policyEngine: getPolicyEnginePda(args.assetMint),
+			systemProgram: SystemProgram.programId,
+		})
+		.instruction();
+	return {
+		ixs: [ix],
+		signers: [],
+	};
+}
+
+export type ChangeCounterLimitsArgs = {
+	authority: string;
+	payer: string;
+	assetMint: string;
+	removedCounterLimits: Buffer;
+	addedCounterLimits: CounterLimit[];
+}
+
+
+/**
+ * Generate instructions to connect am policy to an asset.
+ *
+ * This function constructs an instruction to attach a policy account to an asset
+ * using the provided arguments. It calls the policy engine program to attach the policy account,
+ * and returns the generated instruction along with the required signers.
+ *
+ * @param args {@link AttachPolicyArgs}
+ * @returns - {@link IxReturn}, a list of transaction instructions and a new key pair responsible to sign it.
+ */
+export async function getChangeCounterLimitsIx(
+	args: ChangeCounterLimitsArgs,
+	provider: Provider
+): Promise<IxReturn> {
+	const policyProgram = getPolicyEngineProgram(provider);
+	const ix = await policyProgram.methods
+		.changeCounterLimits(args.removedCounterLimits, args.addedCounterLimits)
+		.accountsStrict({
+			signer: new PublicKey(args.authority),
+			payer: args.payer,
+			policyEngine: getPolicyEnginePda(args.assetMint),
+			systemProgram: SystemProgram.programId,
+		})
+		.instruction();
+	return {
+		ixs: [ix],
+		signers: [],
+	};
+}
 
 /**
  * Generate instructions to detach an identity policy account to an asset.
@@ -108,38 +265,14 @@ export async function getAttachToPolicyAccountIx(
  * @param args {@link AttachPolicyArgs}
  * @returns - {@link IxReturn}, a list of transaction instructions and a new key pair responsible to sign it.
  */
-export async function getDetachFromPolicyAccountIx(
+export async function getDetachFromPolicyEngineIx(
 	args: DetachPolicyArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<IxReturn> {
 	const policyProgram = getPolicyEngineProgram(provider);
-	const policyAccount = getPolicyAccountPda(args.assetMint);
 	const ix = await policyProgram.methods
-		.detachFromPolicyAccount(args.hash)
+		.detachFromPolicyEngine(args.hash)
 		.accountsStrict({
-			policyAccount,
-			signer: new PublicKey(args.authority),
-			payer: args.payer,
-			policyEngine: getPolicyEnginePda(args.assetMint),
-			systemProgram: SystemProgram.programId,
-		})
-		.instruction();
-	return {
-		ixs: [ix],
-		signers: [],
-	};
-}
-
-export async function getCreatePolicyAccountIx(
-	args: AttachPolicyArgs,
-	provider: AnchorProvider
-): Promise<IxReturn> {
-	const policyProgram = getPolicyEngineProgram(provider);
-	const policyAccount = getPolicyAccountPda(args.assetMint);
-	const ix = await policyProgram.methods
-		.createPolicyAccount(args.identityFilter, args.policyType)
-		.accountsStrict({
-			policyAccount,
 			signer: new PublicKey(args.authority),
 			payer: args.payer,
 			policyEngine: getPolicyEnginePda(args.assetMint),
@@ -160,7 +293,7 @@ export interface CreateTrackerAccountArgs {
 
 export async function getCreateTrackerAccountIx(
 	args: CreateTrackerAccountArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<TransactionInstruction> {
 	const policyProgram = getPolicyEngineProgram(provider);
 	const trackerAccount = getTrackerAccountPda(args.assetMint, args.owner);
@@ -169,11 +302,12 @@ export async function getCreateTrackerAccountIx(
 		.accountsStrict({
 			payer: args.payer,
 			trackerAccount,
-			owner: new PublicKey(args.owner),
 			systemProgram: SystemProgram.programId,
 			program: policyProgram.programId,
 			assetMint: new PublicKey(args.assetMint),
 			eventAuthority: getPolicyEnginerEventAuthority(),
+			identityRegistry: getIdentityRegistryPda(args.assetMint),
+			identityAccount: getIdentityAccountPda(args.assetMint, args.owner),
 		})
 		.instruction();
 	return ix;

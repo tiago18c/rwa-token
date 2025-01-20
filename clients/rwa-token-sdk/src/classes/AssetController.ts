@@ -11,6 +11,8 @@ import {
 	getUpdateAssetMetadataIx,
 	UpdateAssetMetadataArgs,
 	getTransferTokensIxs,
+	RevokeTokensArgs,
+	getRevokeTokensIx,
 } from "../asset-controller";
 import { type IxReturn } from "../utils";
 import { type RwaClient } from "./Client";
@@ -73,9 +75,9 @@ export class AssetController {
 	}
 
 	/**
-   * Asynchronously generates instructions to revoke assets.
+   * Asynchronously generates instructions to void assets.
    * @param - {@link VoidTokensArgs}
-   * @returns A Promise that resolves to the instructions to revoke assets.
+   * @returns A Promise that resolves to the instructions to void assets.
    */
 	async voidTokenIxns(
 		voidTokenArgs: VoidTokensArgs
@@ -85,6 +87,21 @@ export class AssetController {
 			this.rwaClient.provider
 		);
 		return voidTokenIx;
+	}
+
+	/**
+   * Asynchronously generates instructions to revoke assets.
+   * @param - {@link RevokeTokensArgs}
+   * @returns A Promise that resolves to the instructions to revoke assets.
+   */
+	async revokeTokenIxns(
+		revokeTokenArgs: RevokeTokensArgs
+	): Promise<TransactionInstruction> {
+		const revokeTokenIx = await getRevokeTokensIx(
+			revokeTokenArgs,
+			this.rwaClient.provider
+		);
+		return revokeTokenIx;
 	}
 
 	/**

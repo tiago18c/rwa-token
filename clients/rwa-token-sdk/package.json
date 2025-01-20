@@ -1,51 +1,61 @@
 {
-    "name": "@bridgesplit/rwa-token-sdk",
-    "version": "0.0.27",
-    "description": "RWA Token SDK for the development of permissioned tokens on SVM blockchains.",
-    "homepage": "https://github.com/bridgesplit/rwa-token#readme",
-    "main": "dist/index",
-    "types": "dist/index",
-    "publishConfig": {
-        "access": "public"
-    },
-    "files": [
-        "dist"
-    ],
-    "scripts": {
-        "test": "vitest run --testTimeout=240000",
-        "lint": "eslint . --ext .ts",
-        "build": "tsc"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/bridgesplit/rwa-token"
-    },
-    "keywords": [
-        "solana",
-        "rwa",
-        "tokenization"
-    ],
-    "dependencies": {
-        "@coral-xyz/anchor": "^0.30.0",
-        "@solana/spl-token": "^0.3.11",
-        "@solana/web3.js": "^1.89.0",
-        "dotenv": "^16.4.4"
-    },
-    "devDependencies": {
-        "@typescript-eslint/eslint-plugin": "^7.6.0",
-        "@typescript-eslint/parser": "^7.6.0",
-        "eslint": ">=8.56.0",
-        "eslint-config-xo": "^0.44.0",
-        "eslint-config-xo-typescript": "^3.0.0",
-        "typedoc": "^0.25.13",
-        "typescript": ">=5.0.0",
-        "vitest": "^1.5.2"
-    },
-    "author": "Standard Labs, Inc.",
-    "contributors": [
-        "Luke Truitt <luke@fromstandard.com>",
-        "Bhargava Sai Macha <bhargava@bridgesplit.com>",
-        "Chris Hagedorn <chris@bridgesplit.com>"
-    ],
-    "license": "MIT"
+  "name": "@dstoken-solana/rwa-token-sdk",
+  "version": "0.0.38",
+  "description": "RWA Token SDK for the development of permissioned tokens on SVM blockchains.",
+  "homepage": "https://github.com/bridgesplit/rwa-token#readme",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "vitest run --testTimeout=240000",
+    "lint": "eslint . --ext .ts",
+    "build": "tsc",
+    "build:package": "yarn clean && rollup -c",
+    "clean": "rm -rf ./dist",
+    "type-check": "tsc --noEmit",
+    "prepublish": "yarn build:package",
+    "build:pack": "yarn build:package && yarn pack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bridgesplit/rwa-token"
+  },
+  "keywords": [
+    "solana",
+    "rwa",
+    "tokenization"
+  ],
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.30.1",
+    "@solana/spl-token": "^0.3.11",
+    "@solana/web3.js": "^1.95.4",
+    "dotenv": "^16.4.4"
+  },
+  "devDependencies": {
+    "@rollup/plugin-json": "^6.1.0",
+    "@typescript-eslint/eslint-plugin": "^7.6.0",
+    "@typescript-eslint/parser": "^7.6.0",
+    "eslint": ">=8.56.0",
+    "eslint-config-xo": "^0.44.0",
+    "eslint-config-xo-typescript": "^3.0.0",
+    "rollup": "^2.56.3",
+    "rollup-plugin-dts": "^6.1.1",
+    "rollup-plugin-typescript2": "^0.36.0",
+    "typedoc": "^0.25.13",
+    "typescript": ">=5.0.0",
+    "vitest": "^1.5.2"
+  },
+  "author": "Standard Labs, Inc.",
+  "contributors": [
+    "Luke Truitt <luke@fromstandard.com>",
+    "Bhargava Sai Macha <bhargava@loopscale.com>",
+    "Chris Hagedorn <chris@loopscale.com>"
+  ],
+  "license": "MIT"
 }

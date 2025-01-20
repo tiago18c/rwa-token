@@ -10,7 +10,7 @@ pub use state::*;
 
 use anchor_lang::prelude::*;
 
-declare_id!("dataeP5X1e7XsWN1ovDSEDP5cqaEUnKBmHE5iZhXPVw");
+declare_id!("JDxF8P4SctW8rB5s5FbupPFYecKFqLSv7fTES3cFei3b");
 
 #[program]
 pub mod data_registry {

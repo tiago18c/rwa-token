@@ -3,30 +3,25 @@ use anchor_lang::prelude::*;
 use crate::state::*;
 
 #[derive(Accounts)]
-#[instruction()]
-pub struct DetachFromPolicyAccount<'info> {
+#[instruction(hash: String)]
+pub struct DetachFromPolicyEngine<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
     #[account(
         constraint = policy_engine.authority == signer.key() || policy_engine.delegate == signer.key()
     )]
     pub signer: Signer<'info>,
-    #[account(mut)]
-    pub policy_engine: Box<Account<'info, PolicyEngineAccount>>,
-    #[account(
-        mut,
-        seeds = [policy_engine.key().as_ref()],
-        bump,
-        realloc = policy_account.to_account_info().data_len() - Policy::INIT_SPACE,
+    #[account(mut,
+        realloc = policy_engine.to_account_info().data_len() - policy_engine.get_policy_space(&hash)?,
         realloc::zero = false,
         realloc::payer = payer,
     )]
-    pub policy_account: Box<Account<'info, PolicyAccount>>,
+    pub policy_engine: Box<Account<'info, PolicyEngineAccount>>,
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<DetachFromPolicyAccount>, hash: String) -> Result<()> {
-    let policy_type = ctx.accounts.policy_account.detach(hash)?;
+pub fn handler(ctx: Context<DetachFromPolicyEngine>, hash: String) -> Result<()> {
+    let policy_type = ctx.accounts.policy_engine.detach(hash)?;
     // update max timeframe if detached policy was the max timeframe
 
     let mut max_timeframe = match policy_type {
@@ -43,7 +38,7 @@ pub fn handler(ctx: Context<DetachFromPolicyAccount>, hash: String) -> Result<()
 
     if max_timeframe == ctx.accounts.policy_engine.max_timeframe {
         max_timeframe = 0;
-        for policy in ctx.accounts.policy_account.policies.iter() {
+        for policy in ctx.accounts.policy_engine.policies.iter() {
             if let PolicyType::TransactionAmountVelocity {
                 limit: _,
                 timeframe,

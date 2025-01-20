@@ -3,9 +3,11 @@ use anchor_spl::{
     associated_token::AssociatedToken,
     token_interface::{mint_to, Mint, MintTo, Token2022, TokenAccount},
 };
+use identity_registry::{IdentityAccount, IdentityRegistryAccount, WalletIdentity};
+use policy_engine::{program::PolicyEngine, PolicyEngineAccount, TrackerAccount};
 use rwa_utils::get_bump_in_seed_form;
 
-use crate::AssetControllerAccount;
+use crate::{AssetControllerAccount, AssetControllerErrors};
 
 #[derive(Accounts)]
 #[instruction()]
@@ -30,9 +32,20 @@ pub struct IssueTokens<'info> {
         associated_token::authority = to,
     )]
     pub token_account: Box<InterfaceAccount<'info, TokenAccount>>,
+    #[account(has_one = asset_mint)]
+    pub identity_registry: Box<Account<'info, IdentityRegistryAccount>>,
+    #[account(has_one = identity_registry)]
+    pub identity_account: Box<Account<'info, IdentityAccount>>,
+    #[account(mut, has_one = asset_mint)]
+    pub tracker_account: Box<Account<'info, TrackerAccount>>,
     pub token_program: Program<'info, Token2022>,
     pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
+    pub policy_engine_program: Program<'info, PolicyEngine>,
+    #[account(mut)]
+    pub policy_engine: Box<Account<'info, PolicyEngineAccount>>,
+    #[account(has_one = identity_account)]
+    pub wallet_identity_account: Account<'info, WalletIdentity>,
 }
 
 impl<'info> IssueTokens<'info> {
@@ -50,14 +63,47 @@ impl<'info> IssueTokens<'info> {
         mint_to(cpi_ctx, amount)?;
         Ok(())
     }
+
+    fn enforce_policy_issuance(
+        &self,
+        amount: u64,
+        issuance_timestamp: i64,
+        signer_seeds: &[&[&[u8]]],
+    ) -> Result<()> {
+        let accounts = policy_engine::cpi::accounts::EnforcePolicyIssuanceAccounts {
+            asset_mint: self.asset_mint.to_account_info(),
+            policy_engine: self.policy_engine.to_account_info(),
+            destination_account: self.token_account.to_account_info(),
+            identity_registry: self.identity_registry.to_account_info(),
+            identity_account: self.identity_account.to_account_info(),
+            destination_tracker_account: self.tracker_account.to_account_info(),
+            asset_controller: self.asset_controller.to_account_info(),
+        };
+
+        let cpi_ctx = CpiContext::new_with_signer(
+            self.policy_engine_program.to_account_info(),
+            accounts,
+            signer_seeds,
+        );
+        policy_engine::cpi::enforce_policy_issuance(cpi_ctx, amount, issuance_timestamp)?;
+        Ok(())
+    }
 }
 
-pub fn handler(ctx: Context<IssueTokens>, amount: u64) -> Result<()> {
+pub fn handler(ctx: Context<IssueTokens>, amount: u64, issuance_timestamp: i64) -> Result<()> {
+    require!(
+        ctx.accounts.to.key() == ctx.accounts.identity_account.owner
+            || ctx.accounts.wallet_identity_account.wallet == ctx.accounts.to.key(),
+        AssetControllerErrors::InvalidIdentityAccounts
+    );
+
     let asset_mint = ctx.accounts.asset_mint.key();
     let signer_seeds = [
         asset_mint.as_ref(),
         &get_bump_in_seed_form(&ctx.bumps.asset_controller),
     ];
     ctx.accounts.issue_tokens(amount, &[&signer_seeds])?;
+    ctx.accounts
+        .enforce_policy_issuance(amount, issuance_timestamp, &[&signer_seeds])?;
     Ok(())
 }

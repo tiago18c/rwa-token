@@ -1,8 +1,10 @@
 pub mod account;
 pub mod registry;
+pub mod wallet_identity;
 
 pub use account::*;
 pub use registry::*;
+pub use wallet_identity::*;
 
 use anchor_lang::{solana_program::program_error::ProgramError, AnchorDeserialize, Discriminator};
 use rwa_utils::GeyserProgramAccount;

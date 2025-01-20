@@ -7,7 +7,7 @@ import {
 import { type CommonArgs, type IxReturn } from "../utils";
 import { getDataRegistryProgram, getDataRegistryPda } from "./utils";
 import { type DataAccountType } from "./types";
-import { type AnchorProvider } from "@coral-xyz/anchor";
+import { Provider } from "@coral-xyz/anchor";
 
 /** Represents arguments for creating an on chain data registry to store data accounts. */
 export type CreateDataRegistryArgs = {
@@ -22,7 +22,7 @@ export type CreateDataRegistryArgs = {
  */
 export async function getCreateDataRegistryIx(
 	args: CreateDataRegistryArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<TransactionInstruction> {
 	const dataProgram = getDataRegistryProgram(provider);
 	const ix = await dataProgram.methods
@@ -50,7 +50,7 @@ export type CreateDataAccountArgs = {
 
 export async function getCreateDataAccountIx(
 	args: CreateDataAccountArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<IxReturn> {
 	const dataProgram = getDataRegistryProgram(provider);
 	const dataAccountKp = new Keypair();
@@ -84,7 +84,7 @@ export type UpdateDataAccountArgs = {
 
 export async function getUpdateDataAccountIx(
 	args: UpdateDataAccountArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<TransactionInstruction> {
 	const dataProgram = getDataRegistryProgram(provider);
 	const ix = await dataProgram.methods
@@ -109,7 +109,7 @@ export type DeleteDataAccountArgs = {
   
 export async function getDeleteDataAccountIx(
 	args: DeleteDataAccountArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<TransactionInstruction> {
 	const dataProgram = getDataRegistryProgram(provider);
 	const ix = await dataProgram.methods
@@ -130,7 +130,7 @@ export type DelegateDataRegistryArgs = {
 
 export async function getDelegateDataRegistryIx(
 	args: DelegateDataRegistryArgs,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<TransactionInstruction> {
 	const dataProgram = getDataRegistryProgram(provider);
 	const ix = await dataProgram.methods

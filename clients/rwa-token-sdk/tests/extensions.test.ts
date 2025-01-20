@@ -1,4 +1,4 @@
-import { Wallet } from "@coral-xyz/anchor";
+import { AnchorProvider, BN, Wallet } from "@coral-xyz/anchor";
 import {
 	getCloseMintIx,
 	getDisableMemoTransferIx,
@@ -28,7 +28,7 @@ describe("extension tests", async () => {
 
 	test("setup provider", async () => {
 		const connectionUrl = process.env.RPC_URL ?? "http://localhost:8899";
-		const connection = new Connection(connectionUrl);
+		const connection = new Connection(connectionUrl, "processed");
 
 		const confirmationOptions: ConfirmOptions = {
 			skipPreflight: false,
@@ -41,8 +41,9 @@ describe("extension tests", async () => {
 			rpcUrl: connectionUrl,
 			confirmationOptions,
 		};
+		const provider = new AnchorProvider(connection, new Wallet(setup.payerKp), confirmationOptions);
 
-		rwaClient = new RwaClient(config, new Wallet(setup.payerKp));
+		rwaClient = new RwaClient(config, provider);
 	});
 
 	test("initalize asset controller", async () => {
@@ -66,7 +67,9 @@ describe("extension tests", async () => {
 				payer: setup.payer.toString(),
 				owner: setup.authority.toString(),
 				signer: setup.authority.toString(),
-				level: 255,
+				levels: [255],
+				expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60)],
+				country: 1,
 			},
 			rwaClient.provider
 		);

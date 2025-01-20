@@ -9,4 +9,5 @@ export type IdentityRegistryAccount =
 export type IdentityAccount =
   IdlAccounts<IdentityRegistryIdlTypes>["identityAccount"];
 
-  
+export type WalletIdentityAccount =
+  IdlAccounts<IdentityRegistryIdlTypes>["walletIdentity"];

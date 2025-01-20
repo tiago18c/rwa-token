@@ -1,5 +1,5 @@
-import { type AnchorProvider } from "@coral-xyz/anchor";
-import { type IdentityRegistryAccount, type IdentityAccount } from "./types";
+import { type Provider } from "@coral-xyz/anchor";
+import { type IdentityRegistryAccount, type IdentityAccount, WalletIdentityAccount } from "./types";
 import {
 	getIdentityAccountPda,
 	getIdentityRegistryPda,
@@ -14,14 +14,12 @@ import { GetProgramAccountsFilter, PublicKey } from "@solana/web3.js";
  */
 export async function getIdentityRegistryAccount(
 	assetMint: string,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<IdentityRegistryAccount | undefined> {
 	const identityRegistryProgram = getIdentityRegistryProgram(provider);
 	const identityRegistryPda = getIdentityRegistryPda(assetMint);
 	return identityRegistryProgram.account.identityRegistryAccount
-		.fetch(identityRegistryPda)
-		.then((account) => account)
-		.catch(() => undefined);
+		.fetch(identityRegistryPda).catch(() : undefined=> undefined);
 }
 
 export interface IdentityRegistryFilter {
@@ -41,7 +39,7 @@ export const IDENTITY_REGISTRY_DELEGATE_OFFSET = 73;
  */
 export async function getIdentityRegistryAccountsWithFilter(
 	filter: IdentityRegistryFilter,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<IdentityRegistryAccount[] | undefined> {
 	const { assetMint, authority, delegate } = filter;
 	const identityRegistryProgram = getIdentityRegistryProgram(provider);
@@ -69,17 +67,31 @@ export async function getIdentityRegistryAccountsWithFilter(
  * @param owner - The string representation of the asset owner.
  * @returns A promise resolving to the {@link IdentityAccount}, or `undefined` if it doesn't exist.
  */
-export async function getIdentityAccount(
+export async function getIdentityAccountFromOwner(
 	assetMint: string,
 	owner: string,
-	provider: AnchorProvider
+	provider: Provider
+): Promise<IdentityAccount | undefined> {
+	const identityAccountPda = getIdentityAccountPda(assetMint, owner);
+	return getIdentityAccount(identityAccountPda, provider);
+}
+
+export async function getIdentityAccount(
+	accountAddress: PublicKey,
+	provider: Provider
 ): Promise<IdentityAccount | undefined> {
 	const identityRegistryProgram = getIdentityRegistryProgram(provider);
-	const identityAccountPda = getIdentityAccountPda(assetMint, owner);
 	return identityRegistryProgram.account.identityAccount
-		.fetch(identityAccountPda)
-		.then((account) => account)
-		.catch(() => undefined);
+		.fetch(accountAddress).catch(() : undefined => undefined);
+}
+
+export async function getWalletIdentityAccount(
+	accountAddress: PublicKey,
+	provider: Provider
+): Promise<WalletIdentityAccount | undefined> {
+	const identityRegistryProgram = getIdentityRegistryProgram(provider);
+	return identityRegistryProgram.account.walletIdentity
+		.fetch(accountAddress).catch(() : undefined => undefined);
 }
 
 export interface IdentityAccountFilter {
@@ -99,7 +111,7 @@ export const IDENTITY_ACCOUNT_OWNER_OFFSET = 41;
  */
 export async function getIdentityAccountsWithFilter(
 	filter: IdentityAccountFilter,
-	provider: AnchorProvider
+	provider: Provider
 ): Promise<IdentityAccount[] | undefined> {
 	const { assetMint, registry, owner } = filter;
 	const identityRegistryProgram = getIdentityRegistryProgram(provider);
@@ -122,3 +134,22 @@ export async function getIdentityAccountsWithFilter(
 	);
 }
 
+export const WALLET_IDENTITY_ACCOUNT_OWNER_OFFSET = 8;
+
+export async function getWalletIdentityAccountsWithFilter(
+	owner: string,
+	provider: Provider
+): Promise<WalletIdentityAccount[] | undefined> {
+	const identityRegistryProgram = getIdentityRegistryProgram(provider);
+
+	const filters: GetProgramAccountsFilter[] = [];
+	filters.push({ memcmp: { offset: WALLET_IDENTITY_ACCOUNT_OWNER_OFFSET, bytes: new PublicKey(owner).toBase58()}, });
+	
+	const walletIdentityAccounts = await provider.connection.getProgramAccounts(identityRegistryProgram.programId, {
+		filters,
+	});
+
+	return walletIdentityAccounts.map((account) =>
+		identityRegistryProgram.coder.accounts.decode("walletIdentity", account.account.data)
+	);
+}

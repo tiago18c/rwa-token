@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/policy_engine.json`.
  */
 export type PolicyEngine = {
-  "address": "po1cPf1eyUJJPqULw4so3T4JU9pdFn83CDyuLEKFAau",
+  "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2",
   "metadata": {
     "name": "policyEngine",
     "version": "0.0.1",
@@ -14,19 +14,20 @@ export type PolicyEngine = {
   },
   "instructions": [
     {
-      "name": "attachToPolicyAccount",
+      "name": "attachToPolicyEngine",
       "docs": [
+        "policies",
         "attach a policy"
       ],
       "discriminator": [
-        247,
-        116,
-        130,
-        17,
-        89,
-        232,
-        103,
-        16
+        99,
+        59,
+        117,
+        21,
+        146,
+        11,
+        54,
+        173
       ],
       "accounts": [
         {
@@ -41,18 +42,6 @@ export type PolicyEngine = {
         {
           "name": "policyEngine",
           "writable": true
-        },
-        {
-          "name": "policyAccount",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "account",
-                "path": "policyEngine"
-              }
-            ]
-          }
         },
         {
           "name": "systemProgram",
@@ -79,20 +68,16 @@ export type PolicyEngine = {
       ]
     },
     {
-      "name": "createPolicyAccount",
-      "docs": [
-        "policies",
-        "create policy account"
-      ],
+      "name": "changeCounterLimits",
       "discriminator": [
-        52,
-        228,
-        143,
-        138,
+        200,
+        2,
+        8,
         102,
-        135,
-        59,
-        193
+        43,
+        168,
+        141,
+        139
       ],
       "accounts": [
         {
@@ -109,16 +94,52 @@ export type PolicyEngine = {
           "writable": true
         },
         {
-          "name": "policyAccount",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "account",
-                "path": "policyEngine"
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "removedCounterLimits",
+          "type": "bytes"
+        },
+        {
+          "name": "addedCounterLimits",
+          "type": {
+            "vec": {
+              "defined": {
+                "name": "counterLimit"
               }
-            ]
+            }
           }
+        }
+      ]
+    },
+    {
+      "name": "changeCounters",
+      "discriminator": [
+        156,
+        107,
+        88,
+        204,
+        113,
+        131,
+        241,
+        192
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "signer",
+          "signer": true
+        },
+        {
+          "name": "policyEngine",
+          "writable": true
         },
         {
           "name": "systemProgram",
@@ -127,20 +148,94 @@ export type PolicyEngine = {
       ],
       "args": [
         {
-          "name": "identityFilter",
-          "type": {
-            "defined": {
-              "name": "identityFilter"
-            }
-          }
+          "name": "removedCounters",
+          "type": "bytes"
         },
         {
-          "name": "policyType",
+          "name": "addedCounters",
           "type": {
-            "defined": {
-              "name": "policyType"
+            "vec": {
+              "defined": {
+                "name": "counter"
+              }
             }
           }
+        }
+      ]
+    },
+    {
+      "name": "changeIssuancePolicies",
+      "discriminator": [
+        186,
+        201,
+        163,
+        157,
+        32,
+        250,
+        166,
+        37
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "signer",
+          "signer": true
+        },
+        {
+          "name": "policyEngine",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "issuancePolicies",
+          "type": {
+            "defined": {
+              "name": "issuancePolicies"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "changeMapping",
+      "discriminator": [
+        103,
+        1,
+        52,
+        20,
+        160,
+        194,
+        113,
+        125
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "signer",
+          "signer": true
+        },
+        {
+          "name": "policyEngine",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "mappingSource",
+          "type": "bytes"
+        },
+        {
+          "name": "mappingValue",
+          "type": "bytes"
         }
       ]
     },
@@ -173,10 +268,46 @@ export type PolicyEngine = {
           "name": "assetMint"
         },
         {
-          "name": "policyEngine",
+          "name": "policyEngineAccount",
           "writable": true,
           "pda": {
             "seeds": [
+              {
+                "kind": "account",
+                "path": "assetMint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "extraMetasAccount",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  120,
+                  116,
+                  114,
+                  97,
+                  45,
+                  97,
+                  99,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  115
+                ]
+              },
               {
                 "kind": "account",
                 "path": "assetMint"
@@ -198,6 +329,12 @@ export type PolicyEngine = {
           "name": "delegate",
           "type": {
             "option": "pubkey"
+          }
+        },
+        {
+          "name": "enforcePolicyIssuance",
+          "type": {
+            "option": "bool"
           }
         }
       ]
@@ -224,10 +361,19 @@ export type PolicyEngine = {
           "signer": true
         },
         {
-          "name": "owner"
+          "name": "identityAccount"
         },
         {
-          "name": "assetMint"
+          "name": "identityRegistry",
+          "relations": [
+            "identityAccount"
+          ]
+        },
+        {
+          "name": "assetMint",
+          "relations": [
+            "identityRegistry"
+          ]
         },
         {
           "name": "trackerAccount",
@@ -240,7 +386,7 @@ export type PolicyEngine = {
               },
               {
                 "kind": "account",
-                "path": "owner"
+                "path": "identityAccount"
               }
             ]
           }
@@ -285,19 +431,19 @@ export type PolicyEngine = {
       "args": []
     },
     {
-      "name": "detachFromPolicyAccount",
+      "name": "detachFromPolicyEngine",
       "docs": [
         "remove policy"
       ],
       "discriminator": [
-        81,
-        24,
-        116,
-        10,
-        12,
-        108,
-        109,
-        242
+        156,
+        137,
+        67,
+        121,
+        46,
+        207,
+        45,
+        12
       ],
       "accounts": [
         {
@@ -314,18 +460,6 @@ export type PolicyEngine = {
           "writable": true
         },
         {
-          "name": "policyAccount",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "account",
-                "path": "policyEngine"
-              }
-            ]
-          }
-        },
-        {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
         }
@@ -334,6 +468,134 @@ export type PolicyEngine = {
         {
           "name": "hash",
           "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "enforcePolicyIssuance",
+      "discriminator": [
+        204,
+        149,
+        175,
+        224,
+        136,
+        255,
+        219,
+        75
+      ],
+      "accounts": [
+        {
+          "name": "assetController",
+          "signer": true
+        },
+        {
+          "name": "assetMint",
+          "relations": [
+            "policyEngine",
+            "identityRegistry"
+          ]
+        },
+        {
+          "name": "policyEngine",
+          "writable": true
+        },
+        {
+          "name": "destinationAccount"
+        },
+        {
+          "name": "identityRegistry",
+          "relations": [
+            "identityAccount"
+          ]
+        },
+        {
+          "name": "identityAccount",
+          "relations": [
+            "destinationTrackerAccount"
+          ]
+        },
+        {
+          "name": "destinationTrackerAccount",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "issuanceTimestamp",
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "name": "enforcePolicyOnLevelsChange",
+      "discriminator": [
+        236,
+        18,
+        123,
+        137,
+        253,
+        244,
+        32,
+        248
+      ],
+      "accounts": [
+        {
+          "name": "identityAccount"
+        },
+        {
+          "name": "identityRegistry",
+          "signer": true,
+          "relations": [
+            "identityAccount"
+          ]
+        },
+        {
+          "name": "assetMint",
+          "relations": [
+            "identityRegistry",
+            "policyEngine"
+          ]
+        },
+        {
+          "name": "trackerAccount",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "assetMint"
+              },
+              {
+                "kind": "account",
+                "path": "identityAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "policyEngine",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "newLevels",
+          "type": {
+            "defined": {
+              "name": "newLevelsArgs"
+            }
+          }
+        },
+        {
+          "name": "newCountry",
+          "type": "u8"
+        },
+        {
+          "name": "enforceLimits",
+          "type": "bool"
         }
       ]
     },
@@ -354,93 +616,7 @@ export type PolicyEngine = {
       ],
       "accounts": [
         {
-          "name": "sourceAccount",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "account",
-                "path": "ownerDelegate"
-              },
-              {
-                "kind": "const",
-                "value": [
-                  6,
-                  221,
-                  246,
-                  225,
-                  238,
-                  117,
-                  143,
-                  222,
-                  24,
-                  66,
-                  93,
-                  188,
-                  228,
-                  108,
-                  205,
-                  218,
-                  182,
-                  26,
-                  252,
-                  77,
-                  131,
-                  185,
-                  13,
-                  39,
-                  254,
-                  189,
-                  249,
-                  40,
-                  216,
-                  161,
-                  139,
-                  252
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "assetMint"
-              }
-            ],
-            "program": {
-              "kind": "const",
-              "value": [
-                140,
-                151,
-                37,
-                143,
-                78,
-                36,
-                137,
-                241,
-                187,
-                61,
-                16,
-                41,
-                20,
-                142,
-                13,
-                131,
-                11,
-                90,
-                19,
-                153,
-                218,
-                255,
-                16,
-                132,
-                4,
-                142,
-                123,
-                216,
-                219,
-                233,
-                248,
-                89
-              ]
-            }
-          }
+          "name": "sourceAccount"
         },
         {
           "name": "assetMint"
@@ -487,32 +663,129 @@ export type PolicyEngine = {
           }
         },
         {
-          "name": "policyEngine",
-          "address": "po1cPf1eyUJJPqULw4so3T4JU9pdFn83CDyuLEKFAau"
-        },
-        {
-          "name": "policyEngineAccount"
+          "name": "policyEngineAccount",
+          "writable": true
         },
         {
           "name": "identityRegistry",
-          "address": "idtynCMYbdisCTv4FrCWPSQboZb1uM4TV2cPi79yxQf"
+          "address": "GZsnjqT3c5zbHqsctrJ4EG4rbEfo7ZXyyUG7aDJNmxfA"
         },
         {
           "name": "identityRegistryAccount"
         },
         {
+          "name": "sourceWalletIdentity"
+        },
+        {
+          "name": "destinationWalletIdentity"
+        },
+        {
+          "name": "sourceIdentityAccount"
+        },
+        {
+          "name": "destinationIdentityAccount"
+        },
+        {
+          "name": "sourceTrackerAccount",
+          "writable": true
+        },
+        {
+          "name": "destinationTrackerAccount",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "setCounters",
+      "discriminator": [
+        127,
+        151,
+        147,
+        141,
+        171,
+        53,
+        28,
+        135
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "signer",
+          "signer": true
+        },
+        {
+          "name": "policyEngine",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "changedCounters",
+          "type": "bytes"
+        },
+        {
+          "name": "values",
+          "type": {
+            "vec": "u64"
+          }
+        }
+      ]
+    },
+    {
+      "name": "updateCountersOnBurn",
+      "discriminator": [
+        22,
+        151,
+        139,
+        67,
+        21,
+        61,
+        191,
+        236
+      ],
+      "accounts": [
+        {
+          "name": "assetController",
+          "signer": true
+        },
+        {
+          "name": "assetMint",
+          "relations": [
+            "policyEngine",
+            "identityRegistry"
+          ]
+        },
+        {
+          "name": "policyEngine",
+          "writable": true
+        },
+        {
+          "name": "destinationAccount"
+        },
+        {
+          "name": "identityRegistry",
+          "relations": [
+            "identityAccount"
+          ]
+        },
+        {
           "name": "identityAccount",
+          "relations": [
+            "destinationTrackerAccount"
+          ]
+        },
+        {
+          "name": "destinationTrackerAccount",
           "writable": true
-        },
-        {
-          "name": "trackerAccount",
-          "writable": true
-        },
-        {
-          "name": "policyAccount"
-        },
-        {
-          "name": "instructionsProgram"
         }
       ],
       "args": [
@@ -525,16 +798,29 @@ export type PolicyEngine = {
   ],
   "accounts": [
     {
-      "name": "policyAccount",
+      "name": "identityAccount",
       "discriminator": [
-        218,
-        201,
-        183,
-        164,
-        156,
-        127,
-        81,
-        175
+        194,
+        90,
+        181,
+        160,
+        182,
+        206,
+        116,
+        158
+      ]
+    },
+    {
+      "name": "identityRegistryAccount",
+      "discriminator": [
+        154,
+        254,
+        118,
+        4,
+        115,
+        36,
+        125,
+        78
       ]
     },
     {
@@ -622,33 +908,205 @@ export type PolicyEngine = {
     },
     {
       "code": 6011,
+      "name": "minBalanceExceeded",
+      "msg": "Min balance exceeded"
+    },
+    {
+      "code": 6012,
       "name": "invalidCpiTransferAmount",
       "msg": "Invalid CPI transfer amount"
     },
     {
-      "code": 6012,
+      "code": 6013,
       "name": "invalidCpiTransferMint",
       "msg": "Invalid CPI transfer mint"
     },
     {
-      "code": 6013,
+      "code": 6014,
       "name": "invalidCpiTransferProgram",
       "msg": "Invalid CPI transfer program"
     },
     {
-      "code": 6014,
+      "code": 6015,
       "name": "invalidPdaPassedIn",
       "msg": "Invalid PDA passed in"
     },
     {
-      "code": 6015,
+      "code": 6016,
       "name": "transferHistoryFull",
       "msg": "Transfer history full"
+    },
+    {
+      "code": 6017,
+      "name": "transferPaused",
+      "msg": "All Transfers have been paused"
+    },
+    {
+      "code": 6018,
+      "name": "forceFullTransfer",
+      "msg": "Expected source account to transfer full amount"
+    },
+    {
+      "code": 6019,
+      "name": "holderLimitExceeded",
+      "msg": "Holder limit exceeded"
+    },
+    {
+      "code": 6020,
+      "name": "balanceLimitExceeded",
+      "msg": "Balance limit exceeded"
+    },
+    {
+      "code": 6021,
+      "name": "trackerAccountOwnerMismatch",
+      "msg": "Tracker account owner mismatch"
+    },
+    {
+      "code": 6022,
+      "name": "forbiddenIdentityGroup",
+      "msg": "Forbidden identity group"
+    },
+    {
+      "code": 6023,
+      "name": "invalidIdentityAccount",
+      "msg": "Invalid identity account"
+    },
+    {
+      "code": 6024,
+      "name": "holdersLimitExceeded",
+      "msg": "Holders limit exceeded"
+    },
+    {
+      "code": 6025,
+      "name": "minMaxBalanceExceeded",
+      "msg": "Min max balance exceeded"
+    },
+    {
+      "code": 6026,
+      "name": "invalidPolicyEngineAccount",
+      "msg": "Invalid policy engine account"
+    },
+    {
+      "code": 6027,
+      "name": "percentageLimitExceeded",
+      "msg": "Percentage limit exceeded"
+    },
+    {
+      "code": 6028,
+      "name": "flowback",
+      "msg": "flowback"
+    },
+    {
+      "code": 6029,
+      "name": "invalidInstructionData",
+      "msg": "Invalid instruction data"
+    },
+    {
+      "code": 6030,
+      "name": "backdatingNotAllowed",
+      "msg": "Backdating not allowed"
+    },
+    {
+      "code": 6031,
+      "name": "maxSupplyExceeded",
+      "msg": "Max supply exceeded"
+    },
+    {
+      "code": 6032,
+      "name": "counterNotFound",
+      "msg": "Counter not found"
     }
   ],
   "types": [
     {
-      "name": "comparisionType",
+      "name": "counter",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "value",
+            "type": "u64"
+          },
+          {
+            "name": "id",
+            "type": "u8"
+          },
+          {
+            "name": "identityFilter",
+            "type": {
+              "defined": {
+                "name": "identityFilter"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "counterLimit",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "holdersLimit",
+            "fields": [
+              {
+                "name": "max",
+                "type": "u64"
+              },
+              {
+                "name": "min",
+                "type": "u64"
+              },
+              {
+                "name": "counterId",
+                "type": "u8"
+              }
+            ]
+          },
+          {
+            "name": "groupedHoldersLimit",
+            "fields": [
+              {
+                "name": "max",
+                "type": "u64"
+              },
+              {
+                "name": "min",
+                "type": "u64"
+              },
+              {
+                "name": "counters",
+                "type": "bytes"
+              }
+            ]
+          },
+          {
+            "name": "percentageLimit",
+            "fields": [
+              {
+                "name": "higherCounterId",
+                "type": "u8"
+              },
+              {
+                "name": "lowerCounterId",
+                "type": "u8"
+              },
+              {
+                "name": "minPercentage",
+                "type": "u8"
+              },
+              {
+                "name": "maxPercentage",
+                "type": "u8"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "filterComparison",
       "repr": {
         "kind": "rust"
       },
@@ -665,24 +1123,372 @@ export type PolicyEngine = {
       }
     },
     {
-      "name": "identityFilter",
+      "name": "filterData",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "identityLevels",
+            "name": "level",
             "type": {
-              "array": [
-                "u8",
-                10
-              ]
+              "defined": {
+                "name": "filterLevel"
+              }
             }
           },
           {
-            "name": "comparisionType",
+            "name": "target",
             "type": {
               "defined": {
-                "name": "comparisionType"
+                "name": "filterTarget"
+              }
+            }
+          },
+          {
+            "name": "mode",
+            "type": {
+              "defined": {
+                "name": "filterMode"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "filterInner",
+      "repr": {
+        "kind": "rust"
+      },
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "single",
+            "fields": [
+              {
+                "defined": {
+                  "name": "filterData"
+                }
+              }
+            ]
+          },
+          {
+            "name": "tuple",
+            "fields": [
+              {
+                "defined": {
+                  "name": "filterData"
+                }
+              },
+              {
+                "defined": {
+                  "name": "filterComparison"
+                }
+              },
+              {
+                "defined": {
+                  "name": "filterData"
+                }
+              }
+            ]
+          },
+          {
+            "name": "multiple",
+            "fields": [
+              {
+                "defined": {
+                  "name": "filterComparison"
+                }
+              },
+              {
+                "vec": {
+                  "defined": {
+                    "name": "filterData"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "filterLevel",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "level",
+            "fields": [
+              "u8"
+            ]
+          },
+          {
+            "name": "levelMappingAny",
+            "fields": [
+              "u8"
+            ]
+          },
+          {
+            "name": "levelMapping",
+            "fields": [
+              {
+                "name": "source",
+                "type": "u8"
+              },
+              {
+                "name": "target",
+                "type": "u8"
+              }
+            ]
+          },
+          {
+            "name": "country",
+            "fields": [
+              "u8"
+            ]
+          },
+          {
+            "name": "countryMapping",
+            "fields": [
+              "u8"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "filterMode",
+      "repr": {
+        "kind": "rust"
+      },
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "include"
+          },
+          {
+            "name": "exclude"
+          }
+        ]
+      }
+    },
+    {
+      "name": "filterTarget",
+      "repr": {
+        "kind": "rust"
+      },
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "sender"
+          },
+          {
+            "name": "receiver"
+          },
+          {
+            "name": "bothAnd"
+          },
+          {
+            "name": "bothOr"
+          }
+        ]
+      }
+    },
+    {
+      "name": "identityAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "version",
+            "docs": [
+              "version of the account"
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "identityRegistry",
+            "docs": [
+              "identity registry to which the account belongs"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "docs": [
+              "owner of the identity account"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "numWallets",
+            "type": "u16"
+          },
+          {
+            "name": "country",
+            "type": "u8"
+          },
+          {
+            "name": "levels",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "identityLevel"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "identityFilter",
+      "repr": {
+        "kind": "rust"
+      },
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "simple",
+            "fields": [
+              {
+                "defined": {
+                  "name": "filterInner"
+                }
+              }
+            ]
+          },
+          {
+            "name": "ifThen",
+            "fields": [
+              {
+                "defined": {
+                  "name": "filterInner"
+                }
+              },
+              {
+                "defined": {
+                  "name": "filterInner"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "identityLevel",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "level",
+            "type": "u8"
+          },
+          {
+            "name": "expiry",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "identityRegistryAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "version",
+            "type": "u8"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "assetMint",
+            "docs": [
+              "corresponding asset mint"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "authority",
+            "docs": [
+              "authority to manage the registry"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "delegate",
+            "docs": [
+              "registry delegate"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "allowMultipleWallets",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "issuancePolicies",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "disallowBackdating",
+            "type": "bool"
+          },
+          {
+            "name": "maxSupply",
+            "type": "u64"
+          },
+          {
+            "name": "usLockPeriod",
+            "type": "u64"
+          },
+          {
+            "name": "nonUsLockPeriod",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "levelExpiry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "level",
+            "type": "u8"
+          },
+          {
+            "name": "expiry",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "newLevelsArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "levels",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "levelExpiry"
+                }
               }
             }
           }
@@ -711,39 +1517,6 @@ export type PolicyEngine = {
             "type": {
               "defined": {
                 "name": "policyType"
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "policyAccount",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "version",
-            "type": "u8"
-          },
-          {
-            "name": "policyEngine",
-            "docs": [
-              "Engine account that the policy belongs to"
-            ],
-            "type": "pubkey"
-          },
-          {
-            "name": "policies",
-            "docs": [
-              "Different policies that can be applied to the policy account",
-              "initial max len"
-            ],
-            "type": {
-              "vec": {
-                "defined": {
-                  "name": "policy"
-                }
               }
             }
           }
@@ -789,6 +1562,76 @@ export type PolicyEngine = {
               "max timeframe of all the policies"
             ],
             "type": "i64"
+          },
+          {
+            "name": "enforcePolicyIssuance",
+            "docs": [
+              "enforce policy issuance"
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "mapping",
+            "docs": [
+              "generic mapping for levels"
+            ],
+            "type": {
+              "array": [
+                "u8",
+                256
+              ]
+            }
+          },
+          {
+            "name": "issuancePolicies",
+            "docs": [
+              "policies to apply on issuance",
+              "these are partially for storage only"
+            ],
+            "type": {
+              "defined": {
+                "name": "issuancePolicies"
+              }
+            }
+          },
+          {
+            "name": "policies",
+            "docs": [
+              "policies to check on transfers or balance changes"
+            ],
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "policy"
+                }
+              }
+            }
+          },
+          {
+            "name": "counters",
+            "docs": [
+              "counters to track the number of holders depending on filters"
+            ],
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "counter"
+                }
+              }
+            }
+          },
+          {
+            "name": "counterLimits",
+            "docs": [
+              "limits to apply on existing counters"
+            ],
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "counterLimit"
+                }
+              }
+            }
           }
         ]
       }
@@ -844,6 +1687,60 @@ export type PolicyEngine = {
                 "type": "u64"
               }
             ]
+          },
+          {
+            "name": "minBalance",
+            "fields": [
+              {
+                "name": "limit",
+                "type": "u64"
+              }
+            ]
+          },
+          {
+            "name": "minMaxBalance",
+            "fields": [
+              {
+                "name": "min",
+                "type": "u64"
+              },
+              {
+                "name": "max",
+                "type": "u64"
+              }
+            ]
+          },
+          {
+            "name": "transferPause"
+          },
+          {
+            "name": "forbiddenIdentityGroup"
+          },
+          {
+            "name": "forceFullTransfer"
+          },
+          {
+            "name": "blockFlowbackEndTime",
+            "fields": [
+              {
+                "name": "time",
+                "type": "i64"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "side",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "buy"
+          },
+          {
+            "name": "sell"
           }
         ]
       }
@@ -862,7 +1759,7 @@ export type PolicyEngine = {
             "type": "pubkey"
           },
           {
-            "name": "owner",
+            "name": "identityAccount",
             "type": "pubkey"
           },
           {
@@ -874,6 +1771,10 @@ export type PolicyEngine = {
                 }
               }
             }
+          },
+          {
+            "name": "totalAmount",
+            "type": "u64"
           }
         ]
       }
@@ -890,6 +1791,14 @@ export type PolicyEngine = {
           {
             "name": "timestamp",
             "type": "i64"
+          },
+          {
+            "name": "side",
+            "type": {
+              "defined": {
+                "name": "side"
+              }
+            }
           }
         ]
       }
