@@ -53,6 +53,12 @@ pub mod policy_engine {
         instructions::tracker::handler(ctx)
     }
 
+    /// close tracker account
+    pub fn close_tracker_account(_ctx: Context<CloseTrackerAccount>) -> Result<()> {
+        // No additional steps needed.
+        Ok(())
+    }
+
     /// execute transfer hook
     #[interface(spl_transfer_hook_interface::execute)]
     pub fn execute_transaction(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
