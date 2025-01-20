@@ -234,6 +234,40 @@
       ]
     },
     {
+      "name": "close_tracker_account",
+      "docs": [
+        "close tracker account"
+      ],
+      "discriminator": [
+        191,
+        131,
+        63,
+        182,
+        65,
+        217,
+        37,
+        166
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "identity_account",
+          "relations": [
+            "tracker_account"
+          ]
+        },
+        {
+          "name": "tracker_account",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "create_policy_engine",
       "docs": [
         "create a policy registry"
@@ -1009,6 +1043,11 @@
       "code": 6032,
       "name": "CounterNotFound",
       "msg": "Counter not found"
+    },
+    {
+      "code": 6033,
+      "name": "DataIsNotEmpty",
+      "msg": "Data is not empty"
     }
   ],
   "types": [

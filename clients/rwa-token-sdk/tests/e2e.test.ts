@@ -18,6 +18,8 @@ import {
 	getWalletIdentityAccountsWithFilter,
 	getIdentityAccountPda,
 	getIdentityAccountFromOwner,
+	getRevokeIdentityAccountIx,
+	getCloseTrackerAccountIx,
 } from "../src";
 import { setupTests } from "./setup";
 import {
@@ -663,6 +665,35 @@ describe("e2e tests", async () => {
 			new Transaction().add(...transferIx),
 			[setup.user2Kp]
 		)).rejects.toThrow();
+	});
+
+	test("revoke identity account", async () => {
+		const revokeIx = await getRevokeIdentityAccountIx({
+			owner: setup.user1.toString(),
+			assetMint: mint,
+			signer: setup.authority.toString(),
+			payer: setup.payer.toString(),
+		}, rwaClient.provider);
+		const txnId = await sendAndConfirmTransaction(
+			rwaClient.provider.connection,
+			new Transaction().add(revokeIx),
+			[setup.payerKp, setup.authorityKp]
+		);
+		expect(txnId).toBeTruthy();
+	});
+
+	test("close tracker account", async () => {
+		const closeIx = await getCloseTrackerAccountIx({
+			payer: setup.payer.toString(),
+			owner: setup.user1.toString(),
+			assetMint: mint,
+		}, rwaClient.provider);
+		const txnId = await sendAndConfirmTransaction(
+			rwaClient.provider.connection,
+			new Transaction().add(closeIx),
+			[setup.payerKp]
+		);
+		expect(txnId).toBeTruthy();
 	});
 });
 

@@ -240,6 +240,40 @@ export type PolicyEngine = {
       ]
     },
     {
+      "name": "closeTrackerAccount",
+      "docs": [
+        "close tracker account"
+      ],
+      "discriminator": [
+        191,
+        131,
+        63,
+        182,
+        65,
+        217,
+        37,
+        166
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "identityAccount",
+          "relations": [
+            "trackerAccount"
+          ]
+        },
+        {
+          "name": "trackerAccount",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "createPolicyEngine",
       "docs": [
         "create a policy registry"
@@ -1015,6 +1049,11 @@ export type PolicyEngine = {
       "code": 6032,
       "name": "counterNotFound",
       "msg": "Counter not found"
+    },
+    {
+      "code": 6033,
+      "name": "dataIsNotEmpty",
+      "msg": "Data is not empty"
     }
   ],
   "types": [

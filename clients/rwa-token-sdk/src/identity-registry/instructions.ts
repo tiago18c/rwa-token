@@ -229,3 +229,27 @@ export async function getRemoveLevelFromIdentityAccount(
 		.instruction();
 	return ix;
 }
+
+export type RevokeIdentityAccountArgs = {
+	owner: string;
+	assetMint: string;
+	signer: string;
+} & CommonArgs;
+
+export async function getRevokeIdentityAccountIx(
+	args: RevokeIdentityAccountArgs,
+	provider: Provider
+): Promise<TransactionInstruction> {
+	const identityProgram = getIdentityRegistryProgram(provider);
+	const ix = await identityProgram.methods
+		.revokeIdentityAccount(new PublicKey(args.owner))
+		.accountsStrict({
+			signer: args.signer,
+			payer: args.payer,
+			identityAccount: getIdentityAccountPda(args.assetMint, args.owner),
+			identityRegistry: getIdentityRegistryPda(args.assetMint),
+			walletIdentity: getWalletIdentityAccountPda(args.assetMint, args.owner),
+		})
+		.instruction();
+	return ix;
+}
