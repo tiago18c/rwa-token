@@ -1,11 +1,13 @@
 #![allow(ambiguous_glob_reexports, clippy::new_ret_no_self)]
 
 pub mod error;
+pub mod events;
 pub mod instructions;
 pub mod state;
 pub mod utils;
 
 pub use error::*;
+pub use events::*;
 pub use instructions::*;
 pub use state::*;
 pub use utils::*;
@@ -50,7 +52,7 @@ pub mod policy_engine {
 
     /// create tracker account
     pub fn create_tracker_account(ctx: Context<CreateTrackerAccount>) -> Result<()> {
-        instructions::tracker::handler(ctx)
+        instructions::tracker::create::handler(ctx)
     }
 
     /// close tracker account
@@ -135,5 +137,13 @@ pub mod policy_engine {
         values: Vec<u64>,
     ) -> Result<()> {
         instructions::engine::set_counters::handler(ctx, changed_counters, values)
+    }
+
+    pub fn add_lock(ctx: Context<AddLockAccounts>, amount: u64, release_timestamp: i64, reason: u64, reason_string: String) -> Result<()> {
+        instructions::tracker::add_lock::handler(ctx, amount, release_timestamp, reason, reason_string)
+    }
+
+    pub fn remove_lock(ctx: Context<RemoveLockAccounts>, index: u8) -> Result<()> {
+        instructions::tracker::remove_lock::handler(ctx, index)
     }
 }

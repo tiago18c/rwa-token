@@ -45,7 +45,7 @@ export const getTrackerAccountPda = (assetMint: string, owner: string) =>
 		policyEngineProgramId
 	)[0];
 
-export const getPolicyEnginerEventAuthority = () => PublicKey.findProgramAddressSync(
+export const getPolicyEngineEventAuthority = () => PublicKey.findProgramAddressSync(
 	[utils.bytes.utf8.encode("__event_authority")],
 	policyEngineProgramId
 )[0];

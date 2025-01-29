@@ -197,6 +197,7 @@ describe("test additional policies", async () => {
 				owner: setup.user1.toString(),
 				assetMint: mint,
 				amount: 1000000,
+				timestamp: new BN(0)
 			});
 			await sendAndConfirmTransaction(
 				setup.provider.connection,

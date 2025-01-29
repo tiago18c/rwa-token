@@ -70,4 +70,8 @@ pub enum PolicyEngineErrors {
     CounterNotFound,
     #[msg("Data is not empty")]
     DataIsNotEmpty,
+    #[msg("Tokens are held up")]
+    HoldUp,
+    #[msg("Tokens are locked")]
+    TokensLocked
 }

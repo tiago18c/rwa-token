@@ -1,11 +1,13 @@
 #![allow(ambiguous_glob_reexports, clippy::new_ret_no_self)]
 
 pub mod error;
+pub mod events;
 pub mod instructions;
 pub mod state;
 pub mod utils;
 
 pub use error::*;
+pub use events::*;
 pub use instructions::*;
 pub use state::*;
 pub use utils::*;
@@ -44,24 +46,26 @@ pub mod asset_controller {
     }
 
     /// burn shares of the rwa asset
-    pub fn burn_tokens(ctx: Context<VoidTokens>, amount: u64) -> Result<()> {
-        instructions::burn::handler(ctx, amount)
+    pub fn burn_tokens(ctx: Context<VoidTokens>, amount: u64, reason: String) -> Result<()> {
+        instructions::burn::handler(ctx, amount, reason)
     }
 
     /// revoke shares of the rwa asset
     pub fn revoke_tokens<'info>(
         ctx: Context<'_, '_, '_, 'info, RevokeTokens<'info>>,
         amount: u64,
+        reason: String,
     ) -> Result<()> {
-        instructions::revoke::handler(ctx, amount)
+        instructions::revoke::handler(ctx, amount, reason)
     }
 
     /// seize shares of the rwa asset
     pub fn seize_tokens<'info>(
         ctx: Context<'_, '_, '_, 'info, SeizeTokens<'info>>,
         amount: u64,
+        reason: String,
     ) -> Result<()> {
-        instructions::seize::handler(ctx, amount)
+        instructions::seize::handler(ctx, amount, reason)
     }
 
     /// close a token account

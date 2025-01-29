@@ -8,6 +8,111 @@
   },
   "instructions": [
     {
+      "name": "add_lock",
+      "discriminator": [
+        242,
+        102,
+        183,
+        107,
+        109,
+        168,
+        82,
+        140
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "signer",
+          "signer": true
+        },
+        {
+          "name": "asset_mint",
+          "relations": [
+            "policy_engine",
+            "identity_registry"
+          ]
+        },
+        {
+          "name": "policy_engine",
+          "writable": true
+        },
+        {
+          "name": "identity_registry",
+          "relations": [
+            "identity_account"
+          ]
+        },
+        {
+          "name": "identity_account",
+          "relations": [
+            "tracker_account"
+          ]
+        },
+        {
+          "name": "tracker_account",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "event_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "release_timestamp",
+          "type": "i64"
+        },
+        {
+          "name": "reason",
+          "type": "u64"
+        },
+        {
+          "name": "reason_string",
+          "type": "string"
+        }
+      ]
+    },
+    {
       "name": "attach_to_policy_engine",
       "docs": [
         "policies",
@@ -513,8 +618,58 @@
       ],
       "accounts": [
         {
-          "name": "asset_controller",
+          "name": "payer",
+          "writable": true,
           "signer": true
+        },
+        {
+          "name": "asset_controller",
+          "signer": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "asset_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                102,
+                89,
+                127,
+                105,
+                153,
+                104,
+                231,
+                6,
+                81,
+                85,
+                192,
+                80,
+                35,
+                31,
+                89,
+                115,
+                246,
+                148,
+                12,
+                38,
+                237,
+                44,
+                189,
+                34,
+                196,
+                160,
+                89,
+                167,
+                15,
+                131,
+                146,
+                20
+              ]
+            }
+          }
         },
         {
           "name": "asset_mint",
@@ -545,6 +700,10 @@
         {
           "name": "destination_tracker_account",
           "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
         }
       ],
       "args": [
@@ -730,6 +889,99 @@
       ]
     },
     {
+      "name": "remove_lock",
+      "discriminator": [
+        1,
+        17,
+        121,
+        74,
+        62,
+        241,
+        127,
+        120
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "signer",
+          "signer": true
+        },
+        {
+          "name": "asset_mint",
+          "relations": [
+            "policy_engine",
+            "identity_registry"
+          ]
+        },
+        {
+          "name": "policy_engine",
+          "writable": true
+        },
+        {
+          "name": "identity_registry",
+          "relations": [
+            "identity_account"
+          ]
+        },
+        {
+          "name": "identity_account",
+          "relations": [
+            "tracker_account"
+          ]
+        },
+        {
+          "name": "tracker_account",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "event_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
+        }
+      ],
+      "args": [
+        {
+          "name": "index",
+          "type": "u8"
+        }
+      ]
+    },
+    {
       "name": "set_counters",
       "discriminator": [
         127,
@@ -875,6 +1127,60 @@
         30,
         90,
         210
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "LockEvent",
+      "discriminator": [
+        76,
+        37,
+        6,
+        186,
+        14,
+        42,
+        253,
+        15
+      ]
+    },
+    {
+      "name": "MintEvent",
+      "discriminator": [
+        197,
+        144,
+        146,
+        149,
+        66,
+        164,
+        95,
+        16
+      ]
+    },
+    {
+      "name": "TransferEvent",
+      "discriminator": [
+        100,
+        10,
+        46,
+        113,
+        8,
+        28,
+        179,
+        125
+      ]
+    },
+    {
+      "name": "UnlockEvent",
+      "discriminator": [
+        105,
+        1,
+        235,
+        144,
+        68,
+        123,
+        75,
+        123
       ]
     }
   ],
@@ -1048,6 +1354,16 @@
       "code": 6033,
       "name": "DataIsNotEmpty",
       "msg": "Data is not empty"
+    },
+    {
+      "code": 6034,
+      "name": "HoldUp",
+      "msg": "Tokens are held up"
+    },
+    {
+      "code": 6035,
+      "name": "TokensLocked",
+      "msg": "Tokens are locked"
     }
   ],
   "types": [
@@ -1358,10 +1674,16 @@
           },
           {
             "name": "num_wallets",
+            "docs": [
+              "number of wallets attached to this identity account"
+            ],
             "type": "u16"
           },
           {
             "name": "country",
+            "docs": [
+              "country code of the user"
+            ],
             "type": "u8"
           },
           {
@@ -1471,6 +1793,22 @@
       }
     },
     {
+      "name": "Issuance",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "issue_time",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
       "name": "IssuancePolicies",
       "type": {
         "kind": "struct",
@@ -1485,11 +1823,11 @@
           },
           {
             "name": "us_lock_period",
-            "type": "u64"
+            "type": "i64"
           },
           {
             "name": "non_us_lock_period",
-            "type": "u64"
+            "type": "i64"
           }
         ]
       }
@@ -1506,6 +1844,74 @@
           {
             "name": "expiry",
             "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Lock",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "release_time",
+            "type": "i64"
+          },
+          {
+            "name": "reason",
+            "type": "u64"
+          },
+          {
+            "name": "reason_string",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "LockEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "release_timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "reason",
+            "type": "u64"
+          },
+          {
+            "name": "reason_string",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MintEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "to",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "issue_time",
+            "type": "u64"
           }
         ]
       }
@@ -1588,13 +1994,6 @@
               "policy delegate"
             ],
             "type": "pubkey"
-          },
-          {
-            "name": "max_timeframe",
-            "docs": [
-              "max timeframe of all the policies"
-            ],
-            "type": "i64"
           },
           {
             "name": "enforce_policy_issuance",
@@ -1687,32 +2086,6 @@
             ]
           },
           {
-            "name": "TransactionAmountVelocity",
-            "fields": [
-              {
-                "name": "limit",
-                "type": "u64"
-              },
-              {
-                "name": "timeframe",
-                "type": "i64"
-              }
-            ]
-          },
-          {
-            "name": "TransactionCountVelocity",
-            "fields": [
-              {
-                "name": "limit",
-                "type": "u64"
-              },
-              {
-                "name": "timeframe",
-                "type": "i64"
-              }
-            ]
-          },
-          {
             "name": "MaxBalance",
             "fields": [
               {
@@ -1765,20 +2138,6 @@
       }
     },
     {
-      "name": "Side",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "Buy"
-          },
-          {
-            "name": "Sell"
-          }
-        ]
-      }
-    },
-    {
       "name": "TrackerAccount",
       "type": {
         "kind": "struct",
@@ -1796,24 +2155,54 @@
             "type": "pubkey"
           },
           {
-            "name": "transfers",
+            "name": "total_amount",
+            "type": "u64"
+          },
+          {
+            "name": "issuances",
             "type": {
               "vec": {
                 "defined": {
-                  "name": "Transfer"
+                  "name": "Issuance"
                 }
               }
             }
           },
           {
-            "name": "total_amount",
+            "name": "locks",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "Lock"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "TransferEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "from",
+            "type": "pubkey"
+          },
+          {
+            "name": "to",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
             "type": "u64"
           }
         ]
       }
     },
     {
-      "name": "Transfer",
+      "name": "UnlockEvent",
       "type": {
         "kind": "struct",
         "fields": [
@@ -1822,16 +2211,16 @@
             "type": "u64"
           },
           {
-            "name": "timestamp",
+            "name": "release_timestamp",
             "type": "i64"
           },
           {
-            "name": "side",
-            "type": {
-              "defined": {
-                "name": "Side"
-              }
-            }
+            "name": "reason",
+            "type": "u64"
+          },
+          {
+            "name": "reason_string",
+            "type": "string"
           }
         ]
       }

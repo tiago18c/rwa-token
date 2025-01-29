@@ -197,11 +197,11 @@ impl<'info> CreateAssetController<'info> {
 }
 
 pub fn handler(ctx: Context<CreateAssetController>, args: CreateAssetControllerArgs) -> Result<()> {
-    ctx.accounts.asset_controller.new(
+    ctx.accounts.asset_controller.set_inner(AssetControllerAccount::new(
         ctx.accounts.asset_mint.key(),
         ctx.accounts.authority.key(),
         args.delegate,
-    );
+    ));
     let asset_mint = ctx.accounts.asset_mint.key();
 
     let signer_seeds = [

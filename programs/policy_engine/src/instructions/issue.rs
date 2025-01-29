@@ -1,12 +1,19 @@
-use crate::{PolicyEngineAccount, TrackerAccount};
+use crate::{Issuance, PolicyEngineAccount, TrackerAccount, ASSET_CONTROLLER_ID};
 use anchor_lang::prelude::*;
 use anchor_spl::token_interface::{Mint, TokenAccount};
-use identity_registry::{IdentityAccount, IdentityRegistryAccount, SKIP_POLICY_LEVEL};
+use identity_registry::{IdentityAccount, IdentityRegistryAccount};
 
 #[derive(Accounts)]
 #[instruction(amount: u64)]
 pub struct EnforcePolicyIssuanceAccounts<'info> {
-    //#[account(signer, has_one = asset_mint)]
+    #[account(mut)]
+    pub payer: Signer<'info>,
+    #[account(
+        signer,
+        seeds = [asset_mint.key().as_ref()],
+        bump,
+        seeds::program = ASSET_CONTROLLER_ID,
+    )]
     pub asset_controller: Signer<'info>,
     #[account(
         token::token_program = anchor_spl::token_interface::spl_token_2022::id(),
@@ -25,8 +32,14 @@ pub struct EnforcePolicyIssuanceAccounts<'info> {
     pub identity_registry: Box<Account<'info, IdentityRegistryAccount>>,
     #[account(has_one = identity_registry)]
     pub identity_account: Box<Account<'info, IdentityAccount>>,
-    #[account(mut, has_one = identity_account)]
+    #[account(mut,
+        realloc = 8 + TrackerAccount::get_current_space(&destination_tracker_account) + Issuance::INIT_SPACE,
+        realloc::zero = false,
+        realloc::payer = payer,
+        has_one = identity_account
+    )]
     pub destination_tracker_account: Box<Account<'info, TrackerAccount>>,
+    pub system_program: Program<'info, System>,
 }
 
 pub fn handler(
@@ -34,20 +47,14 @@ pub fn handler(
     amount: u64,
     issuance_timestamp: i64,
 ) -> Result<()> {
-    // TODO: refactor skip policy level check
-    // if user has identity skip level, skip enforcing policy
-    if ctx
-        .accounts
-        .identity_account
-        .levels
-        .contains(&SKIP_POLICY_LEVEL)
-    {
-        return Ok(());
-    }
-
     let tracker_account: &mut TrackerAccount = &mut ctx.accounts.destination_tracker_account;
 
-    tracker_account.update_balance_mint(amount)?;
+    let issuance_timestamp = ctx.accounts.policy_engine.get_issuance_time(
+        issuance_timestamp,
+        Clock::get()?.unix_timestamp,
+    );
+
+    tracker_account.new_issuance(amount, issuance_timestamp)?;
 
     if !ctx.accounts.policy_engine.enforce_policy_issuance {
         return Ok(());
@@ -70,7 +77,6 @@ pub fn handler(
         &ctx.accounts.identity_account.levels,
         ctx.accounts.identity_account.country,
         Some(&tracker_account),
-        issuance_timestamp,
     )?;
     Ok(())
 }

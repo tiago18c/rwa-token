@@ -97,6 +97,10 @@
         {
           "name": "amount",
           "type": "u64"
+        },
+        {
+          "name": "reason",
+          "type": "string"
         }
       ]
     },
@@ -650,6 +654,11 @@
       ],
       "accounts": [
         {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
           "name": "authority",
           "writable": true,
           "signer": true
@@ -872,6 +881,10 @@
         {
           "name": "amount",
           "type": "u64"
+        },
+        {
+          "name": "reason",
+          "type": "string"
         }
       ]
     },
@@ -927,6 +940,10 @@
         {
           "name": "amount",
           "type": "u64"
+        },
+        {
+          "name": "reason",
+          "type": "string"
         }
       ]
     },
@@ -1251,6 +1268,19 @@
       ]
     },
     {
+      "name": "BurnEvent",
+      "discriminator": [
+        33,
+        89,
+        47,
+        117,
+        82,
+        124,
+        238,
+        250
+      ]
+    },
+    {
       "name": "ExtensionMetadataEvent",
       "discriminator": [
         22,
@@ -1261,6 +1291,32 @@
         122,
         248,
         117
+      ]
+    },
+    {
+      "name": "RevokeEvent",
+      "discriminator": [
+        87,
+        202,
+        67,
+        213,
+        43,
+        84,
+        177,
+        3
+      ]
+    },
+    {
+      "name": "SeizeEvent",
+      "discriminator": [
+        100,
+        186,
+        127,
+        43,
+        145,
+        98,
+        208,
+        78
       ]
     }
   ],
@@ -1394,6 +1450,26 @@
             "type": {
               "option": "u8"
             }
+          }
+        ]
+      }
+    },
+    {
+      "name": "BurnEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "reason",
+            "type": "string"
+          },
+          {
+            "name": "wallet",
+            "type": "pubkey"
           }
         ]
       }
@@ -1773,10 +1849,16 @@
           },
           {
             "name": "num_wallets",
+            "docs": [
+              "number of wallets attached to this identity account"
+            ],
             "type": "u16"
           },
           {
             "name": "country",
+            "docs": [
+              "country code of the user"
+            ],
             "type": "u8"
           },
           {
@@ -1886,6 +1968,22 @@
       }
     },
     {
+      "name": "Issuance",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "issue_time",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
       "name": "IssuancePolicies",
       "type": {
         "kind": "struct",
@@ -1900,11 +1998,35 @@
           },
           {
             "name": "us_lock_period",
-            "type": "u64"
+            "type": "i64"
           },
           {
             "name": "non_us_lock_period",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Lock",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amount",
             "type": "u64"
+          },
+          {
+            "name": "release_time",
+            "type": "i64"
+          },
+          {
+            "name": "reason",
+            "type": "u64"
+          },
+          {
+            "name": "reason_string",
+            "type": "string"
           }
         ]
       }
@@ -1969,13 +2091,6 @@
               "policy delegate"
             ],
             "type": "pubkey"
-          },
-          {
-            "name": "max_timeframe",
-            "docs": [
-              "max timeframe of all the policies"
-            ],
-            "type": "i64"
           },
           {
             "name": "enforce_policy_issuance",
@@ -2068,32 +2183,6 @@
             ]
           },
           {
-            "name": "TransactionAmountVelocity",
-            "fields": [
-              {
-                "name": "limit",
-                "type": "u64"
-              },
-              {
-                "name": "timeframe",
-                "type": "i64"
-              }
-            ]
-          },
-          {
-            "name": "TransactionCountVelocity",
-            "fields": [
-              {
-                "name": "limit",
-                "type": "u64"
-              },
-              {
-                "name": "timeframe",
-                "type": "i64"
-              }
-            ]
-          },
-          {
             "name": "MaxBalance",
             "fields": [
               {
@@ -2146,15 +2235,41 @@
       }
     },
     {
-      "name": "Side",
+      "name": "RevokeEvent",
       "type": {
-        "kind": "enum",
-        "variants": [
+        "kind": "struct",
+        "fields": [
           {
-            "name": "Buy"
+            "name": "amount",
+            "type": "u64"
           },
           {
-            "name": "Sell"
+            "name": "reason",
+            "type": "string"
+          },
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SeizeEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "reason",
+            "type": "string"
+          },
+          {
+            "name": "wallet",
+            "type": "pubkey"
           }
         ]
       }
@@ -2177,40 +2292,26 @@
             "type": "pubkey"
           },
           {
-            "name": "transfers",
+            "name": "total_amount",
+            "type": "u64"
+          },
+          {
+            "name": "issuances",
             "type": {
               "vec": {
                 "defined": {
-                  "name": "Transfer"
+                  "name": "Issuance"
                 }
               }
             }
           },
           {
-            "name": "total_amount",
-            "type": "u64"
-          }
-        ]
-      }
-    },
-    {
-      "name": "Transfer",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "amount",
-            "type": "u64"
-          },
-          {
-            "name": "timestamp",
-            "type": "i64"
-          },
-          {
-            "name": "side",
+            "name": "locks",
             "type": {
-              "defined": {
-                "name": "Side"
+              "vec": {
+                "defined": {
+                  "name": "Lock"
+                }
               }
             }
           }

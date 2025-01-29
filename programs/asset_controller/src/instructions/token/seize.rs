@@ -1,4 +1,4 @@
-use crate::state::*;
+use crate::{state::*, SeizeEvent};
 use anchor_lang::prelude::*;
 use anchor_spl::token_interface::{Mint, Token2022, TokenAccount};
 use rwa_utils::get_bump_in_seed_form;
@@ -65,6 +65,7 @@ impl<'info> SeizeTokens<'info> {
 pub fn handler<'info>(
     ctx: Context<'_, '_, '_, 'info, SeizeTokens<'info>>,
     amount: u64,
+    reason: String,
 ) -> Result<()> {
     let asset_mint = ctx.accounts.asset_mint.key();
     let signer_seeds = [
@@ -73,5 +74,6 @@ pub fn handler<'info>(
     ];
     ctx.accounts
         .transfer_tokens(amount, &[&signer_seeds], ctx.remaining_accounts)?;
+
     Ok(())
 }

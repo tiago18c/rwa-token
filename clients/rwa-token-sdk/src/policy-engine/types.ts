@@ -42,3 +42,6 @@ export type FilterTarget = IdlTypes<PolicyEngineIdlTypes>["filterTarget"];
 export type FilterMode = IdlTypes<PolicyEngineIdlTypes>["filterMode"];
 
 export type IssuancePolicies = IdlTypes<PolicyEngineIdlTypes>["issuancePolicies"];
+
+export type Lock = IdlTypes<PolicyEngineIdlTypes>["lock"];
+export type Issuance = IdlTypes<PolicyEngineIdlTypes>["issuance"];

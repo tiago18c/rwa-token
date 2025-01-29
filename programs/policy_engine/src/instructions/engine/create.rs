@@ -49,12 +49,12 @@ pub fn handler(
     let mut data = extra_metas_account.try_borrow_mut_data()?;
     ExtraAccountMetaList::init::<ExecuteInstruction>(&mut data, &metas)?;
 
-    ctx.accounts.policy_engine_account.new(
+    ctx.accounts.policy_engine_account.set_inner(PolicyEngineAccount::new(
         authority,
         delegate,
         ctx.accounts.asset_mint.key(),
         enforce_policy_issuance.unwrap_or(false),
-    );
+    ));
 
     Ok(())
 }

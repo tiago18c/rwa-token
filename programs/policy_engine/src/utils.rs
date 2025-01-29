@@ -9,6 +9,11 @@ use spl_tlv_account_resolution::{
     account::ExtraAccountMeta, seeds::Seed, state::ExtraAccountMetaList,
 };
 
+pub const ASSET_CONTROLLER_ID: Pubkey = pubkey!("7tXjmbkZVY3Gmg9kDBebcNXT1yC5pyoxxXVLwdbv9tvP");
+pub const PLATFORM_WALLET_LEVEL: u8 = 30;
+pub const US_COMPLIANCE_LEVEL: u8 = 11;
+
+
 pub fn get_total_amount_transferred_in_timeframe(
     transfers: &Vec<Transfer>,
     timeframe: i64,

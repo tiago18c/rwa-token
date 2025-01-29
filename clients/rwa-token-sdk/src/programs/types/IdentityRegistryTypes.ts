@@ -801,10 +801,16 @@ export type IdentityRegistry = {
           },
           {
             "name": "numWallets",
+            "docs": [
+              "number of wallets attached to this identity account"
+            ],
             "type": "u16"
           },
           {
             "name": "country",
+            "docs": [
+              "country code of the user"
+            ],
             "type": "u8"
           },
           {

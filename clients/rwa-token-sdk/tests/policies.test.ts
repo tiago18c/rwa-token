@@ -140,89 +140,6 @@ describe("test policy setup", async () => {
 		expect(txnId).toBeTruthy();
 	});
 
-	test("attach transaction amount velocity policy to identity level 1", async () => {
-		const attachPolicy = await rwaClient.policyEngine.attachPolicy({
-			payer: setup.payer.toString(),
-			assetMint: mint,
-			authority: setup.authority.toString(),
-			identityFilter: {
-				simple: [ {
-					single: [
-						{
-							target: {receiver: {}},
-							mode: {include: {}},
-							level: {level: [1]},
-						}
-					]
-				}]
-			},
-			policyType: {
-				transactionAmountVelocity: {
-					limit: new BN(25000),
-					timeframe: new BN(3000),
-				},
-			},
-		});
-		const txnId = await sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...attachPolicy.ixs), [setup.payerKp, setup.authorityKp, ...attachPolicy.signers]);
-		expect(txnId).toBeTruthy();
-	});
-
-	test("attach transaction count velocity policy to identity level 1", async () => {
-		const attachPolicy = await rwaClient.policyEngine.attachPolicy({
-			payer: setup.payer.toString(),
-			assetMint: mint,
-			authority: setup.authority.toString(),
-			identityFilter: {
-				simple: [ {
-					single: [
-						{
-							target: {receiver: {}},
-							mode: {include: {}},
-							level: {level: [1]},
-						}
-					]
-				}]
-			},
-			policyType: {
-				transactionCountVelocity: {
-					limit: new BN(4),
-					timeframe: new BN(300),
-				},
-			},
-		});
-		const txnId = await sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...attachPolicy.ixs), [setup.payerKp, setup.authorityKp, ...attachPolicy.signers]);
-		expect(txnId).toBeTruthy();
-	});
-
-	test("attach transaction count velocity policy to identity level 2", async () => {
-		const attachPolicy = await rwaClient.policyEngine.attachPolicy({
-			payer: setup.payer.toString(),
-			assetMint: mint,
-			authority: setup.authority.toString(),
-			identityFilter: {
-				simple: [ {
-					single: [
-						{
-							target: {sender: {}},
-							mode: {include: {}},
-							level: {level: [2]},
-						}
-					]
-				}]
-			},
-			policyType: {
-				transactionCountVelocity: {
-					limit: new BN(3),
-					timeframe: new BN(60),
-				},
-			},
-		});
-		const txnId = await sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...attachPolicy.ixs), [setup.payerKp, setup.authorityKp, ...attachPolicy.signers]);
-		expect(txnId).toBeTruthy();
-		const policyAccount = await getPolicyEngineProgram(setup.provider).account.policyEngineAccount.fetch(getPolicyEnginePda(mint));
-		expect(policyAccount.policies.length).toBe(6);
-	});
-
 	test("setup user1", async () => {
 		const setupUser = await rwaClient.identityRegistry.setupUserIxns({
 			payer: setup.payer.toString(),
@@ -272,6 +189,7 @@ describe("test policy setup", async () => {
 			owner: setup.user1.toString(),
 			assetMint: mint,
 			amount: 1000000,
+			timestamp: new BN(0)
 		});
 		let txnId = await sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...issueTokens), [setup.payerKp, setup.authorityKp]);
 		expect(txnId).toBeTruthy();
@@ -281,6 +199,7 @@ describe("test policy setup", async () => {
 			owner: setup.user2.toString(),
 			assetMint: mint,
 			amount: 1000000,
+			timestamp: new BN(0)
 		});
 		txnId = await sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...issueTokens), [setup.payerKp, setup.authorityKp]);
 		expect(txnId).toBeTruthy();
@@ -290,25 +209,14 @@ describe("test policy setup", async () => {
 			owner: setup.user3.toString(),
 			assetMint: mint,
 			amount: 1000000,
+			timestamp: new BN(0)
 		});
 		txnId = await sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...issueTokens), [setup.payerKp, setup.authorityKp]);
 		expect(txnId).toBeTruthy();
 	});
 
-	test("transfer 1000 tokens from user1, user2 and user3. fail for user1, success for others", async () => {
+	test("transfer 1000 tokens from user1, user2 and user3", async () => {
 		let transferTokensIxs = await getTransferTokensIxs({
-			from: setup.user2.toString(),
-			to: setup.user1.toString(),
-			assetMint: mint,
-			amount: 100000,
-			decimals,
-		}, rwaClient.provider);
-		void expect(sendAndConfirmTransaction(
-			setup.provider.connection,
-			new Transaction().add(...transferTokensIxs),
-			[setup.user2Kp],
-		)).rejects.toThrowError();
-		transferTokensIxs = await getTransferTokensIxs({
 			from: setup.user3.toString(),
 			to: setup.user2.toString(),
 			assetMint: mint,
@@ -336,7 +244,7 @@ describe("test policy setup", async () => {
 		expect(txnId).toBeTruthy();
 	});
 
-	test("transfer 10000 tokens 3 times to user1, fail 3rd time", async () => {
+	test("transfer 10000 tokens 2 times to user1", async () => {
 		let transferTokensIxs = await getTransferTokensIxs({
 			from: setup.user2.toString(),
 			to: setup.user1.toString(),
@@ -363,18 +271,6 @@ describe("test policy setup", async () => {
 			[setup.user2Kp],
 		);
 		expect(txnId).toBeTruthy();
-		transferTokensIxs = await getTransferTokensIxs({
-			from: setup.user2.toString(),
-			to: setup.user1.toString(),
-			assetMint: mint,
-			amount: 10000,
-			decimals,
-		}, rwaClient.provider);
-		void expect(sendAndConfirmTransaction(
-			setup.provider.connection,
-			new Transaction().add(...transferTokensIxs),
-			[setup.user2Kp],
-		)).rejects.toThrowError();
 	});
 
 });

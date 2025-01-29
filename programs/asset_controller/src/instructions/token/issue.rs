@@ -13,6 +13,8 @@ use crate::{AssetControllerAccount, AssetControllerErrors};
 #[instruction()]
 pub struct IssueTokens<'info> {
     #[account(mut)]
+    pub payer: Signer<'info>,
+    #[account(mut)]
     pub authority: Signer<'info>,
     #[account(mut)]
     pub asset_mint: Box<InterfaceAccount<'info, Mint>>,
@@ -26,7 +28,7 @@ pub struct IssueTokens<'info> {
     pub to: UncheckedAccount<'info>,
     #[account(
         init_if_needed,
-        payer = authority,
+        payer = payer,
         associated_token::token_program = token_program,
         associated_token::mint = asset_mint,
         associated_token::authority = to,
@@ -78,6 +80,8 @@ impl<'info> IssueTokens<'info> {
             identity_account: self.identity_account.to_account_info(),
             destination_tracker_account: self.tracker_account.to_account_info(),
             asset_controller: self.asset_controller.to_account_info(),
+            payer: self.payer.to_account_info(),
+            system_program: self.system_program.to_account_info(),
         };
 
         let cpi_ctx = CpiContext::new_with_signer(

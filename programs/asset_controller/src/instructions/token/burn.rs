@@ -18,7 +18,7 @@ pub struct VoidTokens<'info> {
     pub token_program: Program<'info, Token2022>,
 }
 
-pub fn handler(ctx: Context<VoidTokens>, amount: u64) -> Result<()> {
+pub fn handler(ctx: Context<VoidTokens>, amount: u64, reason: String) -> Result<()> {
     let accounts = Burn {
         mint: ctx.accounts.asset_mint.to_account_info(),
         from: ctx.accounts.token_account.to_account_info(),

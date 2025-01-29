@@ -80,7 +80,7 @@ impl<'info> RevokeTokens<'info> {
 pub fn handler<'info>(
     ctx: Context<'_, '_, '_, 'info, RevokeTokens<'info>>,
     amount: u64,
-    //reason: String,
+    reason: String,
 ) -> Result<()> {
     let asset_mint = ctx.accounts.asset_mint.key();
     let signer_seeds = [

@@ -1,11 +1,13 @@
 import { type IxReturn } from "../utils";
 import {
+	AddLockArgs,
 	type AttachPolicyArgs,
 	ChangeCounterLimitsArgs,
 	ChangeCountersArgs,
 	ChangeIssuancePoliciesArgs,
 	ChangeMappingArgs,
 	DetachPolicyArgs,
+	getAddLockIx,
 	getAttachToPolicyEngineIx,
 	getChangeCounterLimitsIx,
 	getChangeCountersIx,
@@ -13,7 +15,9 @@ import {
 	getChangeMappingIx,
 	getDetachFromPolicyEngineIx,
 	getPolicyEnginePda,
+	getRemoveLockIx,
 	getSetCountersIx,
+	RemoveLockArgs,
 	SetCountersArgs,
 } from "../policy-engine";
 import { type RwaClient } from "./Client";
@@ -93,6 +97,22 @@ export class PolicyEngine {
 			this.rwaClient.provider
 		);
 		return setCountersIx;
+	}
+
+	async addLock(args: AddLockArgs): Promise<IxReturn> {
+		const addLockIx = await getAddLockIx(
+			args,
+			this.rwaClient.provider
+		);
+		return addLockIx;
+	}
+
+	async removeLock(args: RemoveLockArgs): Promise<IxReturn> {
+		const removeLockIx = await getRemoveLockIx(
+			args,
+			this.rwaClient.provider
+		);
+		return removeLockIx;	
 	}
 
 	/**

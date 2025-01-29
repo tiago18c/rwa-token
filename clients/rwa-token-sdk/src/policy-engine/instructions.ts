@@ -8,7 +8,7 @@ import {
 	getExtraMetasListPda,
 	getPolicyEnginePda,
 	getPolicyEngineProgram,
-	getPolicyEnginerEventAuthority,
+	getPolicyEngineEventAuthority,
 	getTrackerAccountPda,
 } from "./utils";
 import { type PolicyType, type IdentityFilter, Counter, CounterLimit, IssuancePolicies } from "./types";
@@ -305,7 +305,7 @@ export async function getCreateTrackerAccountIx(
 			systemProgram: SystemProgram.programId,
 			program: policyProgram.programId,
 			assetMint: new PublicKey(args.assetMint),
-			eventAuthority: getPolicyEnginerEventAuthority(),
+			eventAuthority: getPolicyEngineEventAuthority(),
 			identityRegistry: getIdentityRegistryPda(args.assetMint),
 			identityAccount: getIdentityAccountPda(args.assetMint, args.owner),
 		})
@@ -334,4 +334,77 @@ export async function getCloseTrackerAccountIx(
 		})
 		.instruction();
 	return ix;
+}
+
+export interface AddLockArgs {
+	payer: string;
+	authority: string;
+	owner: string;
+	assetMint: string;
+	reason: BN;
+	reasonString: string;
+	amount: BN;
+	lockTime: BN;
+}
+
+export async function getAddLockIx(
+	args: AddLockArgs,
+	provider: Provider
+): Promise<IxReturn> {
+	const policyProgram = getPolicyEngineProgram(provider);
+	const trackerAccount = getTrackerAccountPda(args.assetMint, args.owner);
+	const ix = await policyProgram.methods
+		.addLock(args.amount, args.lockTime, args.reason, args.reasonString)
+		.accountsStrict({
+			payer: args.payer,
+			signer: new PublicKey(args.authority),
+			trackerAccount,
+			assetMint: new PublicKey(args.assetMint),
+			eventAuthority: getPolicyEngineEventAuthority(),
+			identityRegistry: getIdentityRegistryPda(args.assetMint),
+			identityAccount: getIdentityAccountPda(args.assetMint, args.owner),
+			policyEngine: getPolicyEnginePda(args.assetMint),
+			program: policyProgram.programId,
+			systemProgram: SystemProgram.programId,
+		})
+		.instruction();
+	return {
+		ixs: [ix],
+		signers: [],
+	};
+}
+
+export interface RemoveLockArgs {
+	payer: string;
+	authority: string;
+	owner: string;
+	assetMint: string;
+	index: number;
+}
+
+export async function getRemoveLockIx(
+	args: RemoveLockArgs,
+	provider: Provider
+): Promise<IxReturn> {
+	const policyProgram = getPolicyEngineProgram(provider);
+	const trackerAccount = getTrackerAccountPda(args.assetMint, args.owner);
+	const ix = await policyProgram.methods
+		.removeLock(args.index)
+		.accountsStrict({
+			payer: args.payer,
+			signer: new PublicKey(args.authority),
+			trackerAccount,
+			assetMint: new PublicKey(args.assetMint),
+			eventAuthority: getPolicyEngineEventAuthority(),
+			identityRegistry: getIdentityRegistryPda(args.assetMint),
+			identityAccount: getIdentityAccountPda(args.assetMint, args.owner),
+			policyEngine: getPolicyEnginePda(args.assetMint),
+			program: policyProgram.programId,
+			systemProgram: SystemProgram.programId,
+		})
+		.instruction();
+	return {
+		ixs: [ix],
+		signers: [],
+	};
 }

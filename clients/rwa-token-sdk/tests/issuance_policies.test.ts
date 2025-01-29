@@ -2,6 +2,7 @@
 import { AnchorProvider, BN, Wallet } from "@coral-xyz/anchor";
 import {
 	getPolicyEnginePda, getPolicyEngineProgram, 
+	getTrackerAccount, 
 	RwaClient,
 } from "../src";
 import { setupTests } from "./setup";
@@ -141,89 +142,6 @@ describe("issuance policies", async () => {
 		expect(txnId).toBeTruthy();
 	});
 
-	test("attach transaction amount velocity policy to identity level 1", async () => {
-		const attachPolicy = await rwaClient.policyEngine.attachPolicy({
-			payer: setup.payer.toString(),
-			assetMint: mint,
-			authority: setup.authority.toString(),
-			identityFilter: {
-				simple: [ {
-					single: [
-						{
-							target: {receiver: {}},
-							mode: {include: {}},
-							level: {level: [1]},
-						}
-					]
-				}]
-			},
-			policyType: {
-				transactionAmountVelocity: {
-					limit: new BN(25000),
-					timeframe: new BN(3000),
-				},
-			},
-		});
-		const txnId = await sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...attachPolicy.ixs), [setup.payerKp, setup.authorityKp, ...attachPolicy.signers]);
-		expect(txnId).toBeTruthy();
-	});
-
-	test("attach transaction count velocity policy to identity level 1", async () => {
-		const attachPolicy = await rwaClient.policyEngine.attachPolicy({
-			payer: setup.payer.toString(),
-			assetMint: mint,
-			authority: setup.authority.toString(),
-			identityFilter: {
-				simple: [ {
-					single: [
-						{
-							target: {receiver: {}},
-							mode: {include: {}},
-							level: {level: [1]},
-						}
-					]
-				}]
-			},
-			policyType: {
-				transactionCountVelocity: {
-					limit: new BN(4),
-					timeframe: new BN(300),
-				},
-			},
-		});
-		const txnId = await sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...attachPolicy.ixs), [setup.payerKp, setup.authorityKp, ...attachPolicy.signers]);
-		expect(txnId).toBeTruthy();
-	});
-
-	test("attach transaction count velocity policy to identity level 2", async () => {
-		const attachPolicy = await rwaClient.policyEngine.attachPolicy({
-			payer: setup.payer.toString(),
-			assetMint: mint,
-			authority: setup.authority.toString(),
-			identityFilter: {
-				simple: [ {
-					single: [
-						{
-							target: {sender: {}},
-							mode: {include: {}},
-							level: {level: [2]},
-						}
-					]
-				}]
-			},
-			policyType: {
-				transactionCountVelocity: {
-					limit: new BN(3),
-					timeframe: new BN(60),
-				},
-			},
-		});
-		const txnId = await sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...attachPolicy.ixs), [setup.payerKp, setup.authorityKp, ...attachPolicy.signers]);
-		expect(txnId).toBeTruthy();
-		const policyAccount = await getPolicyEngineProgram(setup.provider).account.policyEngineAccount.fetch(getPolicyEnginePda(mint));
-		expect(policyAccount.policies.length).toBe(6);
-	});
-
 	test("setup user1", async () => {
 		const setupUser = await rwaClient.identityRegistry.setupUserIxns({
 			payer: setup.payer.toString(),
@@ -283,16 +201,32 @@ describe("issuance policies", async () => {
 		expect(txnId).toBeTruthy();
 	});
 
-	test("failt to issue tokens after backdating", async () => {
+	test("issue tokens after backdating", async () => {
+		let timestamp = new BN(Date.now() / 1000 - 1000);
 		const issueTokens = await rwaClient.assetController.issueTokenIxns({
 			authority: setup.authority.toString(),
 			payer: setup.payer.toString(),
 			owner: setup.user1.toString(),
 			assetMint: mint,
 			amount: 1000000,
-			timestamp: new BN(Date.now() / 1000 - 1000),
+			timestamp: timestamp,
 		});
-		expect(sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...issueTokens), [setup.payerKp, setup.authorityKp])).rejects.toThrowError();
+		const txnId = await sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...issueTokens), [setup.payerKp, setup.authorityKp]);
+		expect(txnId).toBeTruthy();
+
+		const trackerAccount = await getTrackerAccount(
+			mint,
+			setup.user1.toString(),
+			rwaClient.provider
+		);
+
+		console.log(trackerAccount);
+
+		expect(trackerAccount?.issuances.length).toBe(1);
+		console.log(trackerAccount?.issuances);
+		const issuance = trackerAccount?.issuances[0];
+		console.log(issuance);
+		expect(issuance?.issueTime.gt(timestamp)).toBe(true);
 	});
 
 	test("limit issuance", async () => {

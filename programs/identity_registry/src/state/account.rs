@@ -11,8 +11,9 @@ pub struct IdentityAccount {
     pub identity_registry: Pubkey,
     /// owner of the identity account
     pub owner: Pubkey,
-
+    /// number of wallets attached to this identity account
     pub num_wallets: u16,
+    /// country code of the user
     pub country: u8,
     // identity levels corresponding to the user
     #[max_len(1)] // initial length is 1

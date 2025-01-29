@@ -161,6 +161,7 @@ export async function getIssueTokensIx(
 	const ix = await assetProgram.methods
 		.issueTokens(new BN(args.amount), args.timestamp || new BN( Date.now() / 1000))
 		.accountsStrict({
+			payer: new PublicKey(args.payer),
 			authority: new PublicKey(args.authority),
 			assetMint: new PublicKey(args.assetMint),
 			assetController: getAssetControllerPda(args.assetMint),
@@ -188,6 +189,7 @@ export async function getIssueTokensIx(
 export type VoidTokensArgs = {
   amount: number;
   owner: string;
+  reason: string;
 } & CommonArgs;
 
 export async function getVoidTokensIx(
@@ -197,7 +199,7 @@ export async function getVoidTokensIx(
 	const assetProgram = getAssetControllerProgram(provider);
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 	const ix = await assetProgram.methods
-		.burnTokens(new BN(args.amount))
+		.burnTokens(new BN(args.amount), args.reason)
 		.accountsStrict({
 			assetMint: new PublicKey(args.assetMint),
 			tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -643,6 +645,7 @@ export type RevokeTokensArgs = {
 	wallet?: string;
 	authority: string;
 	assetMint: string;
+	reason: string;
 };
 
 /**
@@ -656,7 +659,7 @@ export async function getRevokeTokensIx(
 ): Promise<TransactionInstruction> {
 	const assetProgram = getAssetControllerProgram(provider);
 	const ix = await assetProgram.methods
-		.revokeTokens(new BN(args.amount))
+		.revokeTokens(new BN(args.amount), args.reason)
 		.accountsStrict({
 			authority: new PublicKey(args.authority),
 			assetMint: new PublicKey(args.assetMint),
@@ -688,6 +691,7 @@ export type SeizeTokensArgs = {
 	wallet?: string;
 	authority: string;
 	assetMint: string;
+	reason: string;
 };
 
 /**
@@ -760,7 +764,7 @@ export async function getSeizeTokensIx(
 	];
 	const ixs: TransactionInstruction[] = [ComputeBudgetProgram.setComputeUnitLimit({units: 450_000})];
 	const ix = await assetProgram.methods
-		.seizeTokens(new BN(args.amount))
+		.seizeTokens(new BN(args.amount), args.reason)
 		.accountsStrict({
 			authority: new PublicKey(args.authority),
 			assetMint: new PublicKey(args.assetMint),

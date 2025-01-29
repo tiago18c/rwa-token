@@ -25,9 +25,6 @@ pub fn handler(
     identity_filter: IdentityFilter,
     policy_type: PolicyType,
 ) -> Result<()> {
-    ctx.accounts
-        .policy_engine
-        .update_max_timeframe(&policy_type);
     let policy_account_address = ctx.accounts.policy_engine.key();
     ctx.accounts
         .policy_engine

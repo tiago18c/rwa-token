@@ -152,6 +152,7 @@ describe("level change policies tests", async () => {
 			owner: setup.user1.toString(),
 			assetMint: mint,
 			amount: 1000000,
+			timestamp: new BN(0)
 		};
 		const issueIx = await rwaClient.assetController.issueTokenIxns(issueArgs);
 		const txnId = await sendAndConfirmTransaction(
@@ -169,6 +170,7 @@ describe("level change policies tests", async () => {
 			owner: setup.user2.toString(),
 			assetMint: mint,
 			amount: 1,
+			timestamp: new BN(0)
 		};
 		const issueIx2 = await rwaClient.assetController.issueTokenIxns(issueArgs2);
 		const txnId2 = await sendAndConfirmTransaction(

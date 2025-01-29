@@ -3,10 +3,7 @@ use identity_registry::IdentityLevel;
 use num_enum::IntoPrimitive;
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    get_total_amount_transferred_in_timeframe, get_total_transactions_in_timeframe,
-    PolicyEngineErrors,
-};
+use crate::PolicyEngineErrors;
 
 use super::TrackerAccount;
 
@@ -171,8 +168,6 @@ pub struct PolicyEngineAccount {
     pub authority: Pubkey,
     /// policy delegate
     pub delegate: Pubkey,
-    /// max timeframe of all the policies
-    pub max_timeframe: i64,
     /// enforce policy issuance
     pub enforce_policy_issuance: bool,
     /// generic mapping for levels
@@ -195,8 +190,8 @@ pub struct PolicyEngineAccount {
 pub struct IssuancePolicies {
     pub disallow_backdating: bool,
     pub max_supply: u64,
-    pub us_lock_period: u64,
-    pub non_us_lock_period: u64,
+    pub us_lock_period: i64,
+    pub non_us_lock_period: i64,
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace, Debug)]
@@ -274,8 +269,8 @@ impl Policy {
 pub enum PolicyType {
     IdentityApproval,
     TransactionAmountLimit { limit: u64 },
-    TransactionAmountVelocity { limit: u64, timeframe: i64 },
-    TransactionCountVelocity { limit: u64, timeframe: i64 },
+    /*TransactionAmountVelocity { limit: u64, timeframe: i64 },
+    TransactionCountVelocity { limit: u64, timeframe: i64 },*/
     MaxBalance { limit: u64 },
     MinBalance { limit: u64 },
     MinMaxBalance { min: u64, max: u64 },
@@ -293,17 +288,28 @@ pub fn get_policy_engine_pda(asset_mint: Pubkey) -> Pubkey {
 impl PolicyEngineAccount {
     pub const VERSION: u8 = 1;
     pub fn new(
-        &mut self,
         authority: Pubkey,
         delegate: Option<Pubkey>,
         asset_mint: Pubkey,
         enforce_policy_issuance: bool,
-    ) {
-        self.version = Self::VERSION;
-        self.authority = authority;
-        self.delegate = delegate.unwrap_or(authority);
-        self.asset_mint = asset_mint;
-        self.enforce_policy_issuance = enforce_policy_issuance;
+    ) -> Self {
+        Self {
+            version: Self::VERSION,
+            authority,
+            delegate: delegate.unwrap_or(authority),
+            asset_mint,
+            enforce_policy_issuance,
+            mapping: [0; 256],
+            issuance_policies: IssuancePolicies {
+                disallow_backdating: false,
+                max_supply: 0,
+                us_lock_period: 0,
+                non_us_lock_period: 0,
+            },
+            policies: vec![],
+            counters: vec![],
+            counter_limits: vec![],
+        }
     }
     pub fn update_delegate(&mut self, delegate: Pubkey) {
         self.delegate = delegate;
@@ -335,31 +341,6 @@ impl PolicyEngineAccount {
             space_change += Counter::get_new_space(&counter.identity_filter);
         }
         space_change
-    }
-
-    /// update max timeframe if new value is greater than current
-    pub fn update_max_timeframe(&mut self, policy_type: &PolicyType) {
-        let mut max_timeframe = self.max_timeframe;
-        match policy_type {
-            PolicyType::TransactionAmountVelocity {
-                limit: _,
-                timeframe,
-            } => {
-                if *timeframe > max_timeframe {
-                    max_timeframe = *timeframe;
-                }
-            }
-            PolicyType::TransactionCountVelocity {
-                limit: _,
-                timeframe,
-            } => {
-                if *timeframe > max_timeframe {
-                    max_timeframe = *timeframe;
-                }
-            }
-            _ => {}
-        }
-        self.max_timeframe = max_timeframe;
     }
 
     pub fn hash_policy(
@@ -396,6 +377,13 @@ impl PolicyEngineAccount {
         Err(PolicyEngineErrors::PolicyNotFound.into())
     }
 
+    pub fn get_issuance_time(&self, issuance_timestamp: i64, cluster_time: i64) -> i64 {
+        if self.issuance_policies.disallow_backdating {
+            return cluster_time;
+        }
+        issuance_timestamp
+    }
+
     pub fn enforce_policy_issuance(
         &self,
         supply: u64,
@@ -403,12 +391,7 @@ impl PolicyEngineAccount {
         identity: &[IdentityLevel],
         country: u8,
         tracker_account: Option<&TrackerAccount>,
-        issuance_timestamp: i64,
     ) -> Result<()> {
-        require!(
-            !self.issuance_policies.disallow_backdating || issuance_timestamp >= timestamp,
-            PolicyEngineErrors::BackdatingNotAllowed
-        );
         require!(
             self.issuance_policies.max_supply == 0 || self.issuance_policies.max_supply >= supply,
             PolicyEngineErrors::MaxSupplyExceeded
@@ -478,19 +461,8 @@ impl PolicyEngineAccount {
                         }
                     }
                 }
-                PolicyType::TransferPause => {
-                    if self
-                        .enforce_filters_single(
-                            identity,
-                            country,
-                            &policy.identity_filter,
-                            timestamp,
-                        )
-                        .is_ok()
-                    {
-                        return Err(PolicyEngineErrors::TransferPaused.into());
-                    }
-                }
+                /* When the token is paused, issuance can still occur
+                PolicyType::TransferPause => */
                 PolicyType::ForbiddenIdentityGroup => {
                     if self
                         .enforce_filters_single(
@@ -521,8 +493,6 @@ impl PolicyEngineAccount {
         source_country: u8,
         destination_identity: &[IdentityLevel],
         destination_country: u8,
-        _source_tracker_account: &Option<Box<TrackerAccount>>,
-        destination_tracker_account: &Option<Box<TrackerAccount>>,
         source_balance: u64,
         destination_balance: u64,
         self_transfer: bool,
@@ -553,62 +523,6 @@ impl PolicyEngineAccount {
                         && transfer_amount > *limit
                     {
                         return Err(PolicyEngineErrors::TransactionAmountLimitExceeded.into());
-                    }
-                }
-                PolicyType::TransactionAmountVelocity { limit, timeframe } => {
-                    if !self_transfer
-                        && self
-                            .enforce_filters_on_transfer(
-                                source_identity,
-                                source_country,
-                                destination_identity,
-                                destination_country,
-                                &policy.identity_filter,
-                                timestamp,
-                            )
-                            .is_ok()
-                    {
-                        if let Some(dst_tracker) = destination_tracker_account {
-                            let total_amount_transferred =
-                                get_total_amount_transferred_in_timeframe(
-                                    &dst_tracker.transfers,
-                                    *timeframe,
-                                    timestamp,
-                                );
-
-                            if total_amount_transferred > *limit {
-                                return Err(
-                                    PolicyEngineErrors::TransactionAmountVelocityExceeded.into()
-                                );
-                            }
-                        }
-                    }
-                }
-                PolicyType::TransactionCountVelocity { limit, timeframe } => {
-                    if !self_transfer
-                        && self
-                            .enforce_filters_on_transfer(
-                                source_identity,
-                                source_country,
-                                destination_identity,
-                                destination_country,
-                                &policy.identity_filter,
-                                timestamp,
-                            )
-                            .is_ok()
-                    {
-                        if let Some(dst_tracker) = destination_tracker_account {
-                            let total_transactions = get_total_transactions_in_timeframe(
-                                &dst_tracker.transfers,
-                                *timeframe,
-                                timestamp,
-                            );
-                            if total_transactions > *limit {
-                                return Err(
-                                    PolicyEngineErrors::TransactionCountVelocityExceeded.into()
-                                );
-                            }
-                        }
                     }
                 }
                 PolicyType::MaxBalance { limit } => {

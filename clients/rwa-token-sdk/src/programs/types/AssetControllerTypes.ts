@@ -103,6 +103,10 @@ export type AssetController = {
         {
           "name": "amount",
           "type": "u64"
+        },
+        {
+          "name": "reason",
+          "type": "string"
         }
       ]
     },
@@ -656,6 +660,11 @@ export type AssetController = {
       ],
       "accounts": [
         {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
           "name": "authority",
           "writable": true,
           "signer": true
@@ -878,6 +887,10 @@ export type AssetController = {
         {
           "name": "amount",
           "type": "u64"
+        },
+        {
+          "name": "reason",
+          "type": "string"
         }
       ]
     },
@@ -933,6 +946,10 @@ export type AssetController = {
         {
           "name": "amount",
           "type": "u64"
+        },
+        {
+          "name": "reason",
+          "type": "string"
         }
       ]
     },
@@ -1257,6 +1274,19 @@ export type AssetController = {
       ]
     },
     {
+      "name": "burnEvent",
+      "discriminator": [
+        33,
+        89,
+        47,
+        117,
+        82,
+        124,
+        238,
+        250
+      ]
+    },
+    {
       "name": "extensionMetadataEvent",
       "discriminator": [
         22,
@@ -1267,6 +1297,32 @@ export type AssetController = {
         122,
         248,
         117
+      ]
+    },
+    {
+      "name": "revokeEvent",
+      "discriminator": [
+        87,
+        202,
+        67,
+        213,
+        43,
+        84,
+        177,
+        3
+      ]
+    },
+    {
+      "name": "seizeEvent",
+      "discriminator": [
+        100,
+        186,
+        127,
+        43,
+        145,
+        98,
+        208,
+        78
       ]
     }
   ],
@@ -1400,6 +1456,26 @@ export type AssetController = {
             "type": {
               "option": "u8"
             }
+          }
+        ]
+      }
+    },
+    {
+      "name": "burnEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "reason",
+            "type": "string"
+          },
+          {
+            "name": "wallet",
+            "type": "pubkey"
           }
         ]
       }
@@ -1779,10 +1855,16 @@ export type AssetController = {
           },
           {
             "name": "numWallets",
+            "docs": [
+              "number of wallets attached to this identity account"
+            ],
             "type": "u16"
           },
           {
             "name": "country",
+            "docs": [
+              "country code of the user"
+            ],
             "type": "u8"
           },
           {
@@ -1892,6 +1974,22 @@ export type AssetController = {
       }
     },
     {
+      "name": "issuance",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "issueTime",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
       "name": "issuancePolicies",
       "type": {
         "kind": "struct",
@@ -1906,11 +2004,35 @@ export type AssetController = {
           },
           {
             "name": "usLockPeriod",
-            "type": "u64"
+            "type": "i64"
           },
           {
             "name": "nonUsLockPeriod",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "lock",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amount",
             "type": "u64"
+          },
+          {
+            "name": "releaseTime",
+            "type": "i64"
+          },
+          {
+            "name": "reason",
+            "type": "u64"
+          },
+          {
+            "name": "reasonString",
+            "type": "string"
           }
         ]
       }
@@ -1975,13 +2097,6 @@ export type AssetController = {
               "policy delegate"
             ],
             "type": "pubkey"
-          },
-          {
-            "name": "maxTimeframe",
-            "docs": [
-              "max timeframe of all the policies"
-            ],
-            "type": "i64"
           },
           {
             "name": "enforcePolicyIssuance",
@@ -2074,32 +2189,6 @@ export type AssetController = {
             ]
           },
           {
-            "name": "transactionAmountVelocity",
-            "fields": [
-              {
-                "name": "limit",
-                "type": "u64"
-              },
-              {
-                "name": "timeframe",
-                "type": "i64"
-              }
-            ]
-          },
-          {
-            "name": "transactionCountVelocity",
-            "fields": [
-              {
-                "name": "limit",
-                "type": "u64"
-              },
-              {
-                "name": "timeframe",
-                "type": "i64"
-              }
-            ]
-          },
-          {
             "name": "maxBalance",
             "fields": [
               {
@@ -2152,15 +2241,41 @@ export type AssetController = {
       }
     },
     {
-      "name": "side",
+      "name": "revokeEvent",
       "type": {
-        "kind": "enum",
-        "variants": [
+        "kind": "struct",
+        "fields": [
           {
-            "name": "buy"
+            "name": "amount",
+            "type": "u64"
           },
           {
-            "name": "sell"
+            "name": "reason",
+            "type": "string"
+          },
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "seizeEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "reason",
+            "type": "string"
+          },
+          {
+            "name": "wallet",
+            "type": "pubkey"
           }
         ]
       }
@@ -2183,40 +2298,26 @@ export type AssetController = {
             "type": "pubkey"
           },
           {
-            "name": "transfers",
+            "name": "totalAmount",
+            "type": "u64"
+          },
+          {
+            "name": "issuances",
             "type": {
               "vec": {
                 "defined": {
-                  "name": "transfer"
+                  "name": "issuance"
                 }
               }
             }
           },
           {
-            "name": "totalAmount",
-            "type": "u64"
-          }
-        ]
-      }
-    },
-    {
-      "name": "transfer",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "amount",
-            "type": "u64"
-          },
-          {
-            "name": "timestamp",
-            "type": "i64"
-          },
-          {
-            "name": "side",
+            "name": "locks",
             "type": {
-              "defined": {
-                "name": "side"
+              "vec": {
+                "defined": {
+                  "name": "lock"
+                }
               }
             }
           }
