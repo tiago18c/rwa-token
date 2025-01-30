@@ -196,7 +196,7 @@ describe("test additional policies", async () => {
 				payer: setup.payer.toString(),
 				owner: setup.user1.toString(),
 				assetMint: mint,
-				amount: 1000000,
+				amount: new BN(1000000),
 				timestamp: new BN(0)
 			});
 			await sendAndConfirmTransaction(
@@ -212,7 +212,7 @@ describe("test additional policies", async () => {
 				from: setup.user1.toString(),
 				to: setup.user2.toString(),
 				assetMint: mint,
-				amount: 10,
+				amount: new BN(10),
 				decimals,
 				createTa: true,
 			}, rwaClient.provider);
@@ -228,7 +228,7 @@ describe("test additional policies", async () => {
 				from: setup.user1.toString(),
 				to: setup.user3.toString(),
 				assetMint: mint,
-				amount: 10,
+				amount: new BN(10),
 				decimals,
 				createTa: true,
 			}, rwaClient.provider);
@@ -261,7 +261,7 @@ describe("test additional policies", async () => {
 				from: setup.user1.toString(),
 				to: setup.user4.toString(),
 				assetMint: mint,
-				amount: 10,
+				amount: new BN(10),
 				decimals,
 				createTa: true,
 			}, rwaClient.provider);
@@ -278,7 +278,7 @@ describe("test additional policies", async () => {
 				from: setup.user2.toString(),
 				to: setup.user1.toString(),
 				assetMint: mint,
-				amount: 10,
+				amount: new BN(10),
 				decimals,
 				createTa: true,
 			}, rwaClient.provider);
@@ -296,7 +296,7 @@ describe("test additional policies", async () => {
 				from: setup.user3.toString(),
 				to: setup.user1.toString(),
 				assetMint: mint,
-				amount: 9,
+				amount: new BN(9),
 				decimals,
 				createTa: true,
 			}, rwaClient.provider);
@@ -312,7 +312,7 @@ describe("test additional policies", async () => {
 				from: setup.user3.toString(),
 				to: setup.user1.toString(),
 				assetMint: mint,
-				amount: 1,
+				amount: new BN(1),
 				decimals,
 				createTa: true,
 			}, rwaClient.provider);

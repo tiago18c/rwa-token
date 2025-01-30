@@ -110,7 +110,7 @@ describe("test suite to test tracker account is being updated correctly on trans
 			payer: setup.payer.toString(),
 			owner: setup.user1.toString(),
 			assetMint: mint,
-			amount: 1000000,
+			amount: new BN(1000000),
 			timestamp: new BN(0)
 		};
 		const issueIx = await rwaClient.assetController.issueTokenIxns(issueArgs);
@@ -139,7 +139,7 @@ describe("test suite to test tracker account is being updated correctly on trans
 			from: setup.user1.toString(),
 			to: setup.user2.toString(),
 			assetMint: mint,
-			amount: 100,
+			amount: new BN(100),
 			decimals,
 			createTa: true,
 		};

@@ -151,7 +151,7 @@ describe("level change policies tests", async () => {
 			payer: setup.payer.toString(),
 			owner: setup.user1.toString(),
 			assetMint: mint,
-			amount: 1000000,
+			amount: new BN(1000000),
 			timestamp: new BN(0)
 		};
 		const issueIx = await rwaClient.assetController.issueTokenIxns(issueArgs);
@@ -169,7 +169,7 @@ describe("level change policies tests", async () => {
 			payer: setup.payer.toString(),
 			owner: setup.user2.toString(),
 			assetMint: mint,
-			amount: 1,
+			amount: new BN(1),
 			timestamp: new BN(0)
 		};
 		const issueIx2 = await rwaClient.assetController.issueTokenIxns(issueArgs2);
@@ -186,7 +186,7 @@ describe("level change policies tests", async () => {
 			payer: setup.payer.toString(),
 			owner: setup.user3.toString(),
 			assetMint: mint,
-			amount: 50,
+			amount: new BN(50),
 		};
 		const issueIx3 = await rwaClient.assetController.issueTokenIxns(issueArgs3);
 		const txnId3 = await sendAndConfirmTransaction(

@@ -208,7 +208,7 @@ describe("issuance policies", async () => {
 			payer: setup.payer.toString(),
 			owner: setup.user1.toString(),
 			assetMint: mint,
-			amount: 1000000,
+			amount: new BN(1000000),
 			timestamp: timestamp,
 		});
 		const txnId = await sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...issueTokens), [setup.payerKp, setup.authorityKp]);
@@ -252,7 +252,7 @@ describe("issuance policies", async () => {
 			payer: setup.payer.toString(),
 			owner: setup.user1.toString(),
 			assetMint: mint,
-			amount: 1000000,
+			amount: new BN(1000000),
 			timestamp: new BN(Date.now() / 1000 + 1000),
 		});
 		expect(sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...issueTokens), [setup.payerKp, setup.authorityKp])).rejects.toThrowError();

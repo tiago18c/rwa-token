@@ -26,7 +26,6 @@ export type CommonArgs = {
 	assetMint: string;
 	payer: string;
 	signer?: string;
-	amount?: number;
 	owner?: string;
 	authority?: string;
 	delegate?: string;

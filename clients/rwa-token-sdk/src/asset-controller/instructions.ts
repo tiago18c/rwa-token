@@ -141,7 +141,7 @@ export async function getUpdateAssetMetadataIx(
 
 /** Represents arguments for issuing an on chain asset/token. */
 export type IssueTokenArgs = {
-  amount: number;
+  amount: BN;
   authority: string;
   owner: string;
   wallet?: string;
@@ -159,7 +159,7 @@ export async function getIssueTokensIx(
 ): Promise<TransactionInstruction[]> {
 	const assetProgram = getAssetControllerProgram(provider);
 	const ix = await assetProgram.methods
-		.issueTokens(new BN(args.amount), args.timestamp || new BN( Date.now() / 1000))
+		.issueTokens(args.amount, args.timestamp || new BN( Date.now() / 1000))
 		.accountsStrict({
 			payer: new PublicKey(args.payer),
 			authority: new PublicKey(args.authority),
@@ -187,7 +187,7 @@ export async function getIssueTokensIx(
 }
 
 export type VoidTokensArgs = {
-  amount: number;
+  amount: BN;
   owner: string;
   reason: string;
 } & CommonArgs;
@@ -199,7 +199,7 @@ export async function getVoidTokensIx(
 	const assetProgram = getAssetControllerProgram(provider);
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 	const ix = await assetProgram.methods
-		.burnTokens(new BN(args.amount), args.reason)
+		.burnTokens(args.amount, args.reason)
 		.accountsStrict({
 			assetMint: new PublicKey(args.assetMint),
 			tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -218,7 +218,7 @@ export async function getVoidTokensIx(
 export type TransferTokensArgs = {
   from: string;
   to: string;
-  amount: number;
+  amount: BN;
   assetMint: string;
   decimals: number;
   message?: string;
@@ -640,7 +640,7 @@ export async function getThawTokenIx(
 }
 
 export type RevokeTokensArgs = {
-	amount: number;
+	amount: BN;
 	owner: string;
 	wallet?: string;
 	authority: string;
@@ -659,7 +659,7 @@ export async function getRevokeTokensIx(
 ): Promise<TransactionInstruction> {
 	const assetProgram = getAssetControllerProgram(provider);
 	const ix = await assetProgram.methods
-		.revokeTokens(new BN(args.amount), args.reason)
+		.revokeTokens(args.amount, args.reason)
 		.accountsStrict({
 			authority: new PublicKey(args.authority),
 			assetMint: new PublicKey(args.assetMint),
@@ -685,7 +685,7 @@ export async function getRevokeTokensIx(
 }
 
 export type SeizeTokensArgs = {
-	amount: number;
+	amount: BN;
 	from: string;
 	to: string;
 	wallet?: string;
@@ -764,7 +764,7 @@ export async function getSeizeTokensIx(
 	];
 	const ixs: TransactionInstruction[] = [ComputeBudgetProgram.setComputeUnitLimit({units: 450_000})];
 	const ix = await assetProgram.methods
-		.seizeTokens(new BN(args.amount), args.reason)
+		.seizeTokens(args.amount, args.reason)
 		.accountsStrict({
 			authority: new PublicKey(args.authority),
 			assetMint: new PublicKey(args.assetMint),

@@ -263,7 +263,7 @@ describe("counter tests", async () => {
 			payer: setup.payer.toString(),
 			owner: setup.user1.toString(),
 			assetMint: mint,
-			amount: 1000000,
+			amount: new BN(1000000),
 		};
 		const issueIx = await rwaClient.assetController.issueTokenIxns(issueArgs);
 		const txnId = await sendAndConfirmTransaction(
@@ -292,7 +292,7 @@ describe("counter tests", async () => {
 			payer: setup.payer.toString(),
 			owner: setup.user2.toString(),
 			assetMint: mint,
-			amount: 1000000,
+			amount: new BN(1000000),
 		};
 		const issueIx = await rwaClient.assetController.issueTokenIxns(issueArgs);
 		const txnId = await sendAndConfirmTransaction(
@@ -321,7 +321,7 @@ describe("counter tests", async () => {
 			payer: setup.payer.toString(),
 			owner: setup.user3.toString(),
 			assetMint: mint,
-			amount: 1000000,
+			amount: new BN(1000000),
 		};
 		const issueIx = await rwaClient.assetController.issueTokenIxns(issueArgs);
 		const txnId = await sendAndConfirmTransaction(
@@ -350,7 +350,7 @@ describe("counter tests", async () => {
 			payer: setup.payer.toString(),
 			owner: setup.user4.toString(),
 			assetMint: mint,
-			amount: 1000000,
+			amount: new BN(1000000),
 		};
 		const issueIx = await rwaClient.assetController.issueTokenIxns(issueArgs);
 		const txnId = await sendAndConfirmTransaction(

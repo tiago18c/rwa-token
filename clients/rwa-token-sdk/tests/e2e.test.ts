@@ -241,7 +241,7 @@ describe("e2e tests", async () => {
 			payer: setup.payer.toString(),
 			owner: setup.user1.toString(),
 			assetMint: mint,
-			amount: 1000000,
+			amount: new BN(1000000),
 			timestamp: new BN(0)
 		};
 		const issueIx = await rwaClient.assetController.issueTokenIxns(issueArgs);
@@ -257,7 +257,7 @@ describe("e2e tests", async () => {
 	test("void tokens", async () => {
 		const voidArgs: VoidTokensArgs = {
 			payer: setup.payer.toString(),
-			amount: 100,
+			amount: new BN(100),
 			owner: setup.user1.toString(),
 			assetMint: mint,
 			authority: setup.user1.toString(),
@@ -276,7 +276,7 @@ describe("e2e tests", async () => {
 		const revokeIx = await getRevokeTokensIx({
 			owner: setup.user1.toString(),
 			assetMint: mint,
-			amount: 100,
+			amount: new BN(100),
 			authority: setup.authority.toString(),
 			reason: "TEST"
 		}, rwaClient.provider);
@@ -294,7 +294,7 @@ describe("e2e tests", async () => {
 			from: setup.user1.toString(),
 			to: setup.authority.toString(),
 			assetMint: mint,
-			amount: 100,
+			amount: new BN(100),
 			authority: setup.authority.toString(),
 			reason: "TEST"
 		}, rwaClient.provider);
@@ -367,7 +367,7 @@ describe("e2e tests", async () => {
 			owner: setup.user1.toString(),
 			wallet: setup.user4.toString(),
 			assetMint: mint,
-			amount: 100,
+			amount: new BN(100),
 			timestamp: new BN(0)
 		});
 		const txnId = await sendAndConfirmTransaction(
@@ -383,7 +383,7 @@ describe("e2e tests", async () => {
 			from: setup.user4.toString(),
 			to: setup.user1.toString(),
 			assetMint: mint,
-			amount: 100,
+			amount: new BN(100),
 			decimals,
 		});
 		const txnId = await sendAndConfirmTransaction(
@@ -452,7 +452,7 @@ describe("e2e tests", async () => {
 			from: setup.user1.toString(),
 			to: setup.user2.toString(),
 			assetMint: mint,
-			amount: 2000,
+			amount: new BN(2000),
 			decimals,
 			createTa: true,
 		};
@@ -539,7 +539,7 @@ describe("e2e tests", async () => {
 			from: setup.user1.toString(),
 			to: setup.user2.toString(),
 			assetMint: mint,
-			amount: 100,
+			amount: new BN(2000),
 			decimals,
 		});
 		expect(sendAndConfirmTransaction(
@@ -599,7 +599,7 @@ describe("e2e tests", async () => {
 			from: setup.user2.toString(),
 			to: setup.user1.toString(),
 			assetMint: mint,
-			amount: 100,
+			amount: new BN(100),
 			decimals,
 		});
 		expect(sendAndConfirmTransaction(

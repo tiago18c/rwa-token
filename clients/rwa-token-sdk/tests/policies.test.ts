@@ -188,7 +188,7 @@ describe("test policy setup", async () => {
 			payer: setup.payer.toString(),
 			owner: setup.user1.toString(),
 			assetMint: mint,
-			amount: 1000000,
+			amount: new BN(1000000)	,
 			timestamp: new BN(0)
 		});
 		let txnId = await sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...issueTokens), [setup.payerKp, setup.authorityKp]);
@@ -198,7 +198,7 @@ describe("test policy setup", async () => {
 			payer: setup.payer.toString(),
 			owner: setup.user2.toString(),
 			assetMint: mint,
-			amount: 1000000,
+			amount: new BN(1000000),
 			timestamp: new BN(0)
 		});
 		txnId = await sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...issueTokens), [setup.payerKp, setup.authorityKp]);
@@ -208,7 +208,7 @@ describe("test policy setup", async () => {
 			payer: setup.payer.toString(),
 			owner: setup.user3.toString(),
 			assetMint: mint,
-			amount: 1000000,
+			amount: new BN(1000000),
 			timestamp: new BN(0)
 		});
 		txnId = await sendAndConfirmTransaction(setup.provider.connection, new Transaction().add(...issueTokens), [setup.payerKp, setup.authorityKp]);
@@ -220,7 +220,7 @@ describe("test policy setup", async () => {
 			from: setup.user3.toString(),
 			to: setup.user2.toString(),
 			assetMint: mint,
-			amount: 1000,
+			amount: new BN(1000),
 			decimals,
 		},  rwaClient.provider);
 		let txnId = await sendAndConfirmTransaction(
@@ -233,7 +233,7 @@ describe("test policy setup", async () => {
 			from: setup.user1.toString(),
 			to: setup.user3.toString(),
 			assetMint: mint,
-			amount: 1000,
+			amount: new BN(1000),
 			decimals,
 		}, rwaClient.provider);
 		txnId = await sendAndConfirmTransaction(
@@ -249,7 +249,7 @@ describe("test policy setup", async () => {
 			from: setup.user2.toString(),
 			to: setup.user1.toString(),
 			assetMint: mint,
-			amount: 10000,
+			amount: new BN(10000),
 			decimals,
 		}, rwaClient.provider);
 		let txnId = await sendAndConfirmTransaction(
@@ -262,7 +262,7 @@ describe("test policy setup", async () => {
 			from: setup.user2.toString(),
 			to: setup.user1.toString(),
 			assetMint: mint,
-			amount: 10000,
+			amount: new BN(10000),
 			decimals,
 		}, rwaClient.provider);
 		txnId = await sendAndConfirmTransaction(
