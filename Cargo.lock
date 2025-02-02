@@ -410,7 +410,6 @@ version = "0.0.1"
 dependencies = [
  "anchor-lang",
  "anchor-spl",
- "data_registry",
  "identity_registry",
  "policy_engine",
  "rwa_utils",
@@ -827,15 +826,6 @@ dependencies = [
  "darling_core",
  "quote",
  "syn 2.0.58",
-]
-
-[[package]]
-name = "data_registry"
-version = "0.0.1"
-dependencies = [
- "anchor-lang",
- "anchor-spl",
- "rwa_utils",
 ]
 
 [[package]]

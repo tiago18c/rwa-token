@@ -14,7 +14,6 @@ import {
 	getCreateTrackerAccountIx,
 	getExtraMetasListPda,
 } from "../policy-engine";
-import { dataRegistryProgramId, getDataRegistryPda } from "../data-registry";
 import {
 	identityRegistryProgramId,
 	getCreateIdentityAccountIx,

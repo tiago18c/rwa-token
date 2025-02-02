@@ -2,7 +2,6 @@ import { type Config } from "./types";
 import { AssetController } from "./AssetController";
 import { IdentityRegistry } from "./IdentityRegistry";
 import { PolicyEngine } from "./PolicyEngine";
-import { DataRegistry } from "./DataRegistry";
 import { Provider } from "@coral-xyz/anchor";
 
 /**
@@ -15,7 +14,6 @@ export class RwaClient {
 	config: Config;
 	provider: Provider;
 	assetController: AssetController;
-	dataRegistry: DataRegistry;
 	identityRegistry: IdentityRegistry;
 	policyEngine: PolicyEngine;
 
@@ -28,7 +26,6 @@ export class RwaClient {
 		this.config = config;
 		this.provider = provider;
 		this.assetController = new AssetController(this);
-		this.dataRegistry = new DataRegistry(this);
 		this.identityRegistry = new IdentityRegistry(this);
 		this.policyEngine = new PolicyEngine(this);
 	}

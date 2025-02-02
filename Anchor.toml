@@ -11,14 +11,12 @@ wallet = "~/.config/solana/id.json"
 [workspace]
 members = [
   "programs/asset_controller",
-  "programs/data_registry",
   "programs/identity_registry",
   "programs/policy_engine",
 ]
 
 [programs.localnet]
 asset_controller = "7tXjmbkZVY3Gmg9kDBebcNXT1yC5pyoxxXVLwdbv9tvP"
-data_registry = "JDxF8P4SctW8rB5s5FbupPFYecKFqLSv7fTES3cFei3b"
 identity_registry = "GZsnjqT3c5zbHqsctrJ4EG4rbEfo7ZXyyUG7aDJNmxfA"
 policy_engine = "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
 

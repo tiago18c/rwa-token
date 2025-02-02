@@ -9,10 +9,6 @@ use anchor_spl::{
         TokenMetadataInitialize,
     },
 };
-use data_registry::{
-    cpi::{accounts::CreateDataRegistry, create_data_registry},
-    program::DataRegistry,
-};
 use identity_registry::{
     cpi::{accounts::CreateIdentityRegistry, create_identity_registry},
     program::IdentityRegistry,
