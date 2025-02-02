@@ -151,27 +151,6 @@ describe("e2e tests", async () => {
 		expect(txnId).toBeTruthy();
 	});
 
-	test("setup data account", async () => {
-		const createDataAccountArgs: CreateDataAccountArgs = {
-			type: { legal: {} },
-			name: "Test Data Account",
-			uri: "https://test.com",
-			payer: setup.payer.toString(),
-			signer: setup.authority.toString(),
-			assetMint: mint,
-		};
-		const createDataAccountIx = await rwaClient.dataRegistry.setupDataAccount(
-			createDataAccountArgs
-		);
-		const txnId = await sendAndConfirmTransaction(
-			rwaClient.provider.connection,
-			new Transaction().add(...createDataAccountIx.ixs),
-			[setup.payerKp, createDataAccountIx.signers[0], setup.authorityKp]
-		);
-		expect(txnId).toBeTruthy();
-		dataAccount = createDataAccountIx.signers[0].publicKey.toString();
-	});
-
 	test("create identity approval policy", async () => {
 		const policyArgs: AttachPolicyArgs = {
 			authority: setup.authority.toString(),
@@ -179,11 +158,19 @@ describe("e2e tests", async () => {
 			payer: setup.payer.toString(),
 			identityFilter: {
 				simple: [ {
-					single: [
+					tuple: [
 						{
 							target: {bothOr: {}},
 							mode: {include: {}},
 							level: {level: [1]},
+						},
+						{
+							or: {}
+						},
+						{
+							target: {bothOr: {}},
+							mode: {include: {}},
+							level: {level: [255]},
 						}
 					]
 				}]
@@ -408,43 +395,6 @@ describe("e2e tests", async () => {
 			[setup.payerKp, setup.authorityKp]
 		);
 		expect(txnId).toBeTruthy();
-	});
-
-	test("update data account", async () => {
-		const updateDataAccountArgs: UpdateDataAccountArgs = {
-			dataAccount,
-			name: "Example Token Updates",
-			uri: "newUri",
-			type: { tax: {} },
-			payer: setup.payer.toString(),
-			assetMint: mint,
-			authority: setup.authority.toString(),
-			signer: setup.authority.toString(),
-		};
-		const updateDataIx = await rwaClient.dataRegistry.updateAssetsDataAccountInfoIxns(updateDataAccountArgs);
-		const txnId = await sendAndConfirmTransaction(
-			rwaClient.provider.connection,
-			new Transaction().add(updateDataIx),
-			[setup.payerKp, setup.authorityKp]
-		);
-		expect(txnId).toBeTruthy();
-	});
-
-	test("delete data account", async () => {
-		const deleteDataAccountArgs: DeleteDataAccountArgs = {
-			dataAccount,
-			payer: setup.payer.toString(),
-			assetMint: mint,
-			signer: setup.authority.toString(),
-		};
-		const updateDataIx = await rwaClient.dataRegistry.deleteAssetsDataAccountInfoIxns(deleteDataAccountArgs);
-		const txnId = await sendAndConfirmTransaction(
-			rwaClient.provider.connection,
-			new Transaction().add(updateDataIx),
-			[setup.authorityKp]
-		);
-		expect(txnId).toBeTruthy();
-		expect(await getDataAccountsWithFilter({assetMint: mint}, rwaClient.provider)).toHaveLength(0);
 	});
 
 	test("transfer tokens", async () => {

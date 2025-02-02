@@ -1,11 +1,12 @@
 use std::str::FromStr;
 
 use crate::utils::POLICY_ENGINE_ID;
-use crate::{cpi_enforce_policy_on_levels_change, state::*};
+use crate::{cpi_enforce_policy_on_levels_change, state::*, AddLevelsToIdentityEvent};
 use anchor_lang::prelude::*;
 
 #[derive(Accounts)]
 #[instruction(levels: Vec<u8>, expiries: Vec<i64>)]
+#[event_cpi]
 pub struct AddLevelToIdentityAccount<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -51,7 +52,7 @@ pub fn handler(
         &[ctx.accounts.identity_registry.bump][..],
     ];
 
-    ctx.accounts.identity_account.add_levels(levels, expiries)?;
+    ctx.accounts.identity_account.add_levels(&levels, &expiries)?;
     let new_levels = ctx.accounts.identity_account.levels.clone();
 
     cpi_enforce_policy_on_levels_change(
@@ -66,5 +67,13 @@ pub fn handler(
         enforce_limits,
         &[&signer_seeds[..]],
     )?;
+
+    emit_cpi!(AddLevelsToIdentityEvent {
+        identity: ctx.accounts.identity_account.key(),
+        mint: ctx.accounts.asset_mint.key(),
+        levels: levels,
+        expiries: expiries,
+        sender: ctx.accounts.payer.key(),
+    });
     Ok(())
 }

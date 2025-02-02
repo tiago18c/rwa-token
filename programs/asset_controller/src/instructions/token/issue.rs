@@ -7,10 +7,11 @@ use identity_registry::{IdentityAccount, IdentityRegistryAccount, WalletIdentity
 use policy_engine::{program::PolicyEngine, PolicyEngineAccount, TrackerAccount};
 use rwa_utils::get_bump_in_seed_form;
 
-use crate::{AssetControllerAccount, AssetControllerErrors};
+use crate::{AssetControllerAccount, AssetControllerErrors, IssueEvent};
 
 #[derive(Accounts)]
 #[instruction()]
+#[event_cpi]
 pub struct IssueTokens<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -71,7 +72,7 @@ impl<'info> IssueTokens<'info> {
         amount: u64,
         issuance_timestamp: i64,
         signer_seeds: &[&[&[u8]]],
-    ) -> Result<()> {
+    ) -> Result<i64> {
         let accounts = policy_engine::cpi::accounts::EnforcePolicyIssuanceAccounts {
             asset_mint: self.asset_mint.to_account_info(),
             policy_engine: self.policy_engine.to_account_info(),
@@ -89,8 +90,8 @@ impl<'info> IssueTokens<'info> {
             accounts,
             signer_seeds,
         );
-        policy_engine::cpi::enforce_policy_issuance(cpi_ctx, amount, issuance_timestamp)?;
-        Ok(())
+        let res = policy_engine::cpi::enforce_policy_issuance(cpi_ctx, amount, issuance_timestamp)?;
+        Ok(res.get())
     }
 }
 
@@ -107,7 +108,15 @@ pub fn handler(ctx: Context<IssueTokens>, amount: u64, issuance_timestamp: i64) 
         &get_bump_in_seed_form(&ctx.bumps.asset_controller),
     ];
     ctx.accounts.issue_tokens(amount, &[&signer_seeds])?;
-    ctx.accounts
+    let issuance_timestamp = ctx.accounts
         .enforce_policy_issuance(amount, issuance_timestamp, &[&signer_seeds])?;
+
+    emit_cpi!(IssueEvent {
+        amount,
+        issuance_timestamp,
+        wallet: ctx.accounts.to.key(),
+        mint: ctx.accounts.asset_mint.key(),
+    });
+
     Ok(())
 }

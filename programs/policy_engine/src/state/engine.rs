@@ -3,7 +3,7 @@ use identity_registry::IdentityLevel;
 use num_enum::IntoPrimitive;
 use serde::{Deserialize, Serialize};
 
-use crate::PolicyEngineErrors;
+use crate::{get_custom_error, PolicyEngineErrors};
 
 use super::TrackerAccount;
 
@@ -251,6 +251,7 @@ pub struct Policy {
     pub hash: String,
     pub identity_filter: IdentityFilter,
     pub policy_type: PolicyType,
+    pub custom_error: u8,
 }
 
 impl Policy {
@@ -357,6 +358,7 @@ impl PolicyEngineAccount {
         policy_account: Pubkey,
         policy_type: PolicyType,
         identity_filter: IdentityFilter,
+        custom_error: u8,
     ) -> Result<()> {
         let hash = Self::hash_policy(policy_account, &policy_type, &identity_filter);
         if self.policies.iter().any(|policy| policy.hash == hash) {
@@ -366,13 +368,14 @@ impl PolicyEngineAccount {
             hash,
             identity_filter,
             policy_type,
+            custom_error,
         });
         Ok(())
     }
 
-    pub fn detach(&mut self, hash: String) -> Result<PolicyType> {
+    pub fn detach(&mut self, hash: String) -> Result<Policy> {
         if let Some(index) = self.policies.iter().position(|policy| policy.hash == hash) {
-            return Ok(self.policies.remove(index).policy_type);
+            return Ok(self.policies.remove(index));
         }
         Err(PolicyEngineErrors::PolicyNotFound.into())
     }
@@ -400,12 +403,14 @@ impl PolicyEngineAccount {
         for policy in self.policies.iter() {
             match &policy.policy_type {
                 PolicyType::IdentityApproval => {
-                    self.enforce_filters_single(
+                    if self.enforce_filters_single(
                         identity,
                         country,
                         &policy.identity_filter,
                         timestamp,
-                    )?;
+                    ).is_err() {
+                        get_custom_error(policy.custom_error, PolicyEngineErrors::IdentityFilterFailed)?;
+                    }
                 }
                 PolicyType::MaxBalance { limit } => {
                     if self
@@ -419,7 +424,7 @@ impl PolicyEngineAccount {
                     {
                         if let Some(dst_tracker) = tracker_account {
                             if dst_tracker.total_amount > *limit {
-                                return Err(PolicyEngineErrors::MaxBalanceExceeded.into());
+                                get_custom_error(policy.custom_error, PolicyEngineErrors::MaxBalanceExceeded)?;
                             }
                         }
                     }
@@ -436,7 +441,7 @@ impl PolicyEngineAccount {
                     {
                         if let Some(dst_tracker) = tracker_account {
                             if dst_tracker.total_amount < *limit {
-                                return Err(PolicyEngineErrors::MinBalanceExceeded.into());
+                                get_custom_error(policy.custom_error, PolicyEngineErrors::MinBalanceExceeded)?;
                             }
                         }
                     }
@@ -453,10 +458,10 @@ impl PolicyEngineAccount {
                     {
                         if let Some(dst_tracker) = tracker_account {
                             if dst_tracker.total_amount > *max {
-                                return Err(PolicyEngineErrors::MaxBalanceExceeded.into());
+                                get_custom_error(policy.custom_error, PolicyEngineErrors::MaxBalanceExceeded)?;
                             }
                             if dst_tracker.total_amount < *min {
-                                return Err(PolicyEngineErrors::MinBalanceExceeded.into());
+                                get_custom_error(policy.custom_error, PolicyEngineErrors::MinBalanceExceeded)?;
                             }
                         }
                     }
@@ -473,7 +478,7 @@ impl PolicyEngineAccount {
                         )
                         .is_ok()
                     {
-                        return Err(PolicyEngineErrors::ForbiddenIdentityGroup.into());
+                        get_custom_error(policy.custom_error, PolicyEngineErrors::ForbiddenIdentityGroup)?;
                     }
                 }
                 _ => {}
@@ -500,14 +505,19 @@ impl PolicyEngineAccount {
         for policy in self.policies.iter() {
             match &policy.policy_type {
                 PolicyType::IdentityApproval => {
-                    self.enforce_filters_on_transfer(
-                        source_identity,
-                        source_country,
-                        destination_identity,
-                        destination_country,
-                        &policy.identity_filter,
-                        timestamp,
-                    )?;
+                    if self
+                        .enforce_filters_on_transfer(
+                            source_identity,
+                            source_country,
+                            destination_identity,
+                            destination_country,
+                            &policy.identity_filter,
+                            timestamp,
+                        )
+                        .is_err()
+                    {
+                        get_custom_error(policy.custom_error, PolicyEngineErrors::IdentityFilterFailed)?;
+                    }
                 }
                 PolicyType::TransactionAmountLimit { limit } => {
                     if self
@@ -522,7 +532,7 @@ impl PolicyEngineAccount {
                         .is_ok()
                         && transfer_amount > *limit
                     {
-                        return Err(PolicyEngineErrors::TransactionAmountLimitExceeded.into());
+                        get_custom_error(policy.custom_error, PolicyEngineErrors::TransactionAmountLimitExceeded)?;
                     }
                 }
                 PolicyType::MaxBalance { limit } => {
@@ -539,7 +549,7 @@ impl PolicyEngineAccount {
                             .is_ok()
                     {
                         if destination_balance > *limit {
-                            return Err(PolicyEngineErrors::MaxBalanceExceeded.into());
+                            get_custom_error(policy.custom_error, PolicyEngineErrors::MaxBalanceExceeded)?;
                         }
                     }
                 }
@@ -557,7 +567,7 @@ impl PolicyEngineAccount {
                             .is_ok()
                     {
                         if source_balance < *limit {
-                            return Err(PolicyEngineErrors::MinBalanceExceeded.into());
+                            get_custom_error(policy.custom_error, PolicyEngineErrors::MinBalanceExceeded)?;
                         }
                     }
                 }
@@ -573,7 +583,7 @@ impl PolicyEngineAccount {
                         )
                         .is_ok()
                     {
-                        return Err(PolicyEngineErrors::TransferPaused.into());
+                        get_custom_error(policy.custom_error, PolicyEngineErrors::TransferPaused)?;
                     }
                 }
                 PolicyType::ForceFullTransfer => {
@@ -589,7 +599,7 @@ impl PolicyEngineAccount {
                         .is_ok()
                         && source_balance != 0
                     {
-                        return Err(PolicyEngineErrors::ForceFullTransfer.into());
+                        get_custom_error(policy.custom_error, PolicyEngineErrors::ForceFullTransfer)?;
                     }
                 }
                 PolicyType::ForbiddenIdentityGroup => {
@@ -604,7 +614,7 @@ impl PolicyEngineAccount {
                         )
                         .is_ok()
                     {
-                        return Err(PolicyEngineErrors::ForbiddenIdentityGroup.into());
+                        get_custom_error(policy.custom_error, PolicyEngineErrors::ForbiddenIdentityGroup)?;
                     }
                 }
                 PolicyType::MinMaxBalance { min, max } => {
@@ -620,10 +630,10 @@ impl PolicyEngineAccount {
                         .is_ok()
                     {
                         if source_balance < *min || destination_balance < *min {
-                            return Err(PolicyEngineErrors::MinBalanceExceeded.into());
+                            get_custom_error(policy.custom_error, PolicyEngineErrors::MinBalanceExceeded)?;
                         }
                         if source_balance > *max || destination_balance > *max {
-                            return Err(PolicyEngineErrors::MaxBalanceExceeded.into());
+                            get_custom_error(policy.custom_error, PolicyEngineErrors::MaxBalanceExceeded)?;
                         }
                     }
                 }
@@ -640,7 +650,7 @@ impl PolicyEngineAccount {
                         .is_ok()
                     {
                         if *time == 0 || *time > timestamp {
-                            return Err(PolicyEngineErrors::Flowback.into());
+                            get_custom_error(policy.custom_error, PolicyEngineErrors::Flowback)?;
                         }
                     }
                 }
@@ -914,8 +924,10 @@ impl PolicyEngineAccount {
                             )
                             .is_ok()
                     {
-                        if balance < *min || balance > *max {
-                            return Err(PolicyEngineErrors::MinMaxBalanceExceeded.into());
+                        if balance < *min  {
+                            return Err(PolicyEngineErrors::MinBalanceExceeded.into());
+                        } else if balance > *max {
+                            return Err(PolicyEngineErrors::MaxBalanceExceeded.into());
                         }
                     }
                 }

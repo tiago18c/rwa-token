@@ -46,7 +46,7 @@ pub fn handler(
     ctx: Context<EnforcePolicyIssuanceAccounts>,
     amount: u64,
     issuance_timestamp: i64,
-) -> Result<()> {
+) -> Result<i64> {
     let tracker_account: &mut TrackerAccount = &mut ctx.accounts.destination_tracker_account;
 
     let issuance_timestamp = ctx.accounts.policy_engine.get_issuance_time(
@@ -55,10 +55,6 @@ pub fn handler(
     );
 
     tracker_account.new_issuance(amount, issuance_timestamp)?;
-
-    if !ctx.accounts.policy_engine.enforce_policy_issuance {
-        return Ok(());
-    }
 
     if tracker_account.total_amount == amount {
         let changed_counters = ctx.accounts.policy_engine.increase_holders_count(
@@ -78,5 +74,5 @@ pub fn handler(
         ctx.accounts.identity_account.country,
         Some(&tracker_account),
     )?;
-    Ok(())
+    Ok(issuance_timestamp)
 }

@@ -1,8 +1,10 @@
 use anchor_lang::prelude::*;
 
 use crate::error::PolicyEngineErrors;
-use crate::state::*;
+use crate::{state::*, SetCounterValueEvent};
+
 #[derive(Accounts)]
+#[event_cpi]
 pub struct SetCounters<'info> {
     pub payer: Signer<'info>,
     #[account(
@@ -25,6 +27,12 @@ pub fn handler(
 
     ctx.accounts
         .policy_engine
-        .set_counters(changed_counters, values)?;
+        .set_counters(changed_counters.clone(), values.clone())?;
+
+    emit_cpi!(SetCounterValueEvent {
+        mint: ctx.accounts.policy_engine.asset_mint,
+        counters: changed_counters,
+        values
+    });
     Ok(())
 }

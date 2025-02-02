@@ -151,6 +151,38 @@ export type PolicyEngine = {
         {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "eventAuthority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
@@ -169,6 +201,10 @@ export type PolicyEngine = {
               "name": "policyType"
             }
           }
+        },
+        {
+          "name": "customError",
+          "type": "u8"
         }
       ]
     },
@@ -201,6 +237,38 @@ export type PolicyEngine = {
         {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "eventAuthority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
@@ -249,6 +317,38 @@ export type PolicyEngine = {
         {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "eventAuthority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
@@ -293,6 +393,38 @@ export type PolicyEngine = {
         {
           "name": "policyEngine",
           "writable": true
+        },
+        {
+          "name": "eventAuthority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
@@ -331,6 +463,38 @@ export type PolicyEngine = {
         {
           "name": "policyEngine",
           "writable": true
+        },
+        {
+          "name": "eventAuthority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
@@ -601,6 +765,38 @@ export type PolicyEngine = {
         {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "eventAuthority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
@@ -721,7 +917,8 @@ export type PolicyEngine = {
           "name": "issuanceTimestamp",
           "type": "i64"
         }
-      ]
+      ],
+      "returns": "i64"
     },
     {
       "name": "enforcePolicyOnLevelsChange",
@@ -1011,6 +1208,38 @@ export type PolicyEngine = {
         {
           "name": "policyEngine",
           "writable": true
+        },
+        {
+          "name": "eventAuthority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
@@ -1138,6 +1367,84 @@ export type PolicyEngine = {
   ],
   "events": [
     {
+      "name": "attachPolicyEvent",
+      "discriminator": [
+        104,
+        248,
+        239,
+        158,
+        181,
+        172,
+        130,
+        47
+      ]
+    },
+    {
+      "name": "changedCounterLimitsEvent",
+      "discriminator": [
+        91,
+        102,
+        100,
+        27,
+        124,
+        137,
+        26,
+        180
+      ]
+    },
+    {
+      "name": "changedCountersEvent",
+      "discriminator": [
+        111,
+        121,
+        17,
+        44,
+        125,
+        218,
+        213,
+        226
+      ]
+    },
+    {
+      "name": "changedIssuancePoliciesEvent",
+      "discriminator": [
+        225,
+        149,
+        140,
+        234,
+        143,
+        91,
+        92,
+        243
+      ]
+    },
+    {
+      "name": "changedMappingEvent",
+      "discriminator": [
+        199,
+        174,
+        161,
+        68,
+        233,
+        180,
+        13,
+        199
+      ]
+    },
+    {
+      "name": "detachPolicyEvent",
+      "discriminator": [
+        166,
+        167,
+        46,
+        102,
+        163,
+        198,
+        55,
+        44
+      ]
+    },
+    {
       "name": "lockEvent",
       "discriminator": [
         76,
@@ -1151,16 +1458,16 @@ export type PolicyEngine = {
       ]
     },
     {
-      "name": "mintEvent",
+      "name": "setCounterValueEvent",
       "discriminator": [
-        197,
+        124,
+        109,
+        69,
+        140,
         144,
-        146,
-        149,
-        66,
-        164,
-        95,
-        16
+        62,
+        60,
+        75
       ]
     },
     {
@@ -1370,9 +1677,161 @@ export type PolicyEngine = {
       "code": 6035,
       "name": "tokensLocked",
       "msg": "Tokens are locked"
+    },
+    {
+      "code": 6050,
+      "name": "forceAccredited"
+    },
+    {
+      "code": 6051,
+      "name": "forceAccreditedUs"
+    },
+    {
+      "code": 6052,
+      "name": "tokenPaused"
+    },
+    {
+      "code": 6053,
+      "name": "investorFullyLocked"
     }
   ],
   "types": [
+    {
+      "name": "attachPolicyEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "policyType",
+            "type": {
+              "defined": {
+                "name": "policyType"
+              }
+            }
+          },
+          {
+            "name": "identityFilter",
+            "type": {
+              "defined": {
+                "name": "identityFilter"
+              }
+            }
+          },
+          {
+            "name": "customError",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "changedCounterLimitsEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "removedCounterLimits",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "counterLimit"
+                }
+              }
+            }
+          },
+          {
+            "name": "addedCounterLimits",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "counterLimit"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "changedCountersEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "removedCounters",
+            "type": "bytes"
+          },
+          {
+            "name": "addedCounters",
+            "type": "bytes"
+          }
+        ]
+      }
+    },
+    {
+      "name": "changedIssuancePoliciesEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "issuancePolicies",
+            "type": {
+              "defined": {
+                "name": "issuancePolicies"
+              }
+            }
+          },
+          {
+            "name": "previousIssuancePolicies",
+            "type": {
+              "defined": {
+                "name": "issuancePolicies"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "changedMappingEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "mappingSource",
+            "type": "bytes"
+          },
+          {
+            "name": "mappingValue",
+            "type": "bytes"
+          },
+          {
+            "name": "previousMapping",
+            "type": "bytes"
+          }
+        ]
+      }
+    },
     {
       "name": "counter",
       "type": {
@@ -1456,6 +1915,38 @@ export type PolicyEngine = {
                 "type": "u8"
               }
             ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "detachPolicyEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "policyType",
+            "type": {
+              "defined": {
+                "name": "policyType"
+              }
+            }
+          },
+          {
+            "name": "identityFilter",
+            "type": {
+              "defined": {
+                "name": "identityFilter"
+              }
+            }
+          },
+          {
+            "name": "customError",
+            "type": "u8"
           }
         ]
       }
@@ -1898,26 +2389,10 @@ export type PolicyEngine = {
           {
             "name": "reasonString",
             "type": "string"
-          }
-        ]
-      }
-    },
-    {
-      "name": "mintEvent",
-      "type": {
-        "kind": "struct",
-        "fields": [
+          },
           {
-            "name": "to",
+            "name": "identity",
             "type": "pubkey"
-          },
-          {
-            "name": "amount",
-            "type": "u64"
-          },
-          {
-            "name": "issueTime",
-            "type": "u64"
           }
         ]
       }
@@ -1964,6 +2439,10 @@ export type PolicyEngine = {
                 "name": "policyType"
               }
             }
+          },
+          {
+            "name": "customError",
+            "type": "u8"
           }
         ]
       }
@@ -2144,6 +2623,28 @@ export type PolicyEngine = {
       }
     },
     {
+      "name": "setCounterValueEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "counters",
+            "type": "bytes"
+          },
+          {
+            "name": "values",
+            "type": {
+              "vec": "u64"
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "trackerAccount",
       "type": {
         "kind": "struct",
@@ -2227,6 +2728,10 @@ export type PolicyEngine = {
           {
             "name": "reasonString",
             "type": "string"
+          },
+          {
+            "name": "identity",
+            "type": "pubkey"
           }
         ]
       }

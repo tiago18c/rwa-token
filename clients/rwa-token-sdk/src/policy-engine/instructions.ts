@@ -57,6 +57,7 @@ export type AttachPolicyArgs = {
   payer: string;
   identityFilter: IdentityFilter;
   policyType: PolicyType;
+  customError?: number;
 };
 
 /** Represents the arguments required to detach a policy from an asset. */
@@ -83,12 +84,14 @@ export async function getAttachToPolicyEngineIx(
 ): Promise<IxReturn> {
 	const policyProgram = getPolicyEngineProgram(provider);
 	const ix = await policyProgram.methods
-		.attachToPolicyEngine(args.identityFilter, args.policyType)
+		.attachToPolicyEngine(args.identityFilter, args.policyType, args.customError ?? 0)
 		.accountsStrict({
 			signer: new PublicKey(args.authority),
 			payer: args.payer,
 			policyEngine: getPolicyEnginePda(args.assetMint),
 			systemProgram: SystemProgram.programId,
+			eventAuthority: getPolicyEngineEventAuthority(),
+			program: policyProgram.programId,
 		})
 		.instruction();
 	return {
@@ -115,6 +118,8 @@ export async function getChangeIssuancePoliciesIx(
 			signer: new PublicKey(args.authority),
 			payer: args.payer,
 			policyEngine: getPolicyEnginePda(args.assetMint),
+			eventAuthority: getPolicyEngineEventAuthority(),
+			program: policyProgram.programId,
 		})
 		.instruction();
 	return {
@@ -142,6 +147,8 @@ export async function getSetCountersIx(
 			signer: new PublicKey(args.authority),
 			payer: args.payer,
 			policyEngine: getPolicyEnginePda(args.assetMint),
+			eventAuthority: getPolicyEngineEventAuthority(),
+			program: policyProgram.programId,
 		})
 		.instruction();
 	return {
@@ -169,6 +176,8 @@ export async function getChangeMappingIx(
 			signer: new PublicKey(args.authority),
 			payer: args.payer,
 			policyEngine: getPolicyEnginePda(args.assetMint),
+			eventAuthority: getPolicyEngineEventAuthority(),
+			program: policyProgram.programId,
 		})
 		.instruction();
 	return {
@@ -207,6 +216,8 @@ export async function getChangeCountersIx(
 			payer: args.payer,
 			policyEngine: getPolicyEnginePda(args.assetMint),
 			systemProgram: SystemProgram.programId,
+			eventAuthority: getPolicyEngineEventAuthority(),
+			program: policyProgram.programId,
 		})
 		.instruction();
 	return {
@@ -246,6 +257,8 @@ export async function getChangeCounterLimitsIx(
 			payer: args.payer,
 			policyEngine: getPolicyEnginePda(args.assetMint),
 			systemProgram: SystemProgram.programId,
+			eventAuthority: getPolicyEngineEventAuthority(),
+			program: policyProgram.programId,
 		})
 		.instruction();
 	return {
@@ -277,6 +290,8 @@ export async function getDetachFromPolicyEngineIx(
 			payer: args.payer,
 			policyEngine: getPolicyEnginePda(args.assetMint),
 			systemProgram: SystemProgram.programId,
+			eventAuthority: getPolicyEngineEventAuthority(),
+			program: policyProgram.programId,
 		})
 		.instruction();
 	return {

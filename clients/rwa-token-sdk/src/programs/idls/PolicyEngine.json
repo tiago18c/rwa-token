@@ -145,6 +145,38 @@
         {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "event_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
@@ -163,6 +195,10 @@
               "name": "PolicyType"
             }
           }
+        },
+        {
+          "name": "custom_error",
+          "type": "u8"
         }
       ]
     },
@@ -195,6 +231,38 @@
         {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "event_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
@@ -243,6 +311,38 @@
         {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "event_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
@@ -287,6 +387,38 @@
         {
           "name": "policy_engine",
           "writable": true
+        },
+        {
+          "name": "event_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
@@ -325,6 +457,38 @@
         {
           "name": "policy_engine",
           "writable": true
+        },
+        {
+          "name": "event_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
@@ -595,6 +759,38 @@
         {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "event_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
@@ -715,7 +911,8 @@
           "name": "issuance_timestamp",
           "type": "i64"
         }
-      ]
+      ],
+      "returns": "i64"
     },
     {
       "name": "enforce_policy_on_levels_change",
@@ -1005,6 +1202,38 @@
         {
           "name": "policy_engine",
           "writable": true
+        },
+        {
+          "name": "event_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
@@ -1132,6 +1361,84 @@
   ],
   "events": [
     {
+      "name": "AttachPolicyEvent",
+      "discriminator": [
+        104,
+        248,
+        239,
+        158,
+        181,
+        172,
+        130,
+        47
+      ]
+    },
+    {
+      "name": "ChangedCounterLimitsEvent",
+      "discriminator": [
+        91,
+        102,
+        100,
+        27,
+        124,
+        137,
+        26,
+        180
+      ]
+    },
+    {
+      "name": "ChangedCountersEvent",
+      "discriminator": [
+        111,
+        121,
+        17,
+        44,
+        125,
+        218,
+        213,
+        226
+      ]
+    },
+    {
+      "name": "ChangedIssuancePoliciesEvent",
+      "discriminator": [
+        225,
+        149,
+        140,
+        234,
+        143,
+        91,
+        92,
+        243
+      ]
+    },
+    {
+      "name": "ChangedMappingEvent",
+      "discriminator": [
+        199,
+        174,
+        161,
+        68,
+        233,
+        180,
+        13,
+        199
+      ]
+    },
+    {
+      "name": "DetachPolicyEvent",
+      "discriminator": [
+        166,
+        167,
+        46,
+        102,
+        163,
+        198,
+        55,
+        44
+      ]
+    },
+    {
       "name": "LockEvent",
       "discriminator": [
         76,
@@ -1145,16 +1452,16 @@
       ]
     },
     {
-      "name": "MintEvent",
+      "name": "SetCounterValueEvent",
       "discriminator": [
-        197,
+        124,
+        109,
+        69,
+        140,
         144,
-        146,
-        149,
-        66,
-        164,
-        95,
-        16
+        62,
+        60,
+        75
       ]
     },
     {
@@ -1364,9 +1671,161 @@
       "code": 6035,
       "name": "TokensLocked",
       "msg": "Tokens are locked"
+    },
+    {
+      "code": 6050,
+      "name": "ForceAccredited"
+    },
+    {
+      "code": 6051,
+      "name": "ForceAccreditedUS"
+    },
+    {
+      "code": 6052,
+      "name": "TokenPaused"
+    },
+    {
+      "code": 6053,
+      "name": "InvestorFullyLocked"
     }
   ],
   "types": [
+    {
+      "name": "AttachPolicyEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "policy_type",
+            "type": {
+              "defined": {
+                "name": "PolicyType"
+              }
+            }
+          },
+          {
+            "name": "identity_filter",
+            "type": {
+              "defined": {
+                "name": "IdentityFilter"
+              }
+            }
+          },
+          {
+            "name": "custom_error",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ChangedCounterLimitsEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "removed_counter_limits",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "CounterLimit"
+                }
+              }
+            }
+          },
+          {
+            "name": "added_counter_limits",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "CounterLimit"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "ChangedCountersEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "removed_counters",
+            "type": "bytes"
+          },
+          {
+            "name": "added_counters",
+            "type": "bytes"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ChangedIssuancePoliciesEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "issuance_policies",
+            "type": {
+              "defined": {
+                "name": "IssuancePolicies"
+              }
+            }
+          },
+          {
+            "name": "previous_issuance_policies",
+            "type": {
+              "defined": {
+                "name": "IssuancePolicies"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "ChangedMappingEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "mapping_source",
+            "type": "bytes"
+          },
+          {
+            "name": "mapping_value",
+            "type": "bytes"
+          },
+          {
+            "name": "previous_mapping",
+            "type": "bytes"
+          }
+        ]
+      }
+    },
     {
       "name": "Counter",
       "type": {
@@ -1450,6 +1909,38 @@
                 "type": "u8"
               }
             ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "DetachPolicyEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "policy_type",
+            "type": {
+              "defined": {
+                "name": "PolicyType"
+              }
+            }
+          },
+          {
+            "name": "identity_filter",
+            "type": {
+              "defined": {
+                "name": "IdentityFilter"
+              }
+            }
+          },
+          {
+            "name": "custom_error",
+            "type": "u8"
           }
         ]
       }
@@ -1892,26 +2383,10 @@
           {
             "name": "reason_string",
             "type": "string"
-          }
-        ]
-      }
-    },
-    {
-      "name": "MintEvent",
-      "type": {
-        "kind": "struct",
-        "fields": [
+          },
           {
-            "name": "to",
+            "name": "identity",
             "type": "pubkey"
-          },
-          {
-            "name": "amount",
-            "type": "u64"
-          },
-          {
-            "name": "issue_time",
-            "type": "u64"
           }
         ]
       }
@@ -1958,6 +2433,10 @@
                 "name": "PolicyType"
               }
             }
+          },
+          {
+            "name": "custom_error",
+            "type": "u8"
           }
         ]
       }
@@ -2138,6 +2617,28 @@
       }
     },
     {
+      "name": "SetCounterValueEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "counters",
+            "type": "bytes"
+          },
+          {
+            "name": "values",
+            "type": {
+              "vec": "u64"
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "TrackerAccount",
       "type": {
         "kind": "struct",
@@ -2221,6 +2722,10 @@
           {
             "name": "reason_string",
             "type": "string"
+          },
+          {
+            "name": "identity",
+            "type": "pubkey"
           }
         ]
       }

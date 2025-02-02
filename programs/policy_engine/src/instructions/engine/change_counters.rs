@@ -1,9 +1,10 @@
 use anchor_lang::prelude::*;
 
-use crate::state::*;
+use crate::{state::*, ChangedCountersEvent};
 
 #[derive(Accounts)]
 #[instruction(removed_counters: Vec<u8>, added_counters: Vec<Counter>)]
+#[event_cpi]
 pub struct ChangeCounters<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -28,7 +29,13 @@ pub fn handler(
     let size_diff = ctx
         .accounts
         .policy_engine
-        .update_counters(removed_counters, added_counters)?;
+        .update_counters(removed_counters.clone(), added_counters.clone())?;
+
+    emit_cpi!(ChangedCountersEvent {
+        mint: ctx.accounts.policy_engine.asset_mint,
+        removed_counters,
+        added_counters: added_counters.iter().map(|c| c.id).collect()
+    });
 
     let space = if size_diff > 0 {
         ctx.accounts.policy_engine.to_account_info().data_len() + size_diff as usize

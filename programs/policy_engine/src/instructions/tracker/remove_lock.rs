@@ -43,6 +43,7 @@ pub fn handler(
         release_timestamp: lock.release_time,
         reason: lock.reason,
         reason_string: lock.reason_string,
+        identity: ctx.accounts.identity_account.key(),
     });
 
     Ok(())

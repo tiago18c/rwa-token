@@ -173,7 +173,7 @@ describe("test policy setup", async () => {
 			payer: setup.payer.toString(),
 			owner: setup.user3.toString(),
 			assetMint: mint,
-			levels: [255], // Skips all policies
+			levels: [1],
 			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60)],
 			signer: setup.authorityKp.publicKey.toString(),
 			country: 1,

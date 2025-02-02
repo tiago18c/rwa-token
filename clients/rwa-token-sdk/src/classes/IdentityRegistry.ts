@@ -13,6 +13,8 @@ import {
 	getDetachWalletFromIdentityIx,
 	ChangeCountryArgs,
 	getChangeCountryIx,
+	RevokeIdentityAccountArgs,
+	getRevokeIdentityAccountIx,
 } from "../identity-registry";
 import { type RwaClient } from "./Client";
 
@@ -84,6 +86,16 @@ export class IdentityRegistry {
 			this.rwaClient.provider
 		);
 		return reduceLevelIx;
+	}
+
+	/**
+   * Asynchronously revokes an identity account
+   * @param - {@link RevokeIdentityAccountArgs}
+   * @returns A Promise that resolves to the instructions to revoke an identity account.
+   */
+	async revokeIdentityAccount(revokeIdentityAccountArgs: RevokeIdentityAccountArgs): Promise<TransactionInstruction> {
+		const revokeIdentityAccountIx = await getRevokeIdentityAccountIx(revokeIdentityAccountArgs, this.rwaClient.provider);
+		return revokeIdentityAccountIx;
 	}
 
 	/**

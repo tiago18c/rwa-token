@@ -97,6 +97,38 @@ export type AssetController = {
         {
           "name": "tokenProgram",
           "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+        },
+        {
+          "name": "eventAuthority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
@@ -335,20 +367,12 @@ export type AssetController = {
           "writable": true
         },
         {
-          "name": "dataRegistryAccount",
-          "writable": true
-        },
-        {
           "name": "policyEngine",
           "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
         },
         {
           "name": "identityRegistry",
           "address": "GZsnjqT3c5zbHqsctrJ4EG4rbEfo7ZXyyUG7aDJNmxfA"
-        },
-        {
-          "name": "dataRegistry",
-          "address": "JDxF8P4SctW8rB5s5FbupPFYecKFqLSv7fTES3cFei3b"
         },
         {
           "name": "systemProgram",
@@ -786,6 +810,38 @@ export type AssetController = {
         },
         {
           "name": "walletIdentityAccount"
+        },
+        {
+          "name": "eventAuthority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
@@ -881,6 +937,38 @@ export type AssetController = {
         {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "eventAuthority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
@@ -940,6 +1028,38 @@ export type AssetController = {
         {
           "name": "tokenProgram",
           "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+        },
+        {
+          "name": "eventAuthority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
@@ -1300,6 +1420,19 @@ export type AssetController = {
       ]
     },
     {
+      "name": "issueEvent",
+      "discriminator": [
+        220,
+        74,
+        136,
+        189,
+        186,
+        247,
+        253,
+        140
+      ]
+    },
+    {
       "name": "revokeEvent",
       "discriminator": [
         87,
@@ -1475,6 +1608,10 @@ export type AssetController = {
           },
           {
             "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
             "type": "pubkey"
           }
         ]
@@ -2014,6 +2151,30 @@ export type AssetController = {
       }
     },
     {
+      "name": "issueEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "issuanceTimestamp",
+            "type": "i64"
+          },
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
       "name": "lock",
       "type": {
         "kind": "struct",
@@ -2061,6 +2222,10 @@ export type AssetController = {
                 "name": "policyType"
               }
             }
+          },
+          {
+            "name": "customError",
+            "type": "u8"
           }
         ]
       }
@@ -2256,6 +2421,10 @@ export type AssetController = {
           {
             "name": "wallet",
             "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
           }
         ]
       }
@@ -2275,6 +2444,14 @@ export type AssetController = {
           },
           {
             "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "toWallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
             "type": "pubkey"
           }
         ]

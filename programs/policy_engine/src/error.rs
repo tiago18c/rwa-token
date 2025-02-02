@@ -73,5 +73,9 @@ pub enum PolicyEngineErrors {
     #[msg("Tokens are held up")]
     HoldUp,
     #[msg("Tokens are locked")]
-    TokensLocked
+    TokensLocked,
+    ForceAccredited = 50,
+    ForceAccreditedUS = 51,
+    TokenPaused = 52,
+    InvestorFullyLocked = 53,
 }

@@ -38,8 +38,9 @@ pub mod policy_engine {
         ctx: Context<AttachToPolicyEngine>,
         identity_filter: IdentityFilter,
         policy_type: PolicyType,
+        custom_error: u8,
     ) -> Result<()> {
-        instructions::engine::attach::handler(ctx, identity_filter, policy_type)
+        instructions::engine::attach::handler(ctx, identity_filter, policy_type, custom_error)
     }
 
     /// remove policy
@@ -71,7 +72,7 @@ pub mod policy_engine {
         ctx: Context<EnforcePolicyIssuanceAccounts>,
         amount: u64,
         issuance_timestamp: i64,
-    ) -> Result<()> {
+    ) -> Result<i64> {
         instructions::issue::handler(ctx, amount, issuance_timestamp)
     }
 

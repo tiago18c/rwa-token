@@ -86,11 +86,8 @@ pub struct CreateAssetController<'info> {
     #[account(mut)]
     pub identity_registry_account: UncheckedAccount<'info>,
     /// CHECK: cpi checks
-    #[account(mut)]
-    pub data_registry_account: UncheckedAccount<'info>,
     pub policy_engine: Program<'info, PolicyEngine>,
     pub identity_registry: Program<'info, IdentityRegistry>,
-    pub data_registry: Program<'info, DataRegistry>,
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token2022>,
 }
@@ -174,26 +171,6 @@ impl<'info> CreateAssetController<'info> {
         Ok(())
     }
 
-    fn create_data_registry(
-        &self,
-        delegate: Option<Pubkey>,
-        signer_seeds: &[&[&[u8]]],
-    ) -> Result<()> {
-        let cpi_accounts = CreateDataRegistry {
-            payer: self.payer.to_account_info(),
-            signer: self.asset_controller.to_account_info(),
-            asset_mint: self.asset_mint.to_account_info(),
-            data_registry: self.data_registry_account.to_account_info(),
-            system_program: self.system_program.to_account_info(),
-        };
-        let cpi_ctx = CpiContext::new_with_signer(
-            self.data_registry.to_account_info(),
-            cpi_accounts,
-            signer_seeds,
-        );
-        create_data_registry(cpi_ctx, self.authority.key(), delegate)?;
-        Ok(())
-    }
 }
 
 pub fn handler(ctx: Context<CreateAssetController>, args: CreateAssetControllerArgs) -> Result<()> {
@@ -256,10 +233,6 @@ pub fn handler(ctx: Context<CreateAssetController>, args: CreateAssetControllerA
         &[&signer_seeds],
         args.allow_multiple_wallets,
     )?;
-
-    // create data registry
-    ctx.accounts
-        .create_data_registry(args.delegate, &[&signer_seeds])?;
 
     Ok(())
 }

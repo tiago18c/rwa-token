@@ -1,9 +1,10 @@
 use anchor_lang::prelude::*;
 
-use crate::state::*;
+use crate::{state::*, DetachPolicyEvent};
 
 #[derive(Accounts)]
 #[instruction(hash: String)]
+#[event_cpi]
 pub struct DetachFromPolicyEngine<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -21,6 +22,13 @@ pub struct DetachFromPolicyEngine<'info> {
 }
 
 pub fn handler(ctx: Context<DetachFromPolicyEngine>, hash: String) -> Result<()> {
-    ctx.accounts.policy_engine.detach(hash)?;
+    let policy = ctx.accounts.policy_engine.detach(hash)?;
+
+    emit_cpi!(DetachPolicyEvent {
+        mint: ctx.accounts.policy_engine.asset_mint,
+        policy_type: policy.policy_type,
+        identity_filter: policy.identity_filter,
+        custom_error: policy.custom_error
+    });
     Ok(())
 }

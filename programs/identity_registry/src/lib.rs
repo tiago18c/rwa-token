@@ -1,11 +1,13 @@
 #![allow(ambiguous_glob_reexports, clippy::new_ret_no_self)]
 
 pub mod error;
+pub mod events;
 pub mod instructions;
 pub mod state;
 pub mod utils;
 
 pub use error::*;
+pub use events::*;
 pub use instructions::*;
 pub use state::*;
 pub use utils::*;
@@ -80,11 +82,10 @@ pub mod identity_registry {
 
     /// revoke user identity account by closing account
     pub fn revoke_identity_account(
-        _ctx: Context<RevokeIdentityAccount>,
-        _owner: Pubkey,
+        ctx: Context<RevokeIdentityAccount>,
+        owner: Pubkey,
     ) -> Result<()> {
-        // no extra steps needed, identity account is being properly closed
-        Ok(())
+        instructions::account::revoke::handler(ctx, owner)
     }
 
     /// attach token account to identity account

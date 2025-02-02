@@ -6,6 +6,7 @@ use spl_token_2022::instruction::transfer_checked;
 
 #[derive(Accounts)]
 #[instruction()]
+#[event_cpi]
 pub struct SeizeTokens<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
@@ -74,6 +75,14 @@ pub fn handler<'info>(
     ];
     ctx.accounts
         .transfer_tokens(amount, &[&signer_seeds], ctx.remaining_accounts)?;
+
+    emit_cpi!(SeizeEvent {
+        amount,
+        reason,
+        wallet: ctx.accounts.source_token_account.owner,
+        to_wallet: ctx.accounts.destination_token_account.owner,
+        mint: ctx.accounts.asset_mint.key(),
+    });
 
     Ok(())
 }

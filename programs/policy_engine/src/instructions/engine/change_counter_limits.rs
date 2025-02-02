@@ -1,8 +1,9 @@
 use anchor_lang::prelude::*;
 
-use crate::state::*;
+use crate::{state::*, ChangedCounterLimitsEvent};
 
 #[derive(Accounts)]
+#[event_cpi]
 pub struct ChangeCounterLimits<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -20,10 +21,21 @@ pub fn handler(
     removed_counter_limits: Vec<u8>,
     added_counter_limits: Vec<CounterLimit>,
 ) -> Result<()> {
+    let removed_limits = removed_counter_limits.iter().map(|id| ctx.accounts.policy_engine.counter_limits[*id as usize].clone()).collect::<Vec<_>>();
+
     let size_diff = ctx
         .accounts
         .policy_engine
-        .update_counter_limits(removed_counter_limits, added_counter_limits)?;
+        .update_counter_limits(removed_counter_limits.clone(), added_counter_limits.clone())?;
+
+    msg!("Added counter limits: {:?}", added_counter_limits);
+    msg!("Removed counter limits: {:?}", removed_limits);
+
+    emit_cpi!(ChangedCounterLimitsEvent {
+        mint: ctx.accounts.policy_engine.asset_mint,
+        removed_counter_limits: removed_limits,
+        added_counter_limits
+    });
 
     let space = if size_diff > 0 {
         ctx.accounts.policy_engine.to_account_info().data_len() + size_diff as usize

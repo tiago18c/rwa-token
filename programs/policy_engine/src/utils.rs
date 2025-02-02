@@ -13,6 +13,15 @@ pub const ASSET_CONTROLLER_ID: Pubkey = pubkey!("7tXjmbkZVY3Gmg9kDBebcNXT1yC5pyo
 pub const PLATFORM_WALLET_LEVEL: u8 = 30;
 pub const US_COMPLIANCE_LEVEL: u8 = 11;
 
+pub fn get_custom_error(error_code: u8, fallback_error: PolicyEngineErrors) -> Result<()> {
+    match error_code {
+        50 => return Err(PolicyEngineErrors::ForceAccredited.into()),
+        51 => return Err(PolicyEngineErrors::ForceAccreditedUS.into()),
+        52 => return Err(PolicyEngineErrors::TokenPaused.into()),
+        53 => return Err(PolicyEngineErrors::InvestorFullyLocked.into()),
+        _ => return Err(fallback_error.into())
+    }
+}
 
 pub fn get_total_amount_transferred_in_timeframe(
     transfers: &Vec<Transfer>,

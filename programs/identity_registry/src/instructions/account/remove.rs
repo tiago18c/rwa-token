@@ -1,10 +1,11 @@
 use std::str::FromStr;
 
-use crate::{cpi_enforce_policy_on_levels_change, state::*, POLICY_ENGINE_ID};
+use crate::{cpi_enforce_policy_on_levels_change, state::*, RemoveLevelsFromIdentityEvent, POLICY_ENGINE_ID};
 use anchor_lang::prelude::*;
 
 #[derive(Accounts)]
 #[instruction(levels: Vec<u8>)]
+#[event_cpi]
 pub struct RemoveLevelFromIdentityAccount<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -46,7 +47,7 @@ pub fn handler(
 
     let count = levels.len();
 
-    ctx.accounts.identity_account.remove_levels(levels)?;
+    ctx.accounts.identity_account.remove_levels(levels.clone())?;
     let previous_levels = ctx.accounts.identity_account.levels.clone();
 
     cpi_enforce_policy_on_levels_change(
@@ -67,6 +68,13 @@ pub fn handler(
             - IdentityLevel::INIT_SPACE * count,
         false,
     )?;
+
+    emit_cpi!(RemoveLevelsFromIdentityEvent {
+        identity: ctx.accounts.identity_account.key(),
+        mint: ctx.accounts.asset_mint.key(),
+        levels: levels,
+        sender: ctx.accounts.payer.key(),
+    });
 
     Ok(())
 }

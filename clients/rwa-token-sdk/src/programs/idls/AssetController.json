@@ -91,6 +91,38 @@
         {
           "name": "token_program",
           "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+        },
+        {
+          "name": "event_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
@@ -329,20 +361,12 @@
           "writable": true
         },
         {
-          "name": "data_registry_account",
-          "writable": true
-        },
-        {
           "name": "policy_engine",
           "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
         },
         {
           "name": "identity_registry",
           "address": "GZsnjqT3c5zbHqsctrJ4EG4rbEfo7ZXyyUG7aDJNmxfA"
-        },
-        {
-          "name": "data_registry",
-          "address": "JDxF8P4SctW8rB5s5FbupPFYecKFqLSv7fTES3cFei3b"
         },
         {
           "name": "system_program",
@@ -780,6 +804,38 @@
         },
         {
           "name": "wallet_identity_account"
+        },
+        {
+          "name": "event_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
@@ -875,6 +931,38 @@
         {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "event_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
@@ -934,6 +1022,38 @@
         {
           "name": "token_program",
           "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+        },
+        {
+          "name": "event_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
@@ -1294,6 +1414,19 @@
       ]
     },
     {
+      "name": "IssueEvent",
+      "discriminator": [
+        220,
+        74,
+        136,
+        189,
+        186,
+        247,
+        253,
+        140
+      ]
+    },
+    {
       "name": "RevokeEvent",
       "discriminator": [
         87,
@@ -1469,6 +1602,10 @@
           },
           {
             "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
             "type": "pubkey"
           }
         ]
@@ -2008,6 +2145,30 @@
       }
     },
     {
+      "name": "IssueEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "issuance_timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
       "name": "Lock",
       "type": {
         "kind": "struct",
@@ -2055,6 +2216,10 @@
                 "name": "PolicyType"
               }
             }
+          },
+          {
+            "name": "custom_error",
+            "type": "u8"
           }
         ]
       }
@@ -2250,6 +2415,10 @@
           {
             "name": "wallet",
             "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
           }
         ]
       }
@@ -2269,6 +2438,14 @@
           },
           {
             "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "to_wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
             "type": "pubkey"
           }
         ]

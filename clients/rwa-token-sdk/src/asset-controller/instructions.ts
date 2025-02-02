@@ -88,11 +88,9 @@ export async function getCreateAssetControllerIx(
 			tokenProgram: TOKEN_2022_PROGRAM_ID,
 			authority: args.authority,
 			policyEngineAccount: getPolicyEnginePda(args.assetMint),
-			dataRegistryAccount: getDataRegistryPda(args.assetMint),
 			identityRegistryAccount: getIdentityRegistryPda(args.assetMint),
 			policyEngine: policyEngineProgramId,
 			identityRegistry: identityRegistryProgramId,
-			dataRegistry: dataRegistryProgramId,
 			eventAuthority: getAssetControllerEventAuthority(),
 			program: assetControllerProgramId,
 		})
@@ -181,6 +179,8 @@ export async function getIssueTokensIx(
 			systemProgram: SystemProgram.programId,
 			to: new PublicKey(args.wallet || args.owner),
 			walletIdentityAccount: getWalletIdentityAccountPda(args.assetMint, args.wallet || args.owner),
+			eventAuthority: getAssetControllerEventAuthority(),
+			program: assetControllerProgramId,
 		})
 		.instruction();
 	return [ix];
@@ -210,6 +210,8 @@ export async function getVoidTokensIx(
 				TOKEN_2022_PROGRAM_ID
 			),
 			owner: args.owner,
+			eventAuthority: getAssetControllerEventAuthority(),
+			program: assetControllerProgramId,
 		})
 		.instruction();
 	return ix;
@@ -679,6 +681,8 @@ export async function getRevokeTokensIx(
 			policyEngineProgram: policyEngineProgramId,
 			associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
 			systemProgram: SystemProgram.programId,
+			eventAuthority: getAssetControllerEventAuthority(),
+			program: assetControllerProgramId,
 		})
 		.instruction();
 	return ix;
@@ -782,6 +786,8 @@ export async function getSeizeTokensIx(
 				true,
 				TOKEN_2022_PROGRAM_ID
 			),
+			eventAuthority: getAssetControllerEventAuthority(),
+			program: assetControllerProgramId,
 		})
 		.remainingAccounts(remainingAccounts)
 		.instruction();

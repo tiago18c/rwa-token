@@ -78,6 +78,38 @@ export type IdentityRegistry = {
           "relations": [
             "identityRegistry"
           ]
+        },
+        {
+          "name": "eventAuthority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
@@ -157,6 +189,38 @@ export type IdentityRegistry = {
         {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "eventAuthority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
@@ -181,7 +245,6 @@ export type IdentityRegistry = {
       "accounts": [
         {
           "name": "payer",
-          "writable": true,
           "signer": true
         },
         {
@@ -223,6 +286,38 @@ export type IdentityRegistry = {
           "relations": [
             "identityRegistry"
           ]
+        },
+        {
+          "name": "eventAuthority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
@@ -301,6 +396,38 @@ export type IdentityRegistry = {
         {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "eventAuthority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
@@ -461,6 +588,38 @@ export type IdentityRegistry = {
           "relations": [
             "identityAccount"
           ]
+        },
+        {
+          "name": "eventAuthority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": []
@@ -583,6 +742,38 @@ export type IdentityRegistry = {
         },
         {
           "name": "assetMint"
+        },
+        {
+          "name": "eventAuthority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
@@ -669,6 +860,38 @@ export type IdentityRegistry = {
               }
             ]
           }
+        },
+        {
+          "name": "eventAuthority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
@@ -717,6 +940,99 @@ export type IdentityRegistry = {
         77,
         57,
         85
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "addLevelsToIdentityEvent",
+      "discriminator": [
+        106,
+        66,
+        2,
+        157,
+        98,
+        27,
+        247,
+        14
+      ]
+    },
+    {
+      "name": "attachWalletToIdentityEvent",
+      "discriminator": [
+        16,
+        40,
+        24,
+        145,
+        131,
+        77,
+        48,
+        72
+      ]
+    },
+    {
+      "name": "changeCountryEvent",
+      "discriminator": [
+        157,
+        201,
+        26,
+        238,
+        229,
+        239,
+        123,
+        18
+      ]
+    },
+    {
+      "name": "createdIdentityEvent",
+      "discriminator": [
+        86,
+        208,
+        163,
+        74,
+        106,
+        170,
+        105,
+        5
+      ]
+    },
+    {
+      "name": "detachWalletFromIdentityEvent",
+      "discriminator": [
+        198,
+        117,
+        190,
+        61,
+        34,
+        148,
+        12,
+        148
+      ]
+    },
+    {
+      "name": "removeLevelsFromIdentityEvent",
+      "discriminator": [
+        41,
+        204,
+        239,
+        52,
+        86,
+        107,
+        45,
+        212
+      ]
+    },
+    {
+      "name": "removedIdentityEvent",
+      "discriminator": [
+        210,
+        181,
+        206,
+        189,
+        126,
+        87,
+        18,
+        55
       ]
     }
   ],
@@ -773,6 +1089,136 @@ export type IdentityRegistry = {
     }
   ],
   "types": [
+    {
+      "name": "addLevelsToIdentityEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "identity",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "levels",
+            "type": "bytes"
+          },
+          {
+            "name": "expiries",
+            "type": {
+              "vec": "i64"
+            }
+          },
+          {
+            "name": "sender",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "attachWalletToIdentityEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "identity",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "sender",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "changeCountryEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "identity",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "country",
+            "type": "u8"
+          },
+          {
+            "name": "sender",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "createdIdentityEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "identity",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "kind",
+            "type": "u8"
+          },
+          {
+            "name": "sender",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "detachWalletFromIdentityEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "identity",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "sender",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
     {
       "name": "identityAccount",
       "type": {
@@ -879,6 +1325,58 @@ export type IdentityRegistry = {
           {
             "name": "allowMultipleWallets",
             "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "removeLevelsFromIdentityEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "identity",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "levels",
+            "type": "bytes"
+          },
+          {
+            "name": "sender",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "removedIdentityEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "identity",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "kind",
+            "type": "u8"
+          },
+          {
+            "name": "sender",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
           }
         ]
       }

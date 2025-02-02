@@ -1,8 +1,9 @@
 use anchor_lang::prelude::*;
 
-use crate::{state::*, PolicyEngineErrors};
+use crate::{state::*, ChangedMappingEvent, PolicyEngineErrors};
 
 #[derive(Accounts)]
+#[event_cpi]
 pub struct ChangeMapping<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -23,9 +24,19 @@ pub fn handler(
         mapping_source.len() == mapping_value.len(),
         PolicyEngineErrors::InvalidInstructionData
     );
+
+    let previous_mapping = (&mapping_source).iter().map(|source| ctx.accounts.policy_engine.mapping[*source as usize]).collect::<Vec<_>>();
+
     ctx.accounts
         .policy_engine
-        .change_mapping(mapping_source, mapping_value);
+        .change_mapping(mapping_source.clone(), mapping_value.clone());
+
+    emit_cpi!(ChangedMappingEvent {
+        mint: ctx.accounts.policy_engine.asset_mint,
+        mapping_source,
+        mapping_value,
+        previous_mapping
+    });
 
     Ok(())
 }
