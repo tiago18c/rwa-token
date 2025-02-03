@@ -14,7 +14,6 @@ import {
 	getCreateTrackerAccountIx,
 	getExtraMetasListPda,
 } from "../policy-engine";
-import { dataRegistryProgramId, getDataRegistryPda } from "../data-registry";
 import {
 	identityRegistryProgramId,
 	getCreateIdentityAccountIx,
@@ -88,11 +87,9 @@ export async function getCreateAssetControllerIx(
 			tokenProgram: TOKEN_2022_PROGRAM_ID,
 			authority: args.authority,
 			policyEngineAccount: getPolicyEnginePda(args.assetMint),
-			dataRegistryAccount: getDataRegistryPda(args.assetMint),
 			identityRegistryAccount: getIdentityRegistryPda(args.assetMint),
 			policyEngine: policyEngineProgramId,
 			identityRegistry: identityRegistryProgramId,
-			dataRegistry: dataRegistryProgramId,
 			eventAuthority: getAssetControllerEventAuthority(),
 			program: assetControllerProgramId,
 		})
@@ -141,7 +138,7 @@ export async function getUpdateAssetMetadataIx(
 
 /** Represents arguments for issuing an on chain asset/token. */
 export type IssueTokenArgs = {
-  amount: number;
+  amount: BN;
   authority: string;
   owner: string;
   wallet?: string;
@@ -159,8 +156,9 @@ export async function getIssueTokensIx(
 ): Promise<TransactionInstruction[]> {
 	const assetProgram = getAssetControllerProgram(provider);
 	const ix = await assetProgram.methods
-		.issueTokens(new BN(args.amount), args.timestamp || new BN( Date.now() / 1000))
+		.issueTokens(args.amount, args.timestamp || new BN( Date.now() / 1000))
 		.accountsStrict({
+			payer: new PublicKey(args.payer),
 			authority: new PublicKey(args.authority),
 			assetMint: new PublicKey(args.assetMint),
 			assetController: getAssetControllerPda(args.assetMint),
@@ -180,14 +178,17 @@ export async function getIssueTokensIx(
 			systemProgram: SystemProgram.programId,
 			to: new PublicKey(args.wallet || args.owner),
 			walletIdentityAccount: getWalletIdentityAccountPda(args.assetMint, args.wallet || args.owner),
+			eventAuthority: getAssetControllerEventAuthority(),
+			program: assetControllerProgramId,
 		})
 		.instruction();
 	return [ix];
 }
 
 export type VoidTokensArgs = {
-  amount: number;
+  amount: BN;
   owner: string;
+  reason: string;
 } & CommonArgs;
 
 export async function getVoidTokensIx(
@@ -197,7 +198,7 @@ export async function getVoidTokensIx(
 	const assetProgram = getAssetControllerProgram(provider);
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 	const ix = await assetProgram.methods
-		.burnTokens(new BN(args.amount))
+		.burnTokens(args.amount, args.reason)
 		.accountsStrict({
 			assetMint: new PublicKey(args.assetMint),
 			tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -208,6 +209,8 @@ export async function getVoidTokensIx(
 				TOKEN_2022_PROGRAM_ID
 			),
 			owner: args.owner,
+			eventAuthority: getAssetControllerEventAuthority(),
+			program: assetControllerProgramId,
 		})
 		.instruction();
 	return ix;
@@ -216,7 +219,7 @@ export async function getVoidTokensIx(
 export type TransferTokensArgs = {
   from: string;
   to: string;
-  amount: number;
+  amount: BN;
   assetMint: string;
   decimals: number;
   message?: string;
@@ -638,11 +641,12 @@ export async function getThawTokenIx(
 }
 
 export type RevokeTokensArgs = {
-	amount: number;
+	amount: BN;
 	owner: string;
 	wallet?: string;
 	authority: string;
 	assetMint: string;
+	reason: string;
 };
 
 /**
@@ -656,7 +660,7 @@ export async function getRevokeTokensIx(
 ): Promise<TransactionInstruction> {
 	const assetProgram = getAssetControllerProgram(provider);
 	const ix = await assetProgram.methods
-		.revokeTokens(new BN(args.amount))
+		.revokeTokens(args.amount, args.reason)
 		.accountsStrict({
 			authority: new PublicKey(args.authority),
 			assetMint: new PublicKey(args.assetMint),
@@ -676,18 +680,21 @@ export async function getRevokeTokensIx(
 			policyEngineProgram: policyEngineProgramId,
 			associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
 			systemProgram: SystemProgram.programId,
+			eventAuthority: getAssetControllerEventAuthority(),
+			program: assetControllerProgramId,
 		})
 		.instruction();
 	return ix;
 }
 
 export type SeizeTokensArgs = {
-	amount: number;
+	amount: BN;
 	from: string;
 	to: string;
 	wallet?: string;
 	authority: string;
 	assetMint: string;
+	reason: string;
 };
 
 /**
@@ -760,7 +767,7 @@ export async function getSeizeTokensIx(
 	];
 	const ixs: TransactionInstruction[] = [ComputeBudgetProgram.setComputeUnitLimit({units: 450_000})];
 	const ix = await assetProgram.methods
-		.seizeTokens(new BN(args.amount))
+		.seizeTokens(args.amount, args.reason)
 		.accountsStrict({
 			authority: new PublicKey(args.authority),
 			assetMint: new PublicKey(args.assetMint),
@@ -778,6 +785,8 @@ export async function getSeizeTokensIx(
 				true,
 				TOKEN_2022_PROGRAM_ID
 			),
+			eventAuthority: getAssetControllerEventAuthority(),
+			program: assetControllerProgramId,
 		})
 		.remainingAccounts(remainingAccounts)
 		.instruction();

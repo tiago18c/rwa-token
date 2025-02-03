@@ -16,11 +16,13 @@ pub struct AssetControllerAccount {
 
 impl AssetControllerAccount {
     pub const VERSION: u8 = 1;
-    pub fn new(&mut self, asset_mint: Pubkey, authority: Pubkey, delegate: Option<Pubkey>) {
-        self.asset_mint = asset_mint;
-        self.authority = authority;
-        self.delegate = delegate.unwrap_or(authority);
-        self.version = Self::VERSION;
+    pub fn new(asset_mint: Pubkey, authority: Pubkey, delegate: Option<Pubkey>) -> Self {
+        Self {
+            asset_mint,
+            authority,
+            delegate: delegate.unwrap_or(authority),
+            version: Self::VERSION,
+        }
     }
     pub fn get_pda(asset_mint: Pubkey) -> Pubkey {
         Pubkey::find_program_address(&[asset_mint.as_ref()], &crate::id()).0

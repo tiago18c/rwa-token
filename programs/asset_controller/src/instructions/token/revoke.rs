@@ -1,4 +1,4 @@
-use crate::state::*;
+use crate::{state::*, RevokeEvent};
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
@@ -11,6 +11,7 @@ use rwa_utils::get_bump_in_seed_form;
 
 #[derive(Accounts)]
 #[instruction()]
+#[event_cpi]
 pub struct RevokeTokens<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
@@ -80,7 +81,7 @@ impl<'info> RevokeTokens<'info> {
 pub fn handler<'info>(
     ctx: Context<'_, '_, '_, 'info, RevokeTokens<'info>>,
     amount: u64,
-    //reason: String,
+    reason: String,
 ) -> Result<()> {
     let asset_mint = ctx.accounts.asset_mint.key();
     let signer_seeds = [
@@ -90,6 +91,13 @@ pub fn handler<'info>(
     ctx.accounts.burn_tokens(amount, &[&signer_seeds])?;
     ctx.accounts
         .update_counters_on_burn(amount, &[&signer_seeds])?;
+
+    emit_cpi!(RevokeEvent {
+        amount,
+        reason,
+        wallet: ctx.accounts.revoke_token_account.owner,
+        mint: ctx.accounts.asset_mint.key(),
+    });
 
     Ok(())
 }

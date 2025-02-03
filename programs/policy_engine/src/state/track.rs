@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{PolicyEngineErrors, Side, Transfer};
+use crate::Side;
 
 pub const MAX_TRANSFER_HISTORY: usize = 25;
 
@@ -12,29 +12,53 @@ pub struct TrackerAccount {
     pub asset_mint: Pubkey,
     // identity account of the owner of the policy account
     pub identity_account: Pubkey,
-    // transfer amounts
-    // this is not a realloc field because we dont have a mutable account during transfers to transfer the required amount
-    #[max_len(MAX_TRANSFER_HISTORY)]
-    // MAX_TRANSFER_HISTORY is the max number of transfers we want to store
-    pub transfers: Vec<Transfer>,
 
     pub total_amount: u64,
+
+    #[max_len(0)]
+    pub issuances: Vec<Issuance>,
+
+    #[max_len(0)]
+    pub locks: Vec<Lock>,
+}
+
+#[derive(InitSpace, AnchorSerialize, AnchorDeserialize, Clone)]
+pub struct Issuance {
+    pub amount: u64,
+    pub issue_time: i64,
+}
+
+#[derive(InitSpace, AnchorSerialize, AnchorDeserialize, Clone)]
+pub struct Lock {
+    pub amount: u64,
+    pub release_time: i64,
+    pub reason: u64,
+    #[max_len(64)]
+    pub reason_string: String,
 }
 
 impl TrackerAccount {
     pub const VERSION: u8 = 1;
-    pub fn new(&mut self, asset_mint: Pubkey, owner: Pubkey) {
-        self.version = Self::VERSION;
-        self.asset_mint = asset_mint;
-        self.identity_account = owner;
+    pub fn new(asset_mint: Pubkey, owner: Pubkey) -> Self {
+        Self {
+            version: Self::VERSION,
+            asset_mint,
+            identity_account: owner,
+            total_amount: 0,
+            issuances: vec![],
+            locks: vec![],
+        }
     }
+
+    pub fn get_current_space(&self) -> usize {
+        TrackerAccount::INIT_SPACE + self.issuances.len() * Issuance::INIT_SPACE + self.locks.len() * Lock::INIT_SPACE
+    }
+
     /// for all timestamps, if timestamp is older than timestamp - max_timeframe. remove it,
     #[inline(never)]
     pub fn update_transfer_history(
         &mut self,
         amount: u64,
-        timestamp: i64,
-        max_timeframe: i64,
         side: Side,
     ) -> Result<()> {
         self.total_amount = if side != Side::Sell {
@@ -42,27 +66,14 @@ impl TrackerAccount {
         } else {
             self.total_amount - amount
         };
-
-        if max_timeframe == 0 {
-            // if max_timeframe is 0, we dont need to track any history
-            return Ok(());
-        }
-        let min_timestamp = timestamp - max_timeframe;
-        self.transfers
-            .retain(|transfer| transfer.timestamp >= min_timestamp);
-        self.transfers.push(Transfer {
-            amount,
-            timestamp,
-            side,
-        });
-        // return error if the transfer history is too large
-        if self.transfers.len() > MAX_TRANSFER_HISTORY {
-            return Err(PolicyEngineErrors::TransferHistoryFull.into());
-        }
         Ok(())
     }
 
-    pub fn update_balance_mint(&mut self, amount: u64) -> Result<()> {
+    pub fn new_issuance(&mut self, amount: u64, issue_time: i64) -> Result<()> {
+        self.issuances.push(Issuance {
+            amount,
+            issue_time,
+        });
         self.total_amount += amount;
         Ok(())
     }
@@ -71,4 +82,45 @@ impl TrackerAccount {
         self.total_amount -= amount;
         Ok(())
     }
+
+    pub fn add_lock(&mut self, amount: u64, release_time: i64, reason: u64, reason_string: String) -> Result<()> {
+        self.locks.push(Lock {
+            amount,
+            release_time,
+            reason,
+            reason_string,
+        });
+        Ok(())
+    }
+
+    pub fn remove_expired_locks(&mut self, timestamp: i64) -> Result<()> {
+        self.locks.retain(|lock| lock.release_time > timestamp);
+        Ok(())
+    }
+
+    pub fn remove_lock(&mut self, index: usize) -> Result<Lock> {
+        let lock = self.locks.remove(index);
+        Ok(lock)
+    }
+
+    pub fn get_transferable_balance(&self, current_timestamp: i64) -> Result<u64> {
+        let mut locked_amount = 0;
+        for lock in self.locks.iter() {
+            if lock.release_time == 0 || lock.release_time > current_timestamp {
+                locked_amount += lock.amount;
+            }
+        }
+        Ok(self.total_amount - u64::min(locked_amount, self.total_amount))
+    }
+
+    pub fn get_compliance_transferable_balance(&self, current_timestamp: i64, lock_time: i64, transferrable_amount: u64) -> Result<u64> {
+        let mut locked_amount = 0;
+        for issuance in self.issuances.iter() {            
+            if lock_time > current_timestamp || issuance.issue_time > (current_timestamp - lock_time) {
+                locked_amount += issuance.amount;
+            }
+        }
+        Ok(transferrable_amount - u64::min(locked_amount, transferrable_amount))
+    }
+
 }

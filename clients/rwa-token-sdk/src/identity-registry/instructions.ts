@@ -9,6 +9,7 @@ import {
 	getIdentityRegistryProgram,
 	getIdentityRegistryPda,
 	getWalletIdentityAccountPda,
+	getIdentityRegistryEventAuthority,
 } from "./utils";
 import { BN, Provider } from "@coral-xyz/anchor";
 import { getPolicyEnginePda, getTrackerAccountPda, policyEngineProgramId } from "../policy-engine/utils";
@@ -76,6 +77,8 @@ export async function getCreateIdentityAccountIx(
 				? args.signer
 				: getIdentityRegistryPda(args.assetMint),
 			walletIdentity: getWalletIdentityAccountPda(args.assetMint, args.owner),
+			eventAuthority: getIdentityRegistryEventAuthority(),
+			program: identityProgram.programId,
 		})
 		.instruction();
 	return ix;
@@ -102,6 +105,8 @@ export async function getAttachWalletToIdentityIx(
 			identityRegistry: getIdentityRegistryPda(args.assetMint),
 			walletIdentity: getWalletIdentityAccountPda(args.assetMint, args.wallet),
 			systemProgram: SystemProgram.programId,
+			eventAuthority: getIdentityRegistryEventAuthority(),
+			program: identityProgram.programId,
 		})
 		.instruction();
 	return ix;
@@ -120,6 +125,8 @@ export async function getDetachWalletFromIdentityIx(
 			walletIdentity: getWalletIdentityAccountPda(args.assetMint, args.wallet),
 			identityAccount: getIdentityAccountPda(args.assetMint, args.owner),
 			identityRegistry: getIdentityRegistryPda(args.assetMint),
+			eventAuthority: getIdentityRegistryEventAuthority(),
+			program: identityProgram.programId,
 		})
 		.instruction();
 	return ix;
@@ -153,6 +160,8 @@ export async function getChangeCountryIx(
 			policyEngine: getPolicyEnginePda(args.assetMint),
 			trackerAccount: getTrackerAccountPda(args.assetMint, args.owner),
 			assetMint: args.assetMint,
+			eventAuthority: getIdentityRegistryEventAuthority(),
+			program: identityProgram.programId,
 		})
 		.instruction();
 	return ix;
@@ -189,6 +198,8 @@ export async function getAddLevelToIdentityAccount(
 			policyEngine: getPolicyEnginePda(args.assetMint),
 			trackerAccount: getTrackerAccountPda(args.assetMint, args.owner),
 			assetMint: args.assetMint,
+			eventAuthority: getIdentityRegistryEventAuthority(),
+			program: identityProgram.programId,
 		})
 		.instruction();
 	return ix;
@@ -225,6 +236,34 @@ export async function getRemoveLevelFromIdentityAccount(
 			policyEngine: getPolicyEnginePda(args.assetMint),
 			trackerAccount: getTrackerAccountPda(args.assetMint, args.owner),
 			assetMint: args.assetMint,
+			eventAuthority: getIdentityRegistryEventAuthority(),
+			program: identityProgram.programId,
+		})
+		.instruction();
+	return ix;
+}
+
+export type RevokeIdentityAccountArgs = {
+	owner: string;
+	assetMint: string;
+	signer: string;
+} & CommonArgs;
+
+export async function getRevokeIdentityAccountIx(
+	args: RevokeIdentityAccountArgs,
+	provider: Provider
+): Promise<TransactionInstruction> {
+	const identityProgram = getIdentityRegistryProgram(provider);
+	const ix = await identityProgram.methods
+		.revokeIdentityAccount(new PublicKey(args.owner))
+		.accountsStrict({
+			signer: args.signer,
+			payer: args.payer,
+			identityAccount: getIdentityAccountPda(args.assetMint, args.owner),
+			identityRegistry: getIdentityRegistryPda(args.assetMint),
+			walletIdentity: getWalletIdentityAccountPda(args.assetMint, args.owner),
+			eventAuthority: getIdentityRegistryEventAuthority(),
+			program: identityProgram.programId,
 		})
 		.instruction();
 	return ix;

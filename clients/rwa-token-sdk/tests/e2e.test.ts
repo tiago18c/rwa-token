@@ -18,6 +18,8 @@ import {
 	getWalletIdentityAccountsWithFilter,
 	getIdentityAccountPda,
 	getIdentityAccountFromOwner,
+	getRevokeIdentityAccountIx,
+	getCloseTrackerAccountIx,
 } from "../src";
 import { setupTests } from "./setup";
 import {
@@ -68,6 +70,7 @@ describe("e2e tests", async () => {
 			uri: "https://test.com",
 			symbol: "TFT",
 			allowMultipleWallets: true,
+
 		};
 
 		const setupIx = await rwaClient.assetController.setupNewRegistry(
@@ -148,27 +151,6 @@ describe("e2e tests", async () => {
 		expect(txnId).toBeTruthy();
 	});
 
-	test("setup data account", async () => {
-		const createDataAccountArgs: CreateDataAccountArgs = {
-			type: { legal: {} },
-			name: "Test Data Account",
-			uri: "https://test.com",
-			payer: setup.payer.toString(),
-			signer: setup.authority.toString(),
-			assetMint: mint,
-		};
-		const createDataAccountIx = await rwaClient.dataRegistry.setupDataAccount(
-			createDataAccountArgs
-		);
-		const txnId = await sendAndConfirmTransaction(
-			rwaClient.provider.connection,
-			new Transaction().add(...createDataAccountIx.ixs),
-			[setup.payerKp, createDataAccountIx.signers[0], setup.authorityKp]
-		);
-		expect(txnId).toBeTruthy();
-		dataAccount = createDataAccountIx.signers[0].publicKey.toString();
-	});
-
 	test("create identity approval policy", async () => {
 		const policyArgs: AttachPolicyArgs = {
 			authority: setup.authority.toString(),
@@ -176,11 +158,19 @@ describe("e2e tests", async () => {
 			payer: setup.payer.toString(),
 			identityFilter: {
 				simple: [ {
-					single: [
+					tuple: [
 						{
 							target: {bothOr: {}},
 							mode: {include: {}},
 							level: {level: [1]},
+						},
+						{
+							or: {}
+						},
+						{
+							target: {bothOr: {}},
+							mode: {include: {}},
+							level: {level: [255]},
 						}
 					]
 				}]
@@ -231,78 +221,15 @@ describe("e2e tests", async () => {
 		);
 		expect(txnId).toBeTruthy();
 	});
-	test("attach transaction amount velocity policy", async () => {
-		const policyArgs: AttachPolicyArgs = {
-			payer: setup.payer.toString(),
-			assetMint: mint,
-			authority: setup.authority.toString(),
-			identityFilter: {
-				simple: [ {
-					single: [
-						{
-							target: {bothOr: {}},
-							mode: {include: {}},
-							level: {level: [1]},
-						}
-					]
-				}]
-			},
-			policyType: {
-				transactionAmountVelocity: {
-					limit: new BN(100000),
-					timeframe: new BN(60),
-				},
-			},
-		};
-
-		const policyIx = await rwaClient.policyEngine.attachPolicy(policyArgs);
-		const txnId = await sendAndConfirmTransaction(
-			rwaClient.provider.connection,
-			new Transaction().add(...policyIx.ixs),
-			[setup.payerKp, setup.authorityKp]
-		);
-		expect(txnId).toBeTruthy();
-	});
-	test("attach transaction count velocity policy", async () => {
-		const policyArgs: AttachPolicyArgs = {
-			payer: setup.payer.toString(),
-			assetMint: mint,
-			authority: setup.authority.toString(),
-			identityFilter: {
-				simple: [ {
-					single: [
-						{
-							target: {bothOr: {}},
-							mode: {include: {}},
-							level: {level: [1]},
-						}
-					]
-				}]
-			},
-			policyType: {
-				transactionCountVelocity: {
-					limit: new BN(100),
-					timeframe: new BN(60),
-				},
-			},
-		};
-
-		const policyIx = await rwaClient.policyEngine.attachPolicy(policyArgs);
-		const txnId = await sendAndConfirmTransaction(
-			rwaClient.provider.connection,
-			new Transaction().add(...policyIx.ixs),
-			[setup.payerKp, setup.authorityKp]
-		);
-		expect(txnId).toBeTruthy();
-	});
-
+	
 	test("issue tokens", async () => {
 		const issueArgs: IssueTokenArgs = {
 			authority: setup.authority.toString(),
 			payer: setup.payer.toString(),
 			owner: setup.user1.toString(),
 			assetMint: mint,
-			amount: 1000000,
+			amount: new BN(1000000),
+			timestamp: new BN(0)
 		};
 		const issueIx = await rwaClient.assetController.issueTokenIxns(issueArgs);
 		const issue2Ix = await rwaClient.assetController.issueTokenIxns({...issueArgs, owner: setup.authority.toString() });
@@ -317,10 +244,11 @@ describe("e2e tests", async () => {
 	test("void tokens", async () => {
 		const voidArgs: VoidTokensArgs = {
 			payer: setup.payer.toString(),
-			amount: 100,
+			amount: new BN(100),
 			owner: setup.user1.toString(),
 			assetMint: mint,
 			authority: setup.user1.toString(),
+			reason: "TEST"
 		};
 		const voidIx = await rwaClient.assetController.voidTokenIxns(voidArgs);
 		const txnId = await sendAndConfirmTransaction(
@@ -335,8 +263,9 @@ describe("e2e tests", async () => {
 		const revokeIx = await getRevokeTokensIx({
 			owner: setup.user1.toString(),
 			assetMint: mint,
-			amount: 100,
+			amount: new BN(100),
 			authority: setup.authority.toString(),
+			reason: "TEST"
 		}, rwaClient.provider);
 		const txnId = await sendAndConfirmTransaction(
 			rwaClient.provider.connection,
@@ -352,8 +281,9 @@ describe("e2e tests", async () => {
 			from: setup.user1.toString(),
 			to: setup.authority.toString(),
 			assetMint: mint,
-			amount: 100,
+			amount: new BN(100),
 			authority: setup.authority.toString(),
+			reason: "TEST"
 		}, rwaClient.provider);
 		const txnId = await sendAndConfirmTransaction(
 			rwaClient.provider.connection,
@@ -424,7 +354,8 @@ describe("e2e tests", async () => {
 			owner: setup.user1.toString(),
 			wallet: setup.user4.toString(),
 			assetMint: mint,
-			amount: 100,
+			amount: new BN(100),
+			timestamp: new BN(0)
 		});
 		const txnId = await sendAndConfirmTransaction(
 			rwaClient.provider.connection,
@@ -439,7 +370,7 @@ describe("e2e tests", async () => {
 			from: setup.user4.toString(),
 			to: setup.user1.toString(),
 			assetMint: mint,
-			amount: 100,
+			amount: new BN(100),
 			decimals,
 		});
 		const txnId = await sendAndConfirmTransaction(
@@ -466,49 +397,12 @@ describe("e2e tests", async () => {
 		expect(txnId).toBeTruthy();
 	});
 
-	test("update data account", async () => {
-		const updateDataAccountArgs: UpdateDataAccountArgs = {
-			dataAccount,
-			name: "Example Token Updates",
-			uri: "newUri",
-			type: { tax: {} },
-			payer: setup.payer.toString(),
-			assetMint: mint,
-			authority: setup.authority.toString(),
-			signer: setup.authority.toString(),
-		};
-		const updateDataIx = await rwaClient.dataRegistry.updateAssetsDataAccountInfoIxns(updateDataAccountArgs);
-		const txnId = await sendAndConfirmTransaction(
-			rwaClient.provider.connection,
-			new Transaction().add(updateDataIx),
-			[setup.payerKp, setup.authorityKp]
-		);
-		expect(txnId).toBeTruthy();
-	});
-
-	test("delete data account", async () => {
-		const deleteDataAccountArgs: DeleteDataAccountArgs = {
-			dataAccount,
-			payer: setup.payer.toString(),
-			assetMint: mint,
-			signer: setup.authority.toString(),
-		};
-		const updateDataIx = await rwaClient.dataRegistry.deleteAssetsDataAccountInfoIxns(deleteDataAccountArgs);
-		const txnId = await sendAndConfirmTransaction(
-			rwaClient.provider.connection,
-			new Transaction().add(updateDataIx),
-			[setup.authorityKp]
-		);
-		expect(txnId).toBeTruthy();
-		expect(await getDataAccountsWithFilter({assetMint: mint}, rwaClient.provider)).toHaveLength(0);
-	});
-
 	test("transfer tokens", async () => {
 		const transferArgs: TransferTokensArgs = {
 			from: setup.user1.toString(),
 			to: setup.user2.toString(),
 			assetMint: mint,
-			amount: 2000,
+			amount: new BN(2000),
 			decimals,
 			createTa: true,
 		};
@@ -595,7 +489,7 @@ describe("e2e tests", async () => {
 			from: setup.user1.toString(),
 			to: setup.user2.toString(),
 			assetMint: mint,
-			amount: 100,
+			amount: new BN(2000),
 			decimals,
 		});
 		expect(sendAndConfirmTransaction(
@@ -655,7 +549,7 @@ describe("e2e tests", async () => {
 			from: setup.user2.toString(),
 			to: setup.user1.toString(),
 			assetMint: mint,
-			amount: 100,
+			amount: new BN(100),
 			decimals,
 		});
 		expect(sendAndConfirmTransaction(
@@ -663,6 +557,35 @@ describe("e2e tests", async () => {
 			new Transaction().add(...transferIx),
 			[setup.user2Kp]
 		)).rejects.toThrow();
+	});
+
+	test("revoke identity account", async () => {
+		const revokeIx = await getRevokeIdentityAccountIx({
+			owner: setup.user1.toString(),
+			assetMint: mint,
+			signer: setup.authority.toString(),
+			payer: setup.payer.toString(),
+		}, rwaClient.provider);
+		const txnId = await sendAndConfirmTransaction(
+			rwaClient.provider.connection,
+			new Transaction().add(revokeIx),
+			[setup.payerKp, setup.authorityKp]
+		);
+		expect(txnId).toBeTruthy();
+	});
+
+	test("close tracker account", async () => {
+		const closeIx = await getCloseTrackerAccountIx({
+			payer: setup.payer.toString(),
+			owner: setup.user1.toString(),
+			assetMint: mint,
+		}, rwaClient.provider);
+		const txnId = await sendAndConfirmTransaction(
+			rwaClient.provider.connection,
+			new Transaction().add(closeIx),
+			[setup.payerKp]
+		);
+		expect(txnId).toBeTruthy();
 	});
 });
 

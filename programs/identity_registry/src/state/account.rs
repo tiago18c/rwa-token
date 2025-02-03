@@ -11,8 +11,9 @@ pub struct IdentityAccount {
     pub identity_registry: Pubkey,
     /// owner of the identity account
     pub owner: Pubkey,
-
+    /// number of wallets attached to this identity account
     pub num_wallets: u16,
+    /// country code of the user
     pub country: u8,
     // identity levels corresponding to the user
     #[max_len(1)] // initial length is 1
@@ -28,22 +29,23 @@ pub struct IdentityLevel {
 impl IdentityAccount {
     pub const VERSION: u8 = 1;
     pub fn new(
-        &mut self,
         owner: Pubkey,
         identity_registry: Pubkey,
         level: u8,
         expiry: i64,
         country: u8,
-    ) {
-        self.identity_registry = identity_registry;
-        self.owner = owner;
-        self.version = Self::VERSION;
-        self.levels = vec![IdentityLevel { level, expiry }];
-        self.num_wallets = 1;
-        self.country = country;
+    ) -> Self {
+        Self {
+            identity_registry,
+            owner,
+            version: Self::VERSION,
+            levels: vec![IdentityLevel { level, expiry }],
+            num_wallets: 1,
+            country,
+        }
     }
 
-    pub fn add_levels(&mut self, levels: Vec<u8>, expiries: Vec<i64>) -> Result<()> {
+    pub fn add_levels(&mut self, levels: &Vec<u8>, expiries: &Vec<i64>) -> Result<()> {
         for i in 0..levels.len() {
             if levels[i] == 0 {
                 return Err(IdentityRegistryErrors::InvalidLevel.into());

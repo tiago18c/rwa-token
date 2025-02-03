@@ -1,8 +1,9 @@
-use crate::state::*;
+use crate::{state::*, RemovedIdentityEvent};
 use anchor_lang::prelude::*;
 
 #[derive(Accounts)]
 #[instruction(owner: Pubkey)]
+#[event_cpi]
 pub struct RevokeIdentityAccount<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -34,3 +35,15 @@ pub struct RevokeIdentityAccount<'info> {
     )]
     pub wallet_identity: Box<Account<'info, WalletIdentity>>,
 }
+
+pub fn handler(ctx: Context<RevokeIdentityAccount>, _owner: Pubkey) -> Result<()> {
+    emit_cpi!(RemovedIdentityEvent {
+        identity: ctx.accounts.identity_account.key(),
+        mint: ctx.accounts.identity_registry.asset_mint,
+        sender: ctx.accounts.payer.key(),
+        kind: ctx.accounts.identity_account.levels[0].level,
+        owner: ctx.accounts.identity_account.owner,
+    });
+    Ok(())
+}
+

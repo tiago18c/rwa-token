@@ -1,7 +1,8 @@
-use crate::{state::*, IdentityAccount};
+use crate::{state::*, DetachWalletFromIdentityEvent, IdentityAccount};
 use anchor_lang::prelude::*;
 
 #[derive(Accounts)]
+#[event_cpi]
 pub struct DetachWalletFromIdentity<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -28,5 +29,12 @@ pub struct DetachWalletFromIdentity<'info> {
 
 pub fn handler(ctx: Context<DetachWalletFromIdentity>) -> Result<()> {
     ctx.accounts.identity_account.remove_wallet()?;
+
+    emit_cpi!(DetachWalletFromIdentityEvent {
+        identity: ctx.accounts.identity_account.key(),
+        mint: ctx.accounts.identity_registry.asset_mint,
+        wallet: ctx.accounts.wallet_identity.wallet,
+        sender: ctx.accounts.payer.key(),
+    });
     Ok(())
 }

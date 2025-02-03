@@ -1,9 +1,10 @@
 use anchor_lang::prelude::*;
 
-use crate::state::*;
+use crate::{state::*, DetachPolicyEvent};
 
 #[derive(Accounts)]
 #[instruction(hash: String)]
+#[event_cpi]
 pub struct DetachFromPolicyEngine<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -21,44 +22,13 @@ pub struct DetachFromPolicyEngine<'info> {
 }
 
 pub fn handler(ctx: Context<DetachFromPolicyEngine>, hash: String) -> Result<()> {
-    let policy_type = ctx.accounts.policy_engine.detach(hash)?;
-    // update max timeframe if detached policy was the max timeframe
+    let policy = ctx.accounts.policy_engine.detach(hash)?;
 
-    let mut max_timeframe = match policy_type {
-        PolicyType::TransactionAmountVelocity {
-            limit: _,
-            timeframe,
-        } => timeframe,
-        PolicyType::TransactionCountVelocity {
-            limit: _,
-            timeframe,
-        } => timeframe,
-        _ => 0,
-    };
-
-    if max_timeframe == ctx.accounts.policy_engine.max_timeframe {
-        max_timeframe = 0;
-        for policy in ctx.accounts.policy_engine.policies.iter() {
-            if let PolicyType::TransactionAmountVelocity {
-                limit: _,
-                timeframe,
-            } = policy.policy_type
-            {
-                if timeframe > max_timeframe {
-                    max_timeframe = timeframe;
-                }
-            }
-            if let PolicyType::TransactionCountVelocity {
-                limit: _,
-                timeframe,
-            } = policy.policy_type
-            {
-                if timeframe > max_timeframe {
-                    max_timeframe = timeframe;
-                }
-            }
-        }
-        ctx.accounts.policy_engine.max_timeframe = max_timeframe;
-    }
+    emit_cpi!(DetachPolicyEvent {
+        mint: ctx.accounts.policy_engine.asset_mint,
+        policy_type: policy.policy_type,
+        identity_filter: policy.identity_filter,
+        custom_error: policy.custom_error
+    });
     Ok(())
 }

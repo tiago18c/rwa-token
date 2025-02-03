@@ -1,4 +1,4 @@
-import { type Idl, Program, type Provider } from "@coral-xyz/anchor";
+import { type Idl, Program, type Provider, utils } from "@coral-xyz/anchor";
 import { PublicKey } from "@solana/web3.js";
 import { type IdentityRegistryIdlTypes } from "../programs/types";
 
@@ -33,7 +33,6 @@ export const getIdentityAccountPda = (assetMint: string, owner: string) => Publi
 	identityRegistryProgramId,
 )[0];
 
-
 /**
  * Retrieves the wallet identity account pda public key for a specific asset mint.
  * @param assetMint - The string representation of the asset's mint address.
@@ -46,3 +45,8 @@ export const getWalletIdentityAccountPda = (assetMint: string, wallet: string) =
 )[0];
 
 export const POLICY_SKIP_LEVEL = 255;
+
+export const getIdentityRegistryEventAuthority = () => PublicKey.findProgramAddressSync(
+	[utils.bytes.utf8.encode("__event_authority")],
+	identityRegistryProgramId
+)[0];

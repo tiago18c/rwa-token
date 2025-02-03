@@ -97,12 +97,48 @@ export type AssetController = {
         {
           "name": "tokenProgram",
           "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+        },
+        {
+          "name": "eventAuthority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
         {
           "name": "amount",
           "type": "u64"
+        },
+        {
+          "name": "reason",
+          "type": "string"
         }
       ]
     },
@@ -331,20 +367,12 @@ export type AssetController = {
           "writable": true
         },
         {
-          "name": "dataRegistryAccount",
-          "writable": true
-        },
-        {
           "name": "policyEngine",
           "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
         },
         {
           "name": "identityRegistry",
           "address": "GZsnjqT3c5zbHqsctrJ4EG4rbEfo7ZXyyUG7aDJNmxfA"
-        },
-        {
-          "name": "dataRegistry",
-          "address": "JDxF8P4SctW8rB5s5FbupPFYecKFqLSv7fTES3cFei3b"
         },
         {
           "name": "systemProgram",
@@ -656,6 +684,11 @@ export type AssetController = {
       ],
       "accounts": [
         {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
           "name": "authority",
           "writable": true,
           "signer": true
@@ -777,6 +810,38 @@ export type AssetController = {
         },
         {
           "name": "walletIdentityAccount"
+        },
+        {
+          "name": "eventAuthority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
@@ -872,12 +937,48 @@ export type AssetController = {
         {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "eventAuthority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
         {
           "name": "amount",
           "type": "u64"
+        },
+        {
+          "name": "reason",
+          "type": "string"
         }
       ]
     },
@@ -927,12 +1028,48 @@ export type AssetController = {
         {
           "name": "tokenProgram",
           "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+        },
+        {
+          "name": "eventAuthority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  95,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program"
         }
       ],
       "args": [
         {
           "name": "amount",
           "type": "u64"
+        },
+        {
+          "name": "reason",
+          "type": "string"
         }
       ]
     },
@@ -1257,6 +1394,19 @@ export type AssetController = {
       ]
     },
     {
+      "name": "burnEvent",
+      "discriminator": [
+        33,
+        89,
+        47,
+        117,
+        82,
+        124,
+        238,
+        250
+      ]
+    },
+    {
       "name": "extensionMetadataEvent",
       "discriminator": [
         22,
@@ -1267,6 +1417,45 @@ export type AssetController = {
         122,
         248,
         117
+      ]
+    },
+    {
+      "name": "issueEvent",
+      "discriminator": [
+        220,
+        74,
+        136,
+        189,
+        186,
+        247,
+        253,
+        140
+      ]
+    },
+    {
+      "name": "revokeEvent",
+      "discriminator": [
+        87,
+        202,
+        67,
+        213,
+        43,
+        84,
+        177,
+        3
+      ]
+    },
+    {
+      "name": "seizeEvent",
+      "discriminator": [
+        100,
+        186,
+        127,
+        43,
+        145,
+        98,
+        208,
+        78
       ]
     }
   ],
@@ -1400,6 +1589,30 @@ export type AssetController = {
             "type": {
               "option": "u8"
             }
+          }
+        ]
+      }
+    },
+    {
+      "name": "burnEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "reason",
+            "type": "string"
+          },
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
           }
         ]
       }
@@ -1779,10 +1992,16 @@ export type AssetController = {
           },
           {
             "name": "numWallets",
+            "docs": [
+              "number of wallets attached to this identity account"
+            ],
             "type": "u16"
           },
           {
             "name": "country",
+            "docs": [
+              "country code of the user"
+            ],
             "type": "u8"
           },
           {
@@ -1892,6 +2111,22 @@ export type AssetController = {
       }
     },
     {
+      "name": "issuance",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "issueTime",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
       "name": "issuancePolicies",
       "type": {
         "kind": "struct",
@@ -1906,11 +2141,59 @@ export type AssetController = {
           },
           {
             "name": "usLockPeriod",
-            "type": "u64"
+            "type": "i64"
           },
           {
             "name": "nonUsLockPeriod",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "issueEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amount",
             "type": "u64"
+          },
+          {
+            "name": "issuanceTimestamp",
+            "type": "i64"
+          },
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "lock",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "releaseTime",
+            "type": "i64"
+          },
+          {
+            "name": "reason",
+            "type": "u64"
+          },
+          {
+            "name": "reasonString",
+            "type": "string"
           }
         ]
       }
@@ -1939,6 +2222,10 @@ export type AssetController = {
                 "name": "policyType"
               }
             }
+          },
+          {
+            "name": "customError",
+            "type": "u8"
           }
         ]
       }
@@ -1975,13 +2262,6 @@ export type AssetController = {
               "policy delegate"
             ],
             "type": "pubkey"
-          },
-          {
-            "name": "maxTimeframe",
-            "docs": [
-              "max timeframe of all the policies"
-            ],
-            "type": "i64"
           },
           {
             "name": "enforcePolicyIssuance",
@@ -2074,32 +2354,6 @@ export type AssetController = {
             ]
           },
           {
-            "name": "transactionAmountVelocity",
-            "fields": [
-              {
-                "name": "limit",
-                "type": "u64"
-              },
-              {
-                "name": "timeframe",
-                "type": "i64"
-              }
-            ]
-          },
-          {
-            "name": "transactionCountVelocity",
-            "fields": [
-              {
-                "name": "limit",
-                "type": "u64"
-              },
-              {
-                "name": "timeframe",
-                "type": "i64"
-              }
-            ]
-          },
-          {
             "name": "maxBalance",
             "fields": [
               {
@@ -2152,15 +2406,53 @@ export type AssetController = {
       }
     },
     {
-      "name": "side",
+      "name": "revokeEvent",
       "type": {
-        "kind": "enum",
-        "variants": [
+        "kind": "struct",
+        "fields": [
           {
-            "name": "buy"
+            "name": "amount",
+            "type": "u64"
           },
           {
-            "name": "sell"
+            "name": "reason",
+            "type": "string"
+          },
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "seizeEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "reason",
+            "type": "string"
+          },
+          {
+            "name": "wallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "toWallet",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
           }
         ]
       }
@@ -2183,40 +2475,26 @@ export type AssetController = {
             "type": "pubkey"
           },
           {
-            "name": "transfers",
+            "name": "totalAmount",
+            "type": "u64"
+          },
+          {
+            "name": "issuances",
             "type": {
               "vec": {
                 "defined": {
-                  "name": "transfer"
+                  "name": "issuance"
                 }
               }
             }
           },
           {
-            "name": "totalAmount",
-            "type": "u64"
-          }
-        ]
-      }
-    },
-    {
-      "name": "transfer",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "amount",
-            "type": "u64"
-          },
-          {
-            "name": "timestamp",
-            "type": "i64"
-          },
-          {
-            "name": "side",
+            "name": "locks",
             "type": {
-              "defined": {
-                "name": "side"
+              "vec": {
+                "defined": {
+                  "name": "lock"
+                }
               }
             }
           }

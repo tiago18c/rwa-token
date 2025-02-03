@@ -1,8 +1,9 @@
-use crate::state::*;
+use crate::{state::*, CreatedIdentityEvent};
 use anchor_lang::prelude::*;
 
 #[derive(Accounts)]
 #[instruction(owner: Pubkey, level: u8)]
+#[event_cpi]
 pub struct CreateIdentityAccount<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -41,14 +42,22 @@ pub fn handler(
     expiry: i64,
     country: u8,
 ) -> Result<()> {
-    ctx.accounts.identity_account.new(
+    ctx.accounts.identity_account.set_inner(IdentityAccount::new (
         owner,
         ctx.accounts.identity_registry.key(),
         level,
         expiry,
         country,
-    );
+    ));
     ctx.accounts.wallet_identity.identity_account = ctx.accounts.identity_account.key();
     ctx.accounts.wallet_identity.wallet = owner;
+
+    emit_cpi!(CreatedIdentityEvent {
+        identity: ctx.accounts.identity_account.key(),
+        mint: ctx.accounts.identity_registry.asset_mint,
+        kind: level,
+        sender: ctx.accounts.payer.key(),
+        owner: ctx.accounts.identity_account.owner,
+    });
     Ok(())
 }

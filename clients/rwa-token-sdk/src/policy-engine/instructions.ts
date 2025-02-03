@@ -8,7 +8,7 @@ import {
 	getExtraMetasListPda,
 	getPolicyEnginePda,
 	getPolicyEngineProgram,
-	getPolicyEnginerEventAuthority,
+	getPolicyEngineEventAuthority,
 	getTrackerAccountPda,
 } from "./utils";
 import { type PolicyType, type IdentityFilter, Counter, CounterLimit, IssuancePolicies } from "./types";
@@ -57,6 +57,7 @@ export type AttachPolicyArgs = {
   payer: string;
   identityFilter: IdentityFilter;
   policyType: PolicyType;
+  customError?: number;
 };
 
 /** Represents the arguments required to detach a policy from an asset. */
@@ -83,12 +84,14 @@ export async function getAttachToPolicyEngineIx(
 ): Promise<IxReturn> {
 	const policyProgram = getPolicyEngineProgram(provider);
 	const ix = await policyProgram.methods
-		.attachToPolicyEngine(args.identityFilter, args.policyType)
+		.attachToPolicyEngine(args.identityFilter, args.policyType, args.customError ?? 0)
 		.accountsStrict({
 			signer: new PublicKey(args.authority),
 			payer: args.payer,
 			policyEngine: getPolicyEnginePda(args.assetMint),
 			systemProgram: SystemProgram.programId,
+			eventAuthority: getPolicyEngineEventAuthority(),
+			program: policyProgram.programId,
 		})
 		.instruction();
 	return {
@@ -115,6 +118,8 @@ export async function getChangeIssuancePoliciesIx(
 			signer: new PublicKey(args.authority),
 			payer: args.payer,
 			policyEngine: getPolicyEnginePda(args.assetMint),
+			eventAuthority: getPolicyEngineEventAuthority(),
+			program: policyProgram.programId,
 		})
 		.instruction();
 	return {
@@ -142,6 +147,8 @@ export async function getSetCountersIx(
 			signer: new PublicKey(args.authority),
 			payer: args.payer,
 			policyEngine: getPolicyEnginePda(args.assetMint),
+			eventAuthority: getPolicyEngineEventAuthority(),
+			program: policyProgram.programId,
 		})
 		.instruction();
 	return {
@@ -169,6 +176,8 @@ export async function getChangeMappingIx(
 			signer: new PublicKey(args.authority),
 			payer: args.payer,
 			policyEngine: getPolicyEnginePda(args.assetMint),
+			eventAuthority: getPolicyEngineEventAuthority(),
+			program: policyProgram.programId,
 		})
 		.instruction();
 	return {
@@ -207,6 +216,8 @@ export async function getChangeCountersIx(
 			payer: args.payer,
 			policyEngine: getPolicyEnginePda(args.assetMint),
 			systemProgram: SystemProgram.programId,
+			eventAuthority: getPolicyEngineEventAuthority(),
+			program: policyProgram.programId,
 		})
 		.instruction();
 	return {
@@ -246,6 +257,8 @@ export async function getChangeCounterLimitsIx(
 			payer: args.payer,
 			policyEngine: getPolicyEnginePda(args.assetMint),
 			systemProgram: SystemProgram.programId,
+			eventAuthority: getPolicyEngineEventAuthority(),
+			program: policyProgram.programId,
 		})
 		.instruction();
 	return {
@@ -277,6 +290,8 @@ export async function getDetachFromPolicyEngineIx(
 			payer: args.payer,
 			policyEngine: getPolicyEnginePda(args.assetMint),
 			systemProgram: SystemProgram.programId,
+			eventAuthority: getPolicyEngineEventAuthority(),
+			program: policyProgram.programId,
 		})
 		.instruction();
 	return {
@@ -305,10 +320,106 @@ export async function getCreateTrackerAccountIx(
 			systemProgram: SystemProgram.programId,
 			program: policyProgram.programId,
 			assetMint: new PublicKey(args.assetMint),
-			eventAuthority: getPolicyEnginerEventAuthority(),
+			eventAuthority: getPolicyEngineEventAuthority(),
 			identityRegistry: getIdentityRegistryPda(args.assetMint),
 			identityAccount: getIdentityAccountPda(args.assetMint, args.owner),
 		})
 		.instruction();
 	return ix;
+}
+
+export interface CloseTrackerAccountArgs {
+	payer: string;
+	owner: string;
+	assetMint: string;
+}
+
+export async function getCloseTrackerAccountIx(
+	args: CloseTrackerAccountArgs,
+	provider: Provider
+): Promise<TransactionInstruction> {
+	const policyProgram = getPolicyEngineProgram(provider);
+	const trackerAccount = getTrackerAccountPda(args.assetMint, args.owner);
+	const ix = await policyProgram.methods
+		.closeTrackerAccount()
+		.accountsStrict({
+			payer: args.payer,
+			trackerAccount,
+			identityAccount: getIdentityAccountPda(args.assetMint, args.owner),
+		})
+		.instruction();
+	return ix;
+}
+
+export interface AddLockArgs {
+	payer: string;
+	authority: string;
+	owner: string;
+	assetMint: string;
+	reason: BN;
+	reasonString: string;
+	amount: BN;
+	lockTime: BN;
+}
+
+export async function getAddLockIx(
+	args: AddLockArgs,
+	provider: Provider
+): Promise<IxReturn> {
+	const policyProgram = getPolicyEngineProgram(provider);
+	const trackerAccount = getTrackerAccountPda(args.assetMint, args.owner);
+	const ix = await policyProgram.methods
+		.addLock(args.amount, args.lockTime, args.reason, args.reasonString)
+		.accountsStrict({
+			payer: args.payer,
+			signer: new PublicKey(args.authority),
+			trackerAccount,
+			assetMint: new PublicKey(args.assetMint),
+			eventAuthority: getPolicyEngineEventAuthority(),
+			identityRegistry: getIdentityRegistryPda(args.assetMint),
+			identityAccount: getIdentityAccountPda(args.assetMint, args.owner),
+			policyEngine: getPolicyEnginePda(args.assetMint),
+			program: policyProgram.programId,
+			systemProgram: SystemProgram.programId,
+		})
+		.instruction();
+	return {
+		ixs: [ix],
+		signers: [],
+	};
+}
+
+export interface RemoveLockArgs {
+	payer: string;
+	authority: string;
+	owner: string;
+	assetMint: string;
+	index: number;
+}
+
+export async function getRemoveLockIx(
+	args: RemoveLockArgs,
+	provider: Provider
+): Promise<IxReturn> {
+	const policyProgram = getPolicyEngineProgram(provider);
+	const trackerAccount = getTrackerAccountPda(args.assetMint, args.owner);
+	const ix = await policyProgram.methods
+		.removeLock(args.index)
+		.accountsStrict({
+			payer: args.payer,
+			signer: new PublicKey(args.authority),
+			trackerAccount,
+			assetMint: new PublicKey(args.assetMint),
+			eventAuthority: getPolicyEngineEventAuthority(),
+			identityRegistry: getIdentityRegistryPda(args.assetMint),
+			identityAccount: getIdentityAccountPda(args.assetMint, args.owner),
+			policyEngine: getPolicyEnginePda(args.assetMint),
+			program: policyProgram.programId,
+			systemProgram: SystemProgram.programId,
+		})
+		.instruction();
+	return {
+		ixs: [ix],
+		signers: [],
+	};
 }

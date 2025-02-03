@@ -110,7 +110,8 @@ describe("test suite to test tracker account is being updated correctly on trans
 			payer: setup.payer.toString(),
 			owner: setup.user1.toString(),
 			assetMint: mint,
-			amount: 1000000,
+			amount: new BN(1000000),
+			timestamp: new BN(0)
 		};
 		const issueIx = await rwaClient.assetController.issueTokenIxns(issueArgs);
 		const txnId = await sendAndConfirmTransaction(
@@ -119,6 +120,18 @@ describe("test suite to test tracker account is being updated correctly on trans
 			[setup.payerKp, setup.authorityKp]
 		);
 		expect(txnId).toBeTruthy();
+		console.log(txnId);
+
+		const trackerAccount = await getTrackerAccount(
+			mint,
+			setup.user1.toString(),
+			rwaClient.provider
+		);
+
+		console.log(trackerAccount);
+
+		expect(trackerAccount?.totalAmount.eq(new BN(1000000))).toBe(true);
+		expect(trackerAccount?.issuances.length).toBe(1);
 	});
 
 	test("transfer tokens", async () => {
@@ -126,7 +139,7 @@ describe("test suite to test tracker account is being updated correctly on trans
 			from: setup.user1.toString(),
 			to: setup.user2.toString(),
 			assetMint: mint,
-			amount: 100,
+			amount: new BN(100),
 			decimals,
 			createTa: true,
 		};
@@ -138,93 +151,5 @@ describe("test suite to test tracker account is being updated correctly on trans
 			[setup.user1Kp]
 		);
 		expect(txnId).toBeTruthy();
-		const trackerAccount = await getTrackerAccount(
-			mint,
-			setup.user2.toString(),
-			rwaClient.provider
-		);
-		// length of transfers should be 0 since any policies haven;t beeen attached yet
-		expect(trackerAccount!.transfers.length).toBe(0);
 	});
-
-	test("attach transfer amount limit policy", async () => {
-		const attachPolicyArgs: AttachPolicyArgs = {
-			payer: setup.payer.toString(),
-			assetMint: mint,
-			authority: setup.authority.toString(),
-			identityFilter: {
-				simple: [ {
-					single: [
-						{
-							target: {sender: {}},
-							mode: {include: {}},
-							level: {level: [1]}	,
-						}
-					]
-				}]
-			},
-			policyType: {transactionAmountVelocity: { limit: new BN(1000000000000), timeframe: new BN(1000000000000) }} // enough limit and timeframe to allow a lot of transfers
-		};
-		const attachPolicyIx = await rwaClient.policyEngine.attachPolicy(
-			attachPolicyArgs
-		);
-		const txnId = await sendAndConfirmTransaction(
-			rwaClient.provider.connection,
-			new Transaction().add(...attachPolicyIx.ixs),
-			[setup.payerKp, setup.authorityKp]
-		);
-		expect(txnId).toBeTruthy();
-	});
-
-	test("do 25 transfers, fail for the 26th time because transfer history is full", async () => {
-		for(let i = 0; i < 25; i++) {
-			const transferArgs: TransferTokensArgs = {
-				from: setup.user1.toString(),
-				to: setup.user2.toString(),
-				assetMint: mint,
-				amount: 100,
-				decimals,
-			};
-	
-			const transferIxs = await rwaClient.assetController.transfer(transferArgs);
-
-			const txnId = await sendAndConfirmTransaction(
-				rwaClient.provider.connection,
-				new Transaction().add(...transferIxs),
-				[setup.user1Kp],
-				{
-					skipPreflight: true,
-				}
-			);
-			expect(txnId).toBeTruthy();
-			if(i<4) { // dont need to check for all 25 transfers
-				const trackerAccount = await getTrackerAccount(
-					mint,
-					setup.user2.toString(),
-					rwaClient.provider
-				);
-				expect(trackerAccount!.transfers.length).toBe(i + 1);
-				expect(trackerAccount!.transfers.at(i)?.amount?.toNumber()).toBe(100);
-			}
-		}
-		const transferArgs: TransferTokensArgs = {
-			from: setup.user1.toString(),
-			to: setup.user2.toString(),
-			assetMint: mint,
-			amount: 100,
-			decimals,
-		};
-
-		const transferIxs = await rwaClient.assetController.transfer(transferArgs);
-		expect(sendAndConfirmTransaction(
-			rwaClient.provider.connection,
-			new Transaction().add(...transferIxs),
-			[setup.user1Kp],
-			{
-			//	commitment,
-				skipPreflight: true,
-			}
-		)).rejects.toThrowError(/"InstructionError":\[0,\{"Custom":6016\}\]/);
-	});
-
 });

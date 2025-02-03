@@ -1,12 +1,12 @@
 use std::str::FromStr;
 
 use crate::utils::POLICY_ENGINE_ID;
-use crate::{cpi_enforce_policy_on_levels_change, state::*};
+use crate::{cpi_enforce_policy_on_levels_change, state::*, ChangeCountryEvent};
 use anchor_lang::prelude::*;
 
 #[derive(Accounts)]
+#[event_cpi]
 pub struct ChangeCountry<'info> {
-    #[account(mut)]
     pub payer: Signer<'info>,
     #[account(
         constraint = identity_registry.authority == signer.key() || identity_registry.delegate == signer.key()
@@ -54,5 +54,12 @@ pub fn handler(ctx: Context<ChangeCountry>, new_country: u8, enforce_limits: boo
         enforce_limits,
         &[&signer_seeds[..]],
     )?;
+
+    emit_cpi!(ChangeCountryEvent {
+        identity: ctx.accounts.identity_account.key(),
+        mint: ctx.accounts.identity_registry.asset_mint,
+        country: new_country,
+        sender: ctx.accounts.payer.key(),
+    });
     Ok(())
 }

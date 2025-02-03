@@ -33,10 +33,10 @@ pub struct CreateTrackerAccount<'info> {
 }
 
 pub fn handler(ctx: Context<CreateTrackerAccount>) -> Result<()> {
-    ctx.accounts.tracker_account.new(
+    ctx.accounts.tracker_account.set_inner(TrackerAccount::new(
         ctx.accounts.asset_mint.key(),
         ctx.accounts.identity_account.key(),
-    );
+    ));
 
     Ok(())
 }

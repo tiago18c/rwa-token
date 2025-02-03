@@ -1,7 +1,6 @@
 [workspace]
 members = [
     "programs/asset_controller",
-    "programs/data_registry",
     "programs/identity_registry",
     "programs/policy_engine",
     "rwa_utils"
