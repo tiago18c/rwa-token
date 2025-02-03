@@ -28,10 +28,6 @@ pub fn handler(
         .policy_engine
         .update_counter_limits(removed_counter_limits.clone(), added_counter_limits.clone())?;
 
-        
-    msg!("Added counter limits: {:?}", added_counter_limits);
-    msg!("Removed counter limits: {:?}", removed_limits);
-
     emit_cpi!(ChangedCounterLimitsEvent {
         mint: ctx.accounts.policy_engine.asset_mint,
         removed_counter_limits: removed_limits,

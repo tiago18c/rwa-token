@@ -220,13 +220,6 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
     let source_balance = source_tracker_account.total_amount;
     let destination_balance = destination_tracker_account.total_amount;
 
-
-    msg!("source_balance: {}", source_balance);
-    msg!("destination_balance: {}", destination_balance);
-    msg!("amount: {}", amount);
-    
-
-
     if !self_transfer {
         let decreased_counters = if source_balance == 0 {
             // source has 0 balance
