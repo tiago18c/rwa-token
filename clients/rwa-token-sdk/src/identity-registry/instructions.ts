@@ -13,6 +13,7 @@ import {
 } from "./utils";
 import { BN, Provider } from "@coral-xyz/anchor";
 import { getPolicyEnginePda, getTrackerAccountPda, policyEngineProgramId } from "../policy-engine/utils";
+import { getAssociatedTokenAddressSync, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
 
 /** Represents arguments for creating an on identity registry on chain. */
 export type CreateIdentityRegistryArgs = {
@@ -35,7 +36,6 @@ export async function getCreateIdentityRegistryIx(
 		.createIdentityRegistry(
 			new PublicKey(args.authority),
 			args.delegate ? new PublicKey(args.delegate) : null,
-			args.requireIdentityCreation ? args.requireIdentityCreation : null
 		)
 		.accountsStrict({
 			payer: args.payer,
@@ -127,6 +127,13 @@ export async function getDetachWalletFromIdentityIx(
 			identityRegistry: getIdentityRegistryPda(args.assetMint),
 			eventAuthority: getIdentityRegistryEventAuthority(),
 			program: identityProgram.programId,
+			assetMint: args.assetMint,
+			tokenAccount: getAssociatedTokenAddressSync(
+				new PublicKey(args.assetMint),
+				new PublicKey(args.wallet),
+				false,
+				TOKEN_2022_PROGRAM_ID
+			),
 		})
 		.instruction();
 	return ix;

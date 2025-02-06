@@ -27,9 +27,8 @@ pub mod policy_engine {
         ctx: Context<CreatePolicyEngine>,
         authority: Pubkey,
         delegate: Option<Pubkey>,
-        enforce_policy_issuance: Option<bool>,
     ) -> Result<()> {
-        instructions::engine::create::handler(ctx, authority, delegate, enforce_policy_issuance)
+        instructions::engine::create::handler(ctx, authority, delegate)
     }
 
     /// policies

@@ -1,5 +1,6 @@
-use crate::{state::*, DetachWalletFromIdentityEvent, IdentityAccount};
+use crate::{state::*, DetachWalletFromIdentityEvent, IdentityAccount, IdentityRegistryErrors};
 use anchor_lang::prelude::*;
+use anchor_spl::{token_2022::Token2022, token_interface::{Mint, TokenAccount}};
 
 #[derive(Accounts)]
 #[event_cpi]
@@ -24,7 +25,18 @@ pub struct DetachWalletFromIdentity<'info> {
     )]
     pub identity_account: Box<Account<'info, IdentityAccount>>,
 
+    #[account(has_one = asset_mint)]
     pub identity_registry: Box<Account<'info, IdentityRegistryAccount>>,
+    
+    #[account(
+        associated_token::mint = asset_mint,
+        associated_token::authority = wallet_identity.wallet,
+        associated_token::token_program = Token2022::id(),
+        constraint = token_account.amount == 0 @ IdentityRegistryErrors::TokenAccountNotEmpty
+    )]
+    pub token_account: Box<InterfaceAccount<'info, TokenAccount>>,
+    
+    pub asset_mint: Box<InterfaceAccount<'info, Mint>>,
 }
 
 pub fn handler(ctx: Context<DetachWalletFromIdentity>) -> Result<()> {

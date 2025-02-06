@@ -52,8 +52,6 @@ describe("counter tests", async () => {
 			name: "Test Class Asset",
 			uri: "https://test.com",
 			symbol: "TFT",
-			allowMultipleWallets: true,
-			enforcePolicyIssuance: true,
 		};
 
 		const setupIx = await rwaClient.assetController.setupNewRegistry(

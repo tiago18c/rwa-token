@@ -14,135 +14,6 @@ export type AssetController = {
   },
   "instructions": [
     {
-      "name": "burnTokens",
-      "docs": [
-        "burn shares of the rwa asset"
-      ],
-      "discriminator": [
-        76,
-        15,
-        51,
-        254,
-        229,
-        215,
-        121,
-        66
-      ],
-      "accounts": [
-        {
-          "name": "owner",
-          "signer": true
-        },
-        {
-          "name": "assetMint",
-          "writable": true
-        },
-        {
-          "name": "tokenAccount",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "account",
-                "path": "owner"
-              },
-              {
-                "kind": "account",
-                "path": "tokenProgram"
-              },
-              {
-                "kind": "account",
-                "path": "assetMint"
-              }
-            ],
-            "program": {
-              "kind": "const",
-              "value": [
-                140,
-                151,
-                37,
-                143,
-                78,
-                36,
-                137,
-                241,
-                187,
-                61,
-                16,
-                41,
-                20,
-                142,
-                13,
-                131,
-                11,
-                90,
-                19,
-                153,
-                218,
-                255,
-                16,
-                132,
-                4,
-                142,
-                123,
-                216,
-                219,
-                233,
-                248,
-                89
-              ]
-            }
-          }
-        },
-        {
-          "name": "tokenProgram",
-          "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
-        },
-        {
-          "name": "eventAuthority",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  95,
-                  95,
-                  101,
-                  118,
-                  101,
-                  110,
-                  116,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "program"
-        }
-      ],
-      "args": [
-        {
-          "name": "amount",
-          "type": "u64"
-        },
-        {
-          "name": "reason",
-          "type": "string"
-        }
-      ]
-    },
-    {
       "name": "closeMintAccount",
       "docs": [
         "close mint account"
@@ -180,135 +51,6 @@ export type AssetController = {
         {
           "name": "tokenProgram",
           "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
-        }
-      ],
-      "args": []
-    },
-    {
-      "name": "closeTokenAccount",
-      "docs": [
-        "close a token account"
-      ],
-      "discriminator": [
-        132,
-        172,
-        24,
-        60,
-        100,
-        156,
-        135,
-        97
-      ],
-      "accounts": [
-        {
-          "name": "payer",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "owner",
-          "signer": true
-        },
-        {
-          "name": "assetMint"
-        },
-        {
-          "name": "tokenAccount",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "account",
-                "path": "owner"
-              },
-              {
-                "kind": "const",
-                "value": [
-                  6,
-                  221,
-                  246,
-                  225,
-                  215,
-                  101,
-                  161,
-                  147,
-                  217,
-                  203,
-                  225,
-                  70,
-                  206,
-                  235,
-                  121,
-                  172,
-                  28,
-                  180,
-                  133,
-                  237,
-                  95,
-                  91,
-                  55,
-                  145,
-                  58,
-                  140,
-                  245,
-                  133,
-                  126,
-                  255,
-                  0,
-                  169
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "assetMint"
-              }
-            ],
-            "program": {
-              "kind": "const",
-              "value": [
-                140,
-                151,
-                37,
-                143,
-                78,
-                36,
-                137,
-                241,
-                187,
-                61,
-                16,
-                41,
-                20,
-                142,
-                13,
-                131,
-                11,
-                90,
-                19,
-                153,
-                218,
-                255,
-                16,
-                132,
-                4,
-                142,
-                123,
-                216,
-                219,
-                233,
-                248,
-                89
-              ]
-            }
-          }
-        },
-        {
-          "name": "tokenProgram",
-          "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
-        },
-        {
-          "name": "associatedTokenProgram",
-          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
         }
       ],
       "args": []
@@ -1736,18 +1478,6 @@ export type AssetController = {
             "type": {
               "option": "i16"
             }
-          },
-          {
-            "name": "allowMultipleWallets",
-            "type": {
-              "option": "bool"
-            }
-          },
-          {
-            "name": "enforcePolicyIssuance",
-            "type": {
-              "option": "bool"
-            }
           }
         ]
       }
@@ -2102,10 +1832,6 @@ export type AssetController = {
               "registry delegate"
             ],
             "type": "pubkey"
-          },
-          {
-            "name": "allowMultipleWallets",
-            "type": "bool"
           }
         ]
       }
@@ -2262,13 +1988,6 @@ export type AssetController = {
               "policy delegate"
             ],
             "type": "pubkey"
-          },
-          {
-            "name": "enforcePolicyIssuance",
-            "docs": [
-              "enforce policy issuance"
-            ],
-            "type": "bool"
           },
           {
             "name": "mapping",

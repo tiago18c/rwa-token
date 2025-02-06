@@ -72,15 +72,6 @@ impl IdentityAccount {
         Ok(())
     }
 
-    pub fn refresh_level(&mut self, level: u8, expiry: i64) -> Result<()> {
-        let index = self.levels.iter().position(|l| l.level == level);
-        if index.is_none() {
-            return Err(IdentityRegistryErrors::LevelNotFound.into());
-        }
-        self.levels[index.unwrap()].expiry = expiry;
-        Ok(())
-    }
-
     pub fn add_wallet(&mut self) -> Result<()> {
         self.num_wallets += 1;
         Ok(())

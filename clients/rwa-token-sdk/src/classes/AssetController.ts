@@ -3,10 +3,8 @@ import {
 	type IssueTokenArgs,
 	type SetupAssetControllerArgs,
 	type TransferTokensArgs,
-	type VoidTokensArgs,
 	getIssueTokensIx,
 	getSetupAssetControllerIxs,
-	getVoidTokensIx,
 	getAssetControllerPda,
 	getUpdateAssetMetadataIx,
 	UpdateAssetMetadataArgs,
@@ -72,21 +70,6 @@ export class AssetController {
 			this.rwaClient.provider
 		);
 		return issueTokensIxs;
-	}
-
-	/**
-   * Asynchronously generates instructions to void assets.
-   * @param - {@link VoidTokensArgs}
-   * @returns A Promise that resolves to the instructions to void assets.
-   */
-	async voidTokenIxns(
-		voidTokenArgs: VoidTokensArgs
-	): Promise<TransactionInstruction> {
-		const voidTokenIx = await getVoidTokensIx(
-			voidTokenArgs,
-			this.rwaClient.provider
-		);
-		return voidTokenIx;
 	}
 
 	/**

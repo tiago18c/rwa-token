@@ -45,11 +45,6 @@ pub mod asset_controller {
         instructions::update::handler(ctx, args)
     }
 
-    /// burn shares of the rwa asset
-    pub fn burn_tokens(ctx: Context<VoidTokens>, amount: u64, reason: String) -> Result<()> {
-        instructions::burn::handler(ctx, amount, reason)
-    }
-
     /// revoke shares of the rwa asset
     pub fn revoke_tokens<'info>(
         ctx: Context<'_, '_, '_, 'info, RevokeTokens<'info>>,
@@ -66,11 +61,6 @@ pub mod asset_controller {
         reason: String,
     ) -> Result<()> {
         instructions::seize::handler(ctx, amount, reason)
-    }
-
-    /// close a token account
-    pub fn close_token_account(ctx: Context<CloseTokenAccount>) -> Result<()> {
-        instructions::account::close::handler(ctx)
     }
 
     /// memo transfer enable

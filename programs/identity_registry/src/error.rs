@@ -22,4 +22,6 @@ pub enum IdentityRegistryErrors {
     WalletAlreadyInUse,
     #[msg("Invalid level")]
     InvalidLevel,
+    #[msg("Token account is not empty")]
+    TokenAccountNotEmpty,
 }

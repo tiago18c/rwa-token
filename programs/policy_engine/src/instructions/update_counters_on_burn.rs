@@ -34,10 +34,6 @@ pub fn handler(ctx: Context<UpdateCountersOnBurnAccounts>, amount: u64) -> Resul
 
     tracker_account.update_balance_burn(amount)?;
 
-    if !ctx.accounts.policy_engine.enforce_policy_issuance {
-        return Ok(());
-    }
-
     if tracker_account.total_amount == 0u64 {
         let changed_counters = ctx.accounts.policy_engine.decrease_holders_count(
             &ctx.accounts.identity_account.levels,

@@ -37,10 +37,6 @@ pub struct AttachWalletToIdentity<'info> {
 
 pub fn handler(ctx: Context<AttachWalletToIdentity>, wallet: Pubkey) -> Result<()> {
     require!(
-        ctx.accounts.identity_registry.allow_multiple_wallets,
-        IdentityRegistryErrors::MultipleWalletsNotAllowed
-    );
-    require!(
         ctx.accounts.authority.key() == ctx.accounts.identity_account.owner
             || ctx.accounts.authority.key() == ctx.accounts.identity_registry.authority,
         IdentityRegistryErrors::UnauthorizedSigner

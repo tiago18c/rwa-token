@@ -505,12 +505,6 @@ export type IdentityRegistry = {
           "type": {
             "option": "pubkey"
           }
-        },
-        {
-          "name": "allowMultipleWallets",
-          "type": {
-            "option": "bool"
-          }
         }
       ]
     },
@@ -590,6 +584,102 @@ export type IdentityRegistry = {
           ]
         },
         {
+          "name": "tokenAccount",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "wallet_identity.wallet",
+                "account": "walletIdentity"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  6,
+                  221,
+                  246,
+                  225,
+                  238,
+                  117,
+                  143,
+                  222,
+                  24,
+                  66,
+                  93,
+                  188,
+                  228,
+                  108,
+                  205,
+                  218,
+                  182,
+                  26,
+                  252,
+                  77,
+                  131,
+                  185,
+                  13,
+                  39,
+                  254,
+                  189,
+                  249,
+                  40,
+                  216,
+                  161,
+                  139,
+                  252
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "assetMint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "assetMint",
+          "relations": [
+            "identityRegistry"
+          ]
+        },
+        {
           "name": "eventAuthority",
           "pda": {
             "seeds": [
@@ -623,63 +713,6 @@ export type IdentityRegistry = {
         }
       ],
       "args": []
-    },
-    {
-      "name": "refreshLevelToIdentityAccount",
-      "docs": [
-        "add level to identity account"
-      ],
-      "discriminator": [
-        23,
-        68,
-        237,
-        111,
-        144,
-        169,
-        239,
-        91
-      ],
-      "accounts": [
-        {
-          "name": "payer",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "signer",
-          "signer": true
-        },
-        {
-          "name": "identityRegistry"
-        },
-        {
-          "name": "identityAccount",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "account",
-                "path": "identityRegistry"
-              },
-              {
-                "kind": "account",
-                "path": "identity_account.owner",
-                "account": "identityAccount"
-              }
-            ]
-          }
-        }
-      ],
-      "args": [
-        {
-          "name": "level",
-          "type": "u8"
-        },
-        {
-          "name": "expiry",
-          "type": "i64"
-        }
-      ]
     },
     {
       "name": "removeLevelFromIdentityAccount",
@@ -1086,6 +1119,11 @@ export type IdentityRegistry = {
       "code": 6009,
       "name": "invalidLevel",
       "msg": "Invalid level"
+    },
+    {
+      "code": 6010,
+      "name": "tokenAccountNotEmpty",
+      "msg": "Token account is not empty"
     }
   ],
   "types": [
@@ -1321,10 +1359,6 @@ export type IdentityRegistry = {
               "registry delegate"
             ],
             "type": "pubkey"
-          },
-          {
-            "name": "allowMultipleWallets",
-            "type": "bool"
           }
         ]
       }

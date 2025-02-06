@@ -633,12 +633,6 @@ export type PolicyEngine = {
           "type": {
             "option": "pubkey"
           }
-        },
-        {
-          "name": "enforcePolicyIssuance",
-          "type": {
-            "option": "bool"
-          }
         }
       ]
     },
@@ -2281,10 +2275,6 @@ export type PolicyEngine = {
               "registry delegate"
             ],
             "type": "pubkey"
-          },
-          {
-            "name": "allowMultipleWallets",
-            "type": "bool"
           }
         ]
       }
@@ -2479,13 +2469,6 @@ export type PolicyEngine = {
               "policy delegate"
             ],
             "type": "pubkey"
-          },
-          {
-            "name": "enforcePolicyIssuance",
-            "docs": [
-              "enforce policy issuance"
-            ],
-            "type": "bool"
           },
           {
             "name": "mapping",

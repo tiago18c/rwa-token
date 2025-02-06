@@ -13,7 +13,6 @@ pub struct IdentityRegistryAccount {
     pub authority: Pubkey,
     /// registry delegate
     pub delegate: Pubkey,
-    pub allow_multiple_wallets: bool,
 }
 
 /// level if attached to user account, will skip any policy checks
@@ -40,14 +39,12 @@ impl IdentityRegistryAccount {
         asset_mint: Pubkey,
         authority: Pubkey,
         delegate: Option<Pubkey>,
-        allow_multiple_wallets: bool,
         bump: u8,
     ) {
         self.asset_mint = asset_mint;
         self.authority = authority;
         self.delegate = delegate.unwrap_or(authority);
         self.version = Self::VERSION;
-        self.allow_multiple_wallets = allow_multiple_wallets;
         self.bump = bump;
     }
     pub fn update_delegate(&mut self, delegate: Pubkey) {

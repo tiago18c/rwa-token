@@ -19,7 +19,6 @@ import { getIdentityAccountPda, getIdentityRegistryPda } from "../identity-regis
 export type CreatePolicyEngineArgs = {
   authority: string;
   signer: string;
-  enforcePolicyIssuance: boolean;
 } & CommonArgs;
 
 /**
@@ -36,7 +35,6 @@ export async function getCreatePolicyEngineIx(
 		.createPolicyEngine(
 			new PublicKey(args.authority),
 			args.delegate ? new PublicKey(args.delegate) : null,
-			args.enforcePolicyIssuance
 		)
 		.accountsStrict({
 			payer: args.payer,

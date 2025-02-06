@@ -1,9 +1,6 @@
 import { AnchorProvider, BN, Wallet } from "@coral-xyz/anchor";
 import {
 	type AttachPolicyArgs,
-	CreateDataAccountArgs,
-	DeleteDataAccountArgs,
-	getDataAccountsWithFilter,
 	getFreezeTokenIx,
 	getRevokeTokensIx,
 	getSetupUserIxs,
@@ -11,8 +8,6 @@ import {
 	getTrackerAccount,
 	type IssueTokenArgs,
 	type TransferTokensArgs,
-	type UpdateDataAccountArgs,
-	VoidTokensArgs,
 	getPolicyEngineAccount,
 	getSeizeTokensIx,
 	getWalletIdentityAccountsWithFilter,
@@ -25,12 +20,14 @@ import { setupTests } from "./setup";
 import {
 	type ConfirmOptions,
 	Connection,
+	PublicKey,
 	Transaction,
 	sendAndConfirmTransaction,
 } from "@solana/web3.js";
 import { expect, test, describe } from "vitest";
 import { type Config } from "../src/classes/types";
 import { RwaClient } from "../src/classes";
+import { getAccount, getAssociatedTokenAddressSync, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
 
 describe("e2e tests", async () => {
 	let rwaClient: RwaClient;
@@ -69,7 +66,6 @@ describe("e2e tests", async () => {
 			name: "Test Class Asset",
 			uri: "https://test.com",
 			symbol: "TFT",
-			allowMultipleWallets: true,
 
 		};
 
@@ -241,24 +237,6 @@ describe("e2e tests", async () => {
 		expect(txnId).toBeTruthy();
 	});
 
-	test("void tokens", async () => {
-		const voidArgs: VoidTokensArgs = {
-			payer: setup.payer.toString(),
-			amount: new BN(100),
-			owner: setup.user1.toString(),
-			assetMint: mint,
-			authority: setup.user1.toString(),
-			reason: "TEST"
-		};
-		const voidIx = await rwaClient.assetController.voidTokenIxns(voidArgs);
-		const txnId = await sendAndConfirmTransaction(
-			rwaClient.provider.connection,
-			new Transaction().add(voidIx),
-			[setup.payerKp, setup.user1Kp]
-		);
-		expect(txnId).toBeTruthy();
-	});
-
 	test("revoke tokens", async () => {
 		const revokeIx = await getRevokeTokensIx({
 			owner: setup.user1.toString(),
@@ -363,6 +341,10 @@ describe("e2e tests", async () => {
 			[setup.payerKp, setup.authorityKp]
 		);
 		expect(txnId).toBeTruthy();
+
+		const ta = await getAccount(rwaClient.provider.connection, getAssociatedTokenAddressSync(new PublicKey(mint), new PublicKey(setup.user4.toString()), false, TOKEN_2022_PROGRAM_ID), undefined, TOKEN_2022_PROGRAM_ID);
+		expect(ta).toBeTruthy();
+		expect(ta!.amount.toString()).toBe("100");
 	});
 
 	test("transfer from wallet identity account", async () => {

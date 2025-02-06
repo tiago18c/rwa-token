@@ -41,7 +41,6 @@ pub fn handler(
     ctx: Context<CreatePolicyEngine>,
     authority: Pubkey,
     delegate: Option<Pubkey>,
-    enforce_policy_issuance: Option<bool>,
 ) -> Result<()> {
     // initialize the extra metas account
     let extra_metas_account = &ctx.accounts.extra_metas_account;
@@ -53,7 +52,6 @@ pub fn handler(
         authority,
         delegate,
         ctx.accounts.asset_mint.key(),
-        enforce_policy_issuance.unwrap_or(false),
     ));
 
     Ok(())

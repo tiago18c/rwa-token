@@ -168,15 +168,13 @@ pub struct PolicyEngineAccount {
     pub authority: Pubkey,
     /// policy delegate
     pub delegate: Pubkey,
-    /// enforce policy issuance
-    pub enforce_policy_issuance: bool,
     /// generic mapping for levels
     pub mapping: [u8; 256],
     /// policies to apply on issuance
     /// these are partially for storage only
     pub issuance_policies: IssuancePolicies,
     /// policies to check on transfers or balance changes
-    #[max_len(1)]
+    #[max_len(0)]
     pub policies: Vec<Policy>,
     /// counters to track the number of holders depending on filters
     #[max_len(0)]
@@ -292,14 +290,12 @@ impl PolicyEngineAccount {
         authority: Pubkey,
         delegate: Option<Pubkey>,
         asset_mint: Pubkey,
-        enforce_policy_issuance: bool,
     ) -> Self {
         Self {
             version: Self::VERSION,
             authority,
             delegate: delegate.unwrap_or(authority),
             asset_mint,
-            enforce_policy_issuance,
             mapping: [0; 256],
             issuance_policies: IssuancePolicies {
                 disallow_backdating: false,
@@ -554,20 +550,32 @@ impl PolicyEngineAccount {
                     }
                 }
                 PolicyType::MinBalance { limit } => {
-                    if !self_transfer
-                        && self
-                            .enforce_filters_on_transfer(
+                    if !self_transfer {
+                        if self
+                            .enforce_filters_single(
                                 source_identity,
                                 source_country,
+                                &policy.identity_filter,
+                                timestamp,
+                            )
+                            .is_ok()
+                        {
+                            if source_balance < *limit {
+                                get_custom_error(policy.custom_error, PolicyEngineErrors::MinBalanceExceeded)?;
+                            }
+                        }
+                        if self
+                            .enforce_filters_single(
                                 destination_identity,
                                 destination_country,
                                 &policy.identity_filter,
                                 timestamp,
                             )
                             .is_ok()
-                    {
-                        if source_balance < *limit {
-                            get_custom_error(policy.custom_error, PolicyEngineErrors::MinBalanceExceeded)?;
+                        {
+                            if destination_balance < *limit {
+                                get_custom_error(policy.custom_error, PolicyEngineErrors::MinBalanceExceeded)?;
+                            }
                         }
                     }
                 }

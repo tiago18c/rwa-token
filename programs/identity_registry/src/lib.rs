@@ -27,9 +27,8 @@ pub mod identity_registry {
         ctx: Context<CreateIdentityRegistry>,
         authority: Pubkey,
         delegate: Option<Pubkey>,
-        allow_multiple_wallets: Option<bool>,
     ) -> Result<()> {
-        instructions::registry::create::handler(ctx, authority, delegate, allow_multiple_wallets)
+        instructions::registry::create::handler(ctx, authority, delegate)
     }
 
     /// delegate identity registry
@@ -60,15 +59,6 @@ pub mod identity_registry {
         enforce_limits: bool,
     ) -> Result<()> {
         instructions::account::add::handler(ctx, levels, expiries, enforce_limits)
-    }
-
-    /// add level to identity account
-    pub fn refresh_level_to_identity_account(
-        ctx: Context<RefreshLevelToIdentityAccount>,
-        level: u8,
-        expiry: i64,
-    ) -> Result<()> {
-        instructions::account::refresh::handler(ctx, level, expiry)
     }
 
     /// remove level from identity account

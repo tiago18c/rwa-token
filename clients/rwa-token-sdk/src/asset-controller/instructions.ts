@@ -53,8 +53,6 @@ export type CreateAssetControllerIx = {
   uri: string;
   symbol: string;
   interestRate?: number;
-  allowMultipleWallets?: boolean;
-  enforcePolicyIssuance?: boolean;
 } & CommonArgs;
 
 /**
@@ -75,8 +73,6 @@ export async function getCreateAssetControllerIx(
 			symbol: args.symbol,
 			delegate: args.delegate ? new PublicKey(args.delegate) : null,
 			interestRate: args.interestRate ? args.interestRate : null,
-			allowMultipleWallets: args.allowMultipleWallets ? args.allowMultipleWallets : null,
-			enforcePolicyIssuance: args.enforcePolicyIssuance ? args.enforcePolicyIssuance : false,
 		})
 		.accountsStrict({
 			payer: args.payer,
@@ -183,37 +179,6 @@ export async function getIssueTokensIx(
 		})
 		.instruction();
 	return [ix];
-}
-
-export type VoidTokensArgs = {
-  amount: BN;
-  owner: string;
-  reason: string;
-} & CommonArgs;
-
-export async function getVoidTokensIx(
-	args: VoidTokensArgs,
-	provider: Provider
-): Promise<TransactionInstruction> {
-	const assetProgram = getAssetControllerProgram(provider);
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-	const ix = await assetProgram.methods
-		.burnTokens(args.amount, args.reason)
-		.accountsStrict({
-			assetMint: new PublicKey(args.assetMint),
-			tokenProgram: TOKEN_2022_PROGRAM_ID,
-			tokenAccount: getAssociatedTokenAddressSync(
-				new PublicKey(args.assetMint),
-				new PublicKey(args.owner),
-				false,
-				TOKEN_2022_PROGRAM_ID
-			),
-			owner: args.owner,
-			eventAuthority: getAssetControllerEventAuthority(),
-			program: assetControllerProgramId,
-		})
-		.instruction();
-	return ix;
 }
 
 export type TransferTokensArgs = {
@@ -369,8 +334,6 @@ export type SetupAssetControllerArgs = {
   uri: string;
   symbol: string;
   interestRate?: number;
-  allowMultipleWallets?: boolean;
-  enforcePolicyIssuance?: boolean;
 };
 
 /**

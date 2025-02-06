@@ -29,8 +29,6 @@ pub struct CreateAssetControllerArgs {
     pub uri: String,
     pub delegate: Option<Pubkey>,
     pub interest_rate: Option<i16>,
-    pub allow_multiple_wallets: Option<bool>,
-    pub enforce_policy_issuance: Option<bool>,
 }
 
 #[derive(Accounts)]
@@ -116,7 +114,6 @@ impl<'info> CreateAssetController<'info> {
         &self,
         delegate: Option<Pubkey>,
         signer_seeds: &[&[&[u8]]],
-        enforce_policy_issuance: Option<bool>,
     ) -> Result<()> {
         let cpi_accounts = CreatePolicyEngine {
             payer: self.payer.to_account_info(),
@@ -135,7 +132,6 @@ impl<'info> CreateAssetController<'info> {
             cpi_ctx,
             self.authority.key(),
             delegate,
-            enforce_policy_issuance,
         )?;
         Ok(())
     }
@@ -144,7 +140,6 @@ impl<'info> CreateAssetController<'info> {
         &self,
         delegate: Option<Pubkey>,
         signer_seeds: &[&[&[u8]]],
-        allow_multiple_wallets: Option<bool>,
     ) -> Result<()> {
         let cpi_accounts = CreateIdentityRegistry {
             payer: self.payer.to_account_info(),
@@ -162,7 +157,6 @@ impl<'info> CreateAssetController<'info> {
             cpi_ctx,
             self.authority.key(),
             delegate,
-            allow_multiple_wallets,
         )?;
         Ok(())
     }
@@ -220,14 +214,12 @@ pub fn handler(ctx: Context<CreateAssetController>, args: CreateAssetControllerA
     ctx.accounts.create_policy_engine(
         args.delegate,
         &[&signer_seeds],
-        args.enforce_policy_issuance,
     )?;
 
     // create identity registry
     ctx.accounts.create_identity_registry(
         args.delegate,
         &[&signer_seeds],
-        args.allow_multiple_wallets,
     )?;
 
     Ok(())

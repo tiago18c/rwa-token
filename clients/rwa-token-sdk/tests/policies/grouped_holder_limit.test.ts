@@ -43,7 +43,6 @@ describe("test additional policies", async () => {
 			name: "Test Asset",
 			uri: "https://test.com",
 			symbol: "TST",
-			enforcePolicyIssuance: true,
 		};
 		const setupAssetController = await rwaClient.assetController.setupNewRegistry(
 			createAssetControllerArgs
