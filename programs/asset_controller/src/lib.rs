@@ -81,11 +81,6 @@ pub mod asset_controller {
         instructions::extensions::interest_bearing::handler(ctx, rate)
     }
 
-    /// close mint account
-    pub fn close_mint_account(ctx: Context<CloseMintAccount>) -> Result<()> {
-        instructions::extensions::close_mint::handler(ctx)
-    }
-
     /// freeze token account
     pub fn freeze_token_account(ctx: Context<FreezeTokenAccount>) -> Result<()> {
         instructions::account::freeze::handler(ctx)

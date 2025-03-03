@@ -627,12 +627,6 @@ export type PolicyEngine = {
         {
           "name": "authority",
           "type": "pubkey"
-        },
-        {
-          "name": "delegate",
-          "type": {
-            "option": "pubkey"
-          }
         }
       ]
     },
@@ -2460,13 +2454,6 @@ export type PolicyEngine = {
             "name": "authority",
             "docs": [
               "authority of the registry"
-            ],
-            "type": "pubkey"
-          },
-          {
-            "name": "delegate",
-            "docs": [
-              "policy delegate"
             ],
             "type": "pubkey"
           },

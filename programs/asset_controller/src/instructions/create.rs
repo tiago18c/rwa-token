@@ -27,7 +27,6 @@ pub struct CreateAssetControllerArgs {
     pub name: String,
     pub symbol: String,
     pub uri: String,
-    pub delegate: Option<Pubkey>,
     pub interest_rate: Option<i16>,
 }
 
@@ -112,7 +111,6 @@ impl<'info> CreateAssetController<'info> {
 
     fn create_policy_engine(
         &self,
-        delegate: Option<Pubkey>,
         signer_seeds: &[&[&[u8]]],
     ) -> Result<()> {
         let cpi_accounts = CreatePolicyEngine {
@@ -131,14 +129,12 @@ impl<'info> CreateAssetController<'info> {
         create_policy_engine(
             cpi_ctx,
             self.authority.key(),
-            delegate,
         )?;
         Ok(())
     }
 
     fn create_identity_registry(
         &self,
-        delegate: Option<Pubkey>,
         signer_seeds: &[&[&[u8]]],
     ) -> Result<()> {
         let cpi_accounts = CreateIdentityRegistry {
@@ -156,7 +152,6 @@ impl<'info> CreateAssetController<'info> {
         create_identity_registry(
             cpi_ctx,
             self.authority.key(),
-            delegate,
         )?;
         Ok(())
     }
@@ -167,7 +162,6 @@ pub fn handler(ctx: Context<CreateAssetController>, args: CreateAssetControllerA
     ctx.accounts.asset_controller.set_inner(AssetControllerAccount::new(
         ctx.accounts.asset_mint.key(),
         ctx.accounts.authority.key(),
-        args.delegate,
     ));
     let asset_mint = ctx.accounts.asset_mint.key();
 
@@ -212,13 +206,11 @@ pub fn handler(ctx: Context<CreateAssetController>, args: CreateAssetControllerA
 
     // create policy registry
     ctx.accounts.create_policy_engine(
-        args.delegate,
         &[&signer_seeds],
     )?;
 
     // create identity registry
     ctx.accounts.create_identity_registry(
-        args.delegate,
         &[&signer_seeds],
     )?;
 

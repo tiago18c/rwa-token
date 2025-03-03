@@ -71,7 +71,6 @@ export async function getCreateAssetControllerIx(
 			name: args.name,
 			uri: args.uri,
 			symbol: args.symbol,
-			delegate: args.delegate ? new PublicKey(args.delegate) : null,
 			interestRate: args.interestRate ? args.interestRate : null,
 		})
 		.accountsStrict({
@@ -510,32 +509,6 @@ export async function getDisableMemoTransferIx(
 			tokenProgram: TOKEN_2022_PROGRAM_ID,
 			program: assetControllerProgramId,
 			eventAuthority: getAssetControllerEventAuthority(),
-		})
-		.instruction();
-	return ix;
-}
-
-export type CloseMintArgs = {
-	authority: string;
-} & CommonArgs;
-
-/**
- * Generate Instructions to close a mint
- * @param args - {@link CloseMintArgs}
- * @returns - {@link TransactionInstruction}
- */
-export async function getCloseMintIx(
-	args: CloseMintArgs,
-	provider: Provider
-): Promise<TransactionInstruction> {
-	const assetProgram = getAssetControllerProgram(provider);
-	const ix = await assetProgram.methods
-		.closeMintAccount()
-		.accountsStrict({
-			authority: new PublicKey(args.authority),
-			assetMint: new PublicKey(args.assetMint),
-			tokenProgram: TOKEN_2022_PROGRAM_ID,
-			assetController: getAssetControllerPda(args.assetMint),
 		})
 		.instruction();
 	return ix;

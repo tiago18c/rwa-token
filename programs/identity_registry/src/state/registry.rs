@@ -38,16 +38,11 @@ impl IdentityRegistryAccount {
         &mut self,
         asset_mint: Pubkey,
         authority: Pubkey,
-        delegate: Option<Pubkey>,
         bump: u8,
     ) {
         self.asset_mint = asset_mint;
         self.authority = authority;
-        self.delegate = delegate.unwrap_or(authority);
         self.version = Self::VERSION;
         self.bump = bump;
-    }
-    pub fn update_delegate(&mut self, delegate: Pubkey) {
-        self.delegate = delegate;
     }
 }

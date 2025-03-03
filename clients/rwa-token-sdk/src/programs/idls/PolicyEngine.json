@@ -621,12 +621,6 @@
         {
           "name": "authority",
           "type": "pubkey"
-        },
-        {
-          "name": "delegate",
-          "type": {
-            "option": "pubkey"
-          }
         }
       ]
     },
@@ -2454,13 +2448,6 @@
             "name": "authority",
             "docs": [
               "authority of the registry"
-            ],
-            "type": "pubkey"
-          },
-          {
-            "name": "delegate",
-            "docs": [
-              "policy delegate"
             ],
             "type": "pubkey"
           },

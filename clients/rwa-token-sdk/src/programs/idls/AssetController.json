@@ -8,48 +8,6 @@
   },
   "instructions": [
     {
-      "name": "close_mint_account",
-      "docs": [
-        "close mint account"
-      ],
-      "discriminator": [
-        14,
-        121,
-        72,
-        246,
-        96,
-        224,
-        42,
-        162
-      ],
-      "accounts": [
-        {
-          "name": "authority",
-          "signer": true
-        },
-        {
-          "name": "asset_mint",
-          "writable": true
-        },
-        {
-          "name": "asset_controller",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "account",
-                "path": "asset_mint"
-              }
-            ]
-          }
-        },
-        {
-          "name": "token_program",
-          "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
-        }
-      ],
-      "args": []
-    },
-    {
       "name": "create_asset_controller",
       "docs": [
         "create an rwa asset"
@@ -1280,15 +1238,6 @@
               "authority has the ability to change delegate, freeze token accounts, etc."
             ],
             "type": "pubkey"
-          },
-          {
-            "name": "delegate",
-            "docs": [
-              "delegate has the ability to generate tranasction approval accounts,",
-              "by default points to self, which allows any programs to generate an approval account",
-              "update to any other account to control cpis"
-            ],
-            "type": "pubkey"
           }
         ]
       }
@@ -1460,12 +1409,6 @@
           {
             "name": "uri",
             "type": "string"
-          },
-          {
-            "name": "delegate",
-            "type": {
-              "option": "pubkey"
-            }
           },
           {
             "name": "interest_rate",
@@ -1973,13 +1916,6 @@
             "name": "authority",
             "docs": [
               "authority of the registry"
-            ],
-            "type": "pubkey"
-          },
-          {
-            "name": "delegate",
-            "docs": [
-              "policy delegate"
             ],
             "type": "pubkey"
           },

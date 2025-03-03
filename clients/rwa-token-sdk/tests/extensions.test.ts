@@ -1,6 +1,5 @@
 import { AnchorProvider, BN, Wallet } from "@coral-xyz/anchor";
 import {
-	getCloseMintIx,
 	getDisableMemoTransferIx,
 	getEnableMemoTransferIx,
 	getSetupUserIxs,
@@ -175,29 +174,6 @@ describe("extension tests", async () => {
 			mintAccount, 
 		);
 		expect(interestBearingMintConfig?.requireIncomingTransferMemos).toEqual(false);
-	});
-
-	test("close mint account", async () => {
-		const closeIx = await getCloseMintIx(
-			{
-				authority: setup.authority.toString(),
-				assetMint: mint,
-				payer: setup.payer.toString(),
-			},
-			rwaClient.provider
-		);
-		const txnId = await sendAndConfirmTransaction(
-			rwaClient.provider.connection,
-			new Transaction().add(closeIx),
-			[setup.authorityKp]
-		);
-		expect(txnId).toBeTruthy();
-		expect(getMint(
-			rwaClient.provider.connection,
-			new PublicKey(mint),
-			undefined,
-			TOKEN_2022_PROGRAM_ID,
-		)).rejects.toThrow();
 	});
 
 });

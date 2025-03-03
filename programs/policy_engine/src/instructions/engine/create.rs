@@ -40,7 +40,6 @@ pub struct CreatePolicyEngine<'info> {
 pub fn handler(
     ctx: Context<CreatePolicyEngine>,
     authority: Pubkey,
-    delegate: Option<Pubkey>,
 ) -> Result<()> {
     // initialize the extra metas account
     let extra_metas_account = &ctx.accounts.extra_metas_account;
@@ -50,7 +49,6 @@ pub fn handler(
 
     ctx.accounts.policy_engine_account.set_inner(PolicyEngineAccount::new(
         authority,
-        delegate,
         ctx.accounts.asset_mint.key(),
     ));
 

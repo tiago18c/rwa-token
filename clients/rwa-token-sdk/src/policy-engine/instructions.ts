@@ -34,7 +34,6 @@ export async function getCreatePolicyEngineIx(
 	const ix = await policyProgram.methods
 		.createPolicyEngine(
 			new PublicKey(args.authority),
-			args.delegate ? new PublicKey(args.delegate) : null,
 		)
 		.accountsStrict({
 			payer: args.payer,

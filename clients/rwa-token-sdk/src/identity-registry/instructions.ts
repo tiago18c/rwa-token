@@ -35,7 +35,6 @@ export async function getCreateIdentityRegistryIx(
 	const ix = await identityProgram.methods
 		.createIdentityRegistry(
 			new PublicKey(args.authority),
-			args.delegate ? new PublicKey(args.delegate) : null,
 		)
 		.accountsStrict({
 			payer: args.payer,

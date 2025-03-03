@@ -166,8 +166,6 @@ pub struct PolicyEngineAccount {
     pub asset_mint: Pubkey,
     /// authority of the registry
     pub authority: Pubkey,
-    /// policy delegate
-    pub delegate: Pubkey,
     /// generic mapping for levels
     pub mapping: [u8; 256],
     /// policies to apply on issuance
@@ -288,13 +286,11 @@ impl PolicyEngineAccount {
     pub const VERSION: u8 = 1;
     pub fn new(
         authority: Pubkey,
-        delegate: Option<Pubkey>,
         asset_mint: Pubkey,
     ) -> Self {
         Self {
             version: Self::VERSION,
             authority,
-            delegate: delegate.unwrap_or(authority),
             asset_mint,
             mapping: [0; 256],
             issuance_policies: IssuancePolicies {
@@ -308,10 +304,7 @@ impl PolicyEngineAccount {
             counter_limits: vec![],
         }
     }
-    pub fn update_delegate(&mut self, delegate: Pubkey) {
-        self.delegate = delegate;
-    }
-
+    
     pub fn change_mapping(&mut self, mapping_source: Vec<u8>, mapping_value: Vec<u8>) {
         for (src, dst) in mapping_source.iter().zip(mapping_value.iter()) {
             self.mapping[*src as usize] = *dst;

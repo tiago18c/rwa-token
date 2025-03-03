@@ -499,44 +499,6 @@ export type IdentityRegistry = {
         {
           "name": "authority",
           "type": "pubkey"
-        },
-        {
-          "name": "delegate",
-          "type": {
-            "option": "pubkey"
-          }
-        }
-      ]
-    },
-    {
-      "name": "delegateIdentityRegsitry",
-      "docs": [
-        "delegate identity registry"
-      ],
-      "discriminator": [
-        29,
-        162,
-        167,
-        70,
-        52,
-        79,
-        50,
-        65
-      ],
-      "accounts": [
-        {
-          "name": "authority",
-          "signer": true
-        },
-        {
-          "name": "identityRegistryAccount",
-          "writable": true
-        }
-      ],
-      "args": [
-        {
-          "name": "delegate",
-          "type": "pubkey"
         }
       ]
     },
