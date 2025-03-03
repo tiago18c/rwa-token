@@ -19,7 +19,7 @@ use policy_engine::{
 };
 use rwa_utils::get_bump_in_seed_form;
 
-use crate::{state::*, update_account_lamports_to_minimum_balance};
+use crate::{state::*, update_account_lamports_to_minimum_balance, AssetControllerErrors, ASSET_ACCESS_CONTROLLER_ID};
 
 #[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct CreateAssetControllerArgs {
@@ -159,6 +159,24 @@ impl<'info> CreateAssetController<'info> {
 }
 
 pub fn handler(ctx: Context<CreateAssetController>, args: CreateAssetControllerArgs) -> Result<()> {
+    // RWA RBAC authority derivation and enforcement
+    let (controller, _) = Pubkey::find_program_address(
+        &[
+            ctx.accounts.asset_mint.key().as_ref(),
+            b"AssetAccessController".as_ref(),
+        ],
+        &ASSET_ACCESS_CONTROLLER_ID,
+    );
+
+    let (controller_authority, _) =
+        Pubkey::find_program_address(&[controller.as_ref()], &ASSET_ACCESS_CONTROLLER_ID);
+
+    #[cfg(not(feature = "localnet"))]
+    require!(
+        ctx.accounts.authority.key() == controller_authority,
+        AssetControllerErrors::InvalidAuthority
+    );
+
     ctx.accounts.asset_controller.set_inner(AssetControllerAccount::new(
         ctx.accounts.asset_mint.key(),
         ctx.accounts.authority.key(),
