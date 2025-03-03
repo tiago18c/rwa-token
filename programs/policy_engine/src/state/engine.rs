@@ -139,9 +139,9 @@ pub enum FilterLevel {
 impl IdentityFilter {
     pub fn get_space(&self) -> usize {
         match self {
-            IdentityFilter::Simple(filter) => filter.get_space(),
+            IdentityFilter::Simple(filter) => 1 + filter.get_space(),
             IdentityFilter::IfThen(filter, then_filter) => {
-                filter.get_space() + then_filter.get_space()
+                1 + filter.get_space() + then_filter.get_space()
             }
         }
     }
@@ -225,7 +225,7 @@ impl CounterLimit {
                 max: _,
                 min: _,
                 counters,
-            } => Counter::INIT_SPACE + counters.len(),
+            } => CounterLimit::INIT_SPACE + counters.len(),
             _ => CounterLimit::INIT_SPACE,
         }
     }
@@ -252,11 +252,11 @@ pub struct Policy {
 
 impl Policy {
     pub fn get_space(&self) -> usize {
-        self.identity_filter.get_space() + PolicyType::INIT_SPACE + self.hash.len() + 4
+        self.identity_filter.get_space() + PolicyType::INIT_SPACE + 69
     }
 
     pub fn get_new_space(filter: &IdentityFilter) -> usize {
-        filter.get_space() + PolicyType::INIT_SPACE + 68
+        filter.get_space() + PolicyType::INIT_SPACE + 69
     }
 }
 
@@ -304,7 +304,7 @@ impl PolicyEngineAccount {
             counter_limits: vec![],
         }
     }
-    
+
     pub fn change_mapping(&mut self, mapping_source: Vec<u8>, mapping_value: Vec<u8>) {
         for (src, dst) in mapping_source.iter().zip(mapping_value.iter()) {
             self.mapping[*src as usize] = *dst;
