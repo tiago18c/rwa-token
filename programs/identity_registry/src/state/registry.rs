@@ -11,8 +11,6 @@ pub struct IdentityRegistryAccount {
     pub asset_mint: Pubkey,
     /// authority to manage the registry
     pub authority: Pubkey,
-    /// registry delegate
-    pub delegate: Pubkey,
 }
 
 /// level if attached to user account, will skip any policy checks

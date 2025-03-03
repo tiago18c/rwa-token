@@ -9,7 +9,7 @@ use anchor_lang::prelude::*;
 pub struct ChangeCountry<'info> {
     pub payer: Signer<'info>,
     #[account(
-        constraint = identity_registry.authority == signer.key() || identity_registry.delegate == signer.key()
+        constraint = identity_registry.authority == signer.key()
     )]
     pub signer: Signer<'info>,
     #[account(has_one = asset_mint)]

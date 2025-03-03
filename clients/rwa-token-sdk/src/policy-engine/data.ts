@@ -17,12 +17,10 @@ export async function getPolicyEngineAccount(assetMint: string, provider: Provid
 export interface PolicyEngineFilter {
 	assetMint?: string;
 	authority?: string;
-	delegate?: string;
 }
 
 export const POLICY_ENGINE_ASSET_MINT_OFFSET = 9;
 export const POLICY_ENGINE_AUTHORITY_OFFSET = 41;
-export const POLICY_ENGINE_DELEGATE_OFFSET = 73;
 
 /**
  * Retrieves policy engine accounts with a filter.
@@ -30,7 +28,7 @@ export const POLICY_ENGINE_DELEGATE_OFFSET = 73;
  * @returns A promise resolving to an array of {@link PolicyEngineAccount}, or `undefined` if it doesn't exist.
  */
 export async function getPolicyEngineAccountsWithFilter(filter: PolicyEngineFilter, provider: Provider): Promise<PolicyEngineAccount[] | undefined> {
-	const { assetMint, authority, delegate } = filter;
+	const { assetMint, authority } = filter;
 	const policyEngineProgram = getPolicyEngineProgram(provider);
 	const filters: GetProgramAccountsFilter[] = [];
 	if (assetMint) {
@@ -38,9 +36,6 @@ export async function getPolicyEngineAccountsWithFilter(filter: PolicyEngineFilt
 	}
 	if (authority) {
 		filters.push({ memcmp: { offset: POLICY_ENGINE_AUTHORITY_OFFSET, bytes: new PublicKey(authority).toBase58() } });
-	}
-	if (delegate) {
-		filters.push({ memcmp: { offset: POLICY_ENGINE_DELEGATE_OFFSET, bytes: new PublicKey(delegate).toBase58() } });
 	}
 	const policyAccounts = await provider.connection.getProgramAccounts(policyEngineProgram.programId, {
 		filters,

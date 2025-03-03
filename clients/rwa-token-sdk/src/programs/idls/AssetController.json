@@ -1213,6 +1213,11 @@
       "code": 6011,
       "name": "InvalidIdentityAccounts",
       "msg": "Invalid identity accounts"
+    },
+    {
+      "code": 6012,
+      "name": "InvalidAuthority",
+      "msg": "Invalid authority"
     }
   ],
   "types": [
@@ -1235,7 +1240,7 @@
           {
             "name": "authority",
             "docs": [
-              "authority has the ability to change delegate, freeze token accounts, etc."
+              "authority has the ability to seize, freeze token accounts, etc."
             ],
             "type": "pubkey"
           }
@@ -1760,13 +1765,6 @@
             "name": "authority",
             "docs": [
               "authority to manage the registry"
-            ],
-            "type": "pubkey"
-          },
-          {
-            "name": "delegate",
-            "docs": [
-              "registry delegate"
             ],
             "type": "pubkey"
           }

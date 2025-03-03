@@ -1314,13 +1314,6 @@ export type IdentityRegistry = {
               "authority to manage the registry"
             ],
             "type": "pubkey"
-          },
-          {
-            "name": "delegate",
-            "docs": [
-              "registry delegate"
-            ],
-            "type": "pubkey"
           }
         ]
       }

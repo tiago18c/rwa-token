@@ -24,13 +24,11 @@ export async function getAssetControllerAccount(
 export interface AssetControllerDataFilter {
 	assetMint?: string;
 	authority?: string;
-	delegate?: string;
 	owner?: string;
 }
 
 export const ASSET_CONTROLLER_ASSET_MINT_OFFSET = 9;
 export const ASSET_CONTROLLER_AUTHORITY_OFFSET = 41;
-export const ASSET_CONTROLLER_DELEGATE_OFFSET = 73;
 
 /**
  * Retrieves a asset controller account associated with a specific asset mint.
@@ -41,7 +39,7 @@ export async function getAssetControllerAccountsWithFilter(
 	filter: Omit<AssetControllerDataFilter, "owner">,
 	provider: Provider
 ): Promise<AssetControllerAccount[] | undefined> {
-	const { assetMint, authority, delegate } = filter;
+	const { assetMint, authority } = filter;
 	const assetProgram = getAssetControllerProgram(provider);
 	const filters: GetProgramAccountsFilter[] = [];
 	if (assetMint) {
@@ -49,9 +47,6 @@ export async function getAssetControllerAccountsWithFilter(
 	}
 	if (authority) {
 		filters.push({ memcmp: { offset: ASSET_CONTROLLER_AUTHORITY_OFFSET, bytes: new PublicKey(authority).toBase58() } });
-	}
-	if (delegate) {
-		filters.push({ memcmp: { offset: ASSET_CONTROLLER_DELEGATE_OFFSET, bytes: new PublicKey(delegate).toBase58() } });
 	}
 	const assetAccounts = await provider.connection.getProgramAccounts(assetProgram.programId, {
 		filters,

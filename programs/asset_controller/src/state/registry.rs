@@ -6,7 +6,7 @@ pub struct AssetControllerAccount {
     pub version: u8,
     /// mint pubkey
     pub asset_mint: Pubkey,
-    /// authority has the ability to change delegate, freeze token accounts, etc.
+    /// authority has the ability to seize, freeze token accounts, etc.
     pub authority: Pubkey,
 }
 

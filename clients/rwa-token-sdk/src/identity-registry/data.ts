@@ -25,12 +25,10 @@ export async function getIdentityRegistryAccount(
 export interface IdentityRegistryFilter {
 	assetMint?: string;
 	authority?: string;
-	delegate?: string;
 }
 
 export const IDENTITY_REGISTRY_ASSET_MINT_OFFSET = 9;
 export const IDENTITY_REGISTRY_AUTHORITY_OFFSET = 41;
-export const IDENTITY_REGISTRY_DELEGATE_OFFSET = 73;
 
 /**
  * Retrieves identity registry account associated with a specific asset mint.
@@ -41,7 +39,7 @@ export async function getIdentityRegistryAccountsWithFilter(
 	filter: IdentityRegistryFilter,
 	provider: Provider
 ): Promise<IdentityRegistryAccount[] | undefined> {
-	const { assetMint, authority, delegate } = filter;
+	const { assetMint, authority } = filter;
 	const identityRegistryProgram = getIdentityRegistryProgram(provider);
 	const filters: GetProgramAccountsFilter[] = [];
 	if (assetMint) {
@@ -49,9 +47,6 @@ export async function getIdentityRegistryAccountsWithFilter(
 	}
 	if (authority) {
 		filters.push({ memcmp: { offset: IDENTITY_REGISTRY_AUTHORITY_OFFSET, bytes: new PublicKey(authority).toBase58() } });
-	}
-	if (delegate) {
-		filters.push({ memcmp: { offset: IDENTITY_REGISTRY_DELEGATE_OFFSET, bytes: new PublicKey(delegate).toBase58() } });
 	}
 	const identityAccounts = await provider.connection.getProgramAccounts(identityRegistryProgram.programId, {
 		filters,

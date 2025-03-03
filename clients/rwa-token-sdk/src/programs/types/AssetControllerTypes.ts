@@ -1219,6 +1219,11 @@ export type AssetController = {
       "code": 6011,
       "name": "invalidIdentityAccounts",
       "msg": "Invalid identity accounts"
+    },
+    {
+      "code": 6012,
+      "name": "invalidAuthority",
+      "msg": "Invalid authority"
     }
   ],
   "types": [
@@ -1241,7 +1246,7 @@ export type AssetController = {
           {
             "name": "authority",
             "docs": [
-              "authority has the ability to change delegate, freeze token accounts, etc."
+              "authority has the ability to seize, freeze token accounts, etc."
             ],
             "type": "pubkey"
           }
@@ -1766,13 +1771,6 @@ export type AssetController = {
             "name": "authority",
             "docs": [
               "authority to manage the registry"
-            ],
-            "type": "pubkey"
-          },
-          {
-            "name": "delegate",
-            "docs": [
-              "registry delegate"
             ],
             "type": "pubkey"
           }

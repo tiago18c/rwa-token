@@ -8,7 +8,7 @@ pub struct CreateIdentityAccount<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
     #[account(
-        constraint = identity_registry.authority == signer.key() || identity_registry.delegate == signer.key()
+        constraint = identity_registry.authority == signer.key()
     )]
     pub signer: Signer<'info>,
     #[account()]

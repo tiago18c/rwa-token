@@ -28,5 +28,4 @@ export type CommonArgs = {
 	signer?: string;
 	owner?: string;
 	authority?: string;
-	delegate?: string;
 };

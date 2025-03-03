@@ -328,7 +328,6 @@ export type SetupAssetControllerArgs = {
   authority: string;
   decimals: number;
   payer: string;
-  delegate?: string;
   name: string;
   uri: string;
   symbol: string;

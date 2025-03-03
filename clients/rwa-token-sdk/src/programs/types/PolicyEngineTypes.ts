@@ -2262,13 +2262,6 @@ export type PolicyEngine = {
               "authority to manage the registry"
             ],
             "type": "pubkey"
-          },
-          {
-            "name": "delegate",
-            "docs": [
-              "registry delegate"
-            ],
-            "type": "pubkey"
           }
         ]
       }
