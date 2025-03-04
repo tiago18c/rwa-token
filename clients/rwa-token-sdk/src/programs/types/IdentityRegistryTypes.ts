@@ -857,6 +857,16 @@ export type IdentityRegistry = {
           }
         },
         {
+          "name": "policyEngineProgram"
+        },
+        {
+          "name": "trackerAccount",
+          "writable": true
+        },
+        {
+          "name": "assetMint"
+        },
+        {
           "name": "eventAuthority",
           "pda": {
             "seeds": [

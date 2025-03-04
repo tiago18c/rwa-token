@@ -325,29 +325,6 @@ export async function getCreateTrackerAccountIx(
 	return ix;
 }
 
-export interface CloseTrackerAccountArgs {
-	payer: string;
-	owner: string;
-	assetMint: string;
-}
-
-export async function getCloseTrackerAccountIx(
-	args: CloseTrackerAccountArgs,
-	provider: Provider
-): Promise<TransactionInstruction> {
-	const policyProgram = getPolicyEngineProgram(provider);
-	const trackerAccount = getTrackerAccountPda(args.assetMint, args.owner);
-	const ix = await policyProgram.methods
-		.closeTrackerAccount()
-		.accountsStrict({
-			payer: args.payer,
-			trackerAccount,
-			identityAccount: getIdentityAccountPda(args.assetMint, args.owner),
-		})
-		.instruction();
-	return ix;
-}
-
 export interface AddLockArgs {
 	payer: string;
 	authority: string;

@@ -520,8 +520,18 @@
       "accounts": [
         {
           "name": "payer",
-          "writable": true,
+          "writable": true
+        },
+        {
+          "name": "identity_registry",
           "signer": true
+        },
+        {
+          "name": "asset_mint",
+          "relations": [
+            "identity_registry",
+            "tracker_account"
+          ]
         },
         {
           "name": "identity_account",

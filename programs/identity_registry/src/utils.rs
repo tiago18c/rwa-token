@@ -52,3 +52,39 @@ pub fn cpi_enforce_policy_on_levels_change<'info>(
 
     Ok(())
 }
+
+pub fn cpi_remove_tracker_account<'info>(
+    payer: AccountInfo<'info>,
+    identity_registry: AccountInfo<'info>,
+    asset_mint: AccountInfo<'info>,
+    identity_account: AccountInfo<'info>,
+    tracker_account: AccountInfo<'info>,
+    policy_program: AccountInfo<'info>,
+    signer_seeds: &[&[&[u8]]],
+) -> Result<()> {
+    let data = vec![191, 131, 63, 182, 65, 217, 37, 166];
+    invoke_signed(
+        &Instruction {
+            program_id: policy_program.key(),
+            accounts: vec![
+                // Mutable as authority is used as rent receiver on account closure.
+                AccountMeta::new(payer.key(), false),
+                AccountMeta::new_readonly(identity_registry.key(), true),
+                AccountMeta::new_readonly(asset_mint.key(), false),
+                AccountMeta::new_readonly(identity_account.key(), false),
+                AccountMeta::new(tracker_account.key(), false),
+            ],
+            data,
+        },
+        &[
+            payer,
+            identity_registry,
+            asset_mint,
+            identity_account,
+            tracker_account,
+        ],
+        signer_seeds,
+    )?;
+
+    Ok(())
+}

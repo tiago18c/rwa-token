@@ -270,6 +270,9 @@ export async function getRevokeIdentityAccountIx(
 			walletIdentity: getWalletIdentityAccountPda(args.assetMint, args.owner),
 			eventAuthority: getIdentityRegistryEventAuthority(),
 			program: identityProgram.programId,
+			trackerAccount: getTrackerAccountPda(args.assetMint, args.owner),
+			assetMint: new PublicKey(args.assetMint),
+			policyEngineProgram: policyEngineProgramId,
 		})
 		.instruction();
 	return ix;

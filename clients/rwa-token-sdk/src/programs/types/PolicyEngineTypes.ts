@@ -526,8 +526,18 @@ export type PolicyEngine = {
       "accounts": [
         {
           "name": "payer",
-          "writable": true,
+          "writable": true
+        },
+        {
+          "name": "identityRegistry",
           "signer": true
+        },
+        {
+          "name": "assetMint",
+          "relations": [
+            "identityRegistry",
+            "trackerAccount"
+          ]
         },
         {
           "name": "identityAccount",

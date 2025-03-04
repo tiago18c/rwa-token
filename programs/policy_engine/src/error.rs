@@ -78,4 +78,5 @@ pub enum PolicyEngineErrors {
     ForceAccreditedUS = 51,
     TokenPaused = 52,
     InvestorFullyLocked = 53,
+    TrackerAccountNotEmpty = 54,
 }

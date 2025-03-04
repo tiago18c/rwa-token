@@ -14,7 +14,6 @@ import {
 	getIdentityAccountPda,
 	getIdentityAccountFromOwner,
 	getRevokeIdentityAccountIx,
-	getCloseTrackerAccountIx,
 } from "../src";
 import { setupTests } from "./setup";
 import {
@@ -541,7 +540,43 @@ describe("e2e tests", async () => {
 		)).rejects.toThrow();
 	});
 
-	test("revoke identity account", async () => {
+	test("fail to revoke identity account when user has tokens", async () => {
+		const revokeIx = await getRevokeIdentityAccountIx({
+			owner: setup.user1.toString(),
+			assetMint: mint,
+			signer: setup.authority.toString(),
+			payer: setup.payer.toString(),
+		}, rwaClient.provider);
+		expect(sendAndConfirmTransaction(
+			rwaClient.provider.connection,
+			new Transaction().add(revokeIx),
+			[setup.payerKp, setup.authorityKp]
+		)).rejects.toThrow(/TrackerAccountNotEmpty/);
+	});
+
+	test("burn remaining tokens", async () => {
+		const trackerAccount = await getTrackerAccount(mint, setup.user1.toString(), rwaClient.provider);
+		if (!trackerAccount) {
+			expect(false).toBeTruthy();
+			return;
+		}
+		const revokeIx = await getRevokeTokensIx({
+			owner: setup.user1.toString(),
+			assetMint: mint,
+			amount: trackerAccount.totalAmount,
+			authority: setup.authority.toString(),
+			reason: "TEST"
+		}, rwaClient.provider);
+		const txnId = await sendAndConfirmTransaction(
+			rwaClient.provider.connection,
+			new Transaction().add(revokeIx),
+			[setup.payerKp, setup.authorityKp],
+			{skipPreflight: true}
+		);
+		expect(txnId).toBeTruthy();
+	});
+
+	test("revoke identity account when user has tokens", async () => {
 		const revokeIx = await getRevokeIdentityAccountIx({
 			owner: setup.user1.toString(),
 			assetMint: mint,
@@ -552,20 +587,6 @@ describe("e2e tests", async () => {
 			rwaClient.provider.connection,
 			new Transaction().add(revokeIx),
 			[setup.payerKp, setup.authorityKp]
-		);
-		expect(txnId).toBeTruthy();
-	});
-
-	test("close tracker account", async () => {
-		const closeIx = await getCloseTrackerAccountIx({
-			payer: setup.payer.toString(),
-			owner: setup.user1.toString(),
-			assetMint: mint,
-		}, rwaClient.provider);
-		const txnId = await sendAndConfirmTransaction(
-			rwaClient.provider.connection,
-			new Transaction().add(closeIx),
-			[setup.payerKp]
 		);
 		expect(txnId).toBeTruthy();
 	});

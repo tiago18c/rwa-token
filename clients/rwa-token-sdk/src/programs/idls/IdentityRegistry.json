@@ -851,6 +851,16 @@
           }
         },
         {
+          "name": "policy_engine_program"
+        },
+        {
+          "name": "tracker_account",
+          "writable": true
+        },
+        {
+          "name": "asset_mint"
+        },
+        {
           "name": "event_authority",
           "pda": {
             "seeds": [
