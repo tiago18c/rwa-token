@@ -1006,6 +1006,12 @@ impl PolicyEngineAccount {
             .map(|id| self.counters.remove(*id as usize).get_space() as i32)
             .sum::<i32>();
 
+        if added_counters.iter().any(|counter| {
+            self.counters.iter().any(|c| c.id == counter.id)
+        }) {
+            return Err(PolicyEngineErrors::CounterIdAlreadyExists.into());
+        }
+
         space += added_counters
             .iter()
             .map(|counter| counter.get_space() as i32)

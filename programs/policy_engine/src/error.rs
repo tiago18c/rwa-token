@@ -79,4 +79,6 @@ pub enum PolicyEngineErrors {
     TokenPaused = 52,
     InvestorFullyLocked = 53,
     TrackerAccountNotEmpty = 54,
+    #[msg("Counter id already exists")]
+    CounterIdAlreadyExists,
 }
