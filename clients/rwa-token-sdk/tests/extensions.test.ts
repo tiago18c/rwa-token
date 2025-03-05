@@ -97,6 +97,7 @@ describe("extension tests", async () => {
 				owner: setup.authority.toString(),
 				tokenAccount: getAssociatedTokenAddressSync(new PublicKey(mint), new PublicKey(setup.authority.toString()), undefined, TOKEN_2022_PROGRAM_ID).toString(),
 				assetMint: mint,
+				authority: setup.authority.toString(),
 			},
 			rwaClient.provider
 		);
@@ -154,6 +155,7 @@ describe("extension tests", async () => {
 				owner: setup.authority.toString(),
 				tokenAccount: getAssociatedTokenAddressSync(new PublicKey(mint), new PublicKey(setup.authority.toString()), undefined, TOKEN_2022_PROGRAM_ID).toString(),
 				assetMint: mint,
+				authority: setup.authority.toString(),
 			},
 			rwaClient.provider
 		);

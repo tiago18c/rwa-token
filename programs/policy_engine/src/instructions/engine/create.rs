@@ -4,7 +4,7 @@ use rwa_utils::META_LIST_ACCOUNT_SEED;
 use spl_tlv_account_resolution::state::ExtraAccountMetaList;
 use spl_transfer_hook_interface::instruction::ExecuteInstruction;
 
-use crate::{get_extra_account_metas, get_meta_list_size, state::*};
+use crate::{get_extra_account_metas, get_meta_list_size, state::*, PolicyEngineErrors, ASSET_CONTROLLER_ID};
 
 #[derive(Accounts)]
 #[instruction()]
@@ -41,6 +41,20 @@ pub fn handler(
     ctx: Context<CreatePolicyEngine>,
     authority: Pubkey,
 ) -> Result<()> {
+    // asset controller authority derivation and enforcement
+    let (controller, _) = Pubkey::find_program_address(
+        &[
+            ctx.accounts.asset_mint.key().as_ref(),
+        ],
+        &ASSET_CONTROLLER_ID,
+    );
+
+    #[cfg(not(feature = "localnet"))]
+    require!(
+        ctx.accounts.signer.key() == controller,
+        PolicyEngineErrors::UnauthorizedSigner
+    );
+
     // initialize the extra metas account
     let extra_metas_account = &ctx.accounts.extra_metas_account;
     let metas = get_extra_account_metas()?;

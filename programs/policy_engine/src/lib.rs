@@ -50,8 +50,8 @@ pub mod policy_engine {
     }
 
     /// create tracker account
-    pub fn create_tracker_account(ctx: Context<CreateTrackerAccount>) -> Result<()> {
-        instructions::tracker::create::handler(ctx)
+    pub fn create_tracker_account(ctx: Context<CreateTrackerAccount>, owner: Pubkey) -> Result<()> {
+        instructions::tracker::create::handler(ctx, owner)
     }
 
     /// close tracker account

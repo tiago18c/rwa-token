@@ -1,5 +1,3 @@
-use std::str::FromStr;
-
 use crate::{cpi_enforce_policy_on_levels_change, state::*, RemoveLevelsFromIdentityEvent, POLICY_ENGINE_ID};
 use anchor_lang::prelude::*;
 
@@ -23,7 +21,7 @@ pub struct RemoveLevelFromIdentityAccount<'info> {
     pub identity_account: Box<Account<'info, IdentityAccount>>,
     pub system_program: Program<'info, System>,
 
-    #[account(address = Pubkey::from_str(POLICY_ENGINE_ID).unwrap())]
+    #[account(address = POLICY_ENGINE_ID)]
     /// CHECK: hardcoded address check
     pub policy_engine_program: UncheckedAccount<'info>,
     /// CHECK: checked in cpi

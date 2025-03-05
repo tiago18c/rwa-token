@@ -64,7 +64,8 @@ export type IdentityRegistry = {
           "address": "11111111111111111111111111111111"
         },
         {
-          "name": "policyEngineProgram"
+          "name": "policyEngineProgram",
+          "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
         },
         {
           "name": "policyEngine",
@@ -272,7 +273,8 @@ export type IdentityRegistry = {
           }
         },
         {
-          "name": "policyEngineProgram"
+          "name": "policyEngineProgram",
+          "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
         },
         {
           "name": "policyEngine",
@@ -392,6 +394,17 @@ export type IdentityRegistry = {
               }
             ]
           }
+        },
+        {
+          "name": "policyEngineProgram",
+          "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
+        },
+        {
+          "name": "trackerAccount",
+          "writable": true
+        },
+        {
+          "name": "assetMint"
         },
         {
           "name": "systemProgram",
@@ -726,7 +739,8 @@ export type IdentityRegistry = {
           "address": "11111111111111111111111111111111"
         },
         {
-          "name": "policyEngineProgram"
+          "name": "policyEngineProgram",
+          "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
         },
         {
           "name": "policyEngine",
@@ -857,7 +871,8 @@ export type IdentityRegistry = {
           }
         },
         {
-          "name": "policyEngineProgram"
+          "name": "policyEngineProgram",
+          "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
         },
         {
           "name": "trackerAccount",

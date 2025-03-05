@@ -11,7 +11,6 @@ import {
 	getPolicyEnginePda,
 	getTrackerAccountPda,
 	policyEngineProgramId,
-	getCreateTrackerAccountIx,
 	getExtraMetasListPda,
 } from "../policy-engine";
 import {
@@ -398,15 +397,6 @@ export async function getSetupUserIxs(
 		provider
 	);
 	ixs.push(identityAccountIx);
-	const trackerAccountIx = await getCreateTrackerAccountIx(
-		{
-			payer: args.payer,
-			owner: args.owner,
-			assetMint: args.assetMint,
-		},
-		provider
-	);
-	ixs.push(trackerAccountIx);
 	if (args.levels.length > 1) {
 		const addLevelIx = await getAddLevelToIdentityAccount(
 			{
@@ -461,6 +451,7 @@ export type MemoTranferArgs = {
 	owner: string;
 	tokenAccount: string;
 	assetMint: string;
+	authority: string;
 };
 
 /**
@@ -485,6 +476,8 @@ export async function getEnableMemoTransferIx(
 			payer: new PublicKey(args.owner),
 			associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
 			systemProgram: SystemProgram.programId,
+			assetController: getAssetControllerPda(args.assetMint),
+			authority: new PublicKey(args.authority),
 		})
 		.instruction();
 	return ix;
@@ -508,6 +501,9 @@ export async function getDisableMemoTransferIx(
 			tokenProgram: TOKEN_2022_PROGRAM_ID,
 			program: assetControllerProgramId,
 			eventAuthority: getAssetControllerEventAuthority(),
+			assetController: getAssetControllerPda(args.assetMint),
+			authority: new PublicKey(args.authority),
+			assetMint: new PublicKey(args.assetMint),
 		})
 		.instruction();
 	return ix;

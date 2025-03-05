@@ -1,4 +1,4 @@
-use crate::{state::*, CreatedIdentityEvent};
+use crate::{cpi_create_tracker_account, state::*, CreatedIdentityEvent, POLICY_ENGINE_ID};
 use anchor_lang::prelude::*;
 
 #[derive(Accounts)]
@@ -31,6 +31,15 @@ pub struct CreateIdentityAccount<'info> {
         bump,
     )]
     pub wallet_identity: Box<Account<'info, WalletIdentity>>,
+    
+    /// CHECK: hardcoded address check
+    #[account(address = POLICY_ENGINE_ID)]
+    pub policy_engine_program: UncheckedAccount<'info>,
+    /// CHECK: checked in cpi
+    #[account(mut)]
+    pub tracker_account: UncheckedAccount<'info>,
+    /// CHECK: checked in cpi
+    pub asset_mint: UncheckedAccount<'info>,
 
     pub system_program: Program<'info, System>,
 }
@@ -51,6 +60,23 @@ pub fn handler(
     ));
     ctx.accounts.wallet_identity.identity_account = ctx.accounts.identity_account.key();
     ctx.accounts.wallet_identity.wallet = owner;
+    
+    let signer_seeds = [
+        &ctx.accounts.asset_mint.key().to_bytes()[..],
+        &[ctx.accounts.identity_registry.bump][..],
+    ];
+
+    cpi_create_tracker_account(
+        ctx.accounts.payer.to_account_info(),
+        ctx.accounts.identity_account.to_account_info(),
+        ctx.accounts.identity_registry.to_account_info(),
+        ctx.accounts.asset_mint.to_account_info(),
+        ctx.accounts.tracker_account.to_account_info(),
+        ctx.accounts.policy_engine_program.to_account_info(),
+        ctx.accounts.system_program.to_account_info(),
+        ctx.accounts.identity_account.owner,
+        &[&signer_seeds[..]],
+    )?;
 
     emit_cpi!(CreatedIdentityEvent {
         identity: ctx.accounts.identity_account.key(),

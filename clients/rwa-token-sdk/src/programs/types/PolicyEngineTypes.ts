@@ -530,7 +530,10 @@ export type PolicyEngine = {
         },
         {
           "name": "identityRegistry",
-          "signer": true
+          "signer": true,
+          "relations": [
+            "identityAccount"
+          ]
         },
         {
           "name": "assetMint",
@@ -662,13 +665,60 @@ export type PolicyEngine = {
           "signer": true
         },
         {
-          "name": "identityAccount"
+          "name": "identityAccount",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "identityRegistry"
+              },
+              {
+                "kind": "arg",
+                "path": "owner"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                231,
+                75,
+                81,
+                14,
+                232,
+                84,
+                45,
+                52,
+                3,
+                211,
+                48,
+                13,
+                45,
+                218,
+                249,
+                1,
+                6,
+                163,
+                235,
+                112,
+                36,
+                214,
+                213,
+                157,
+                141,
+                10,
+                56,
+                4,
+                197,
+                233,
+                153,
+                177
+              ]
+            }
+          }
         },
         {
           "name": "identityRegistry",
-          "relations": [
-            "identityAccount"
-          ]
+          "signer": true
         },
         {
           "name": "assetMint",
@@ -695,41 +745,14 @@ export type PolicyEngine = {
         {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
-        },
-        {
-          "name": "eventAuthority",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  95,
-                  95,
-                  101,
-                  118,
-                  101,
-                  110,
-                  116,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "program"
         }
       ],
-      "args": []
+      "args": [
+        {
+          "name": "owner",
+          "type": "pubkey"
+        }
+      ]
     },
     {
       "name": "detachFromPolicyEngine",
@@ -1691,6 +1714,15 @@ export type PolicyEngine = {
     {
       "code": 6053,
       "name": "investorFullyLocked"
+    },
+    {
+      "code": 6054,
+      "name": "trackerAccountNotEmpty"
+    },
+    {
+      "code": 6055,
+      "name": "counterIdAlreadyExists",
+      "msg": "Counter id already exists"
     }
   ],
   "types": [

@@ -1,8 +1,8 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token_interface::{memo_transfer_disable, MemoTransfer, Token2022, TokenAccount};
+use anchor_spl::token_interface::{memo_transfer_disable, MemoTransfer, Mint, Token2022, TokenAccount};
 use spl_token_2022::extension::ExtensionType;
 
-use crate::ExtensionMetadataEvent;
+use crate::{AssetControllerAccount, ExtensionMetadataEvent};
 
 #[derive(Accounts)]
 #[instruction()]
@@ -10,9 +10,20 @@ use crate::ExtensionMetadataEvent;
 pub struct DisableMemoTransfer<'info> {
     #[account()]
     pub owner: Signer<'info>,
+    #[account()]
+    pub authority: Signer<'info>,
+    #[account()]
+    pub asset_mint: Box<InterfaceAccount<'info, Mint>>,
+    #[account(
+        seeds = [asset_mint.key().as_ref()],
+        bump,
+        constraint = asset_controller.authority == authority.key()
+    )]
+    pub asset_controller: Box<Account<'info, AssetControllerAccount>>,
     #[account(
         mut,
         constraint = token_account.owner == owner.key(),
+        token::mint = asset_mint,
     )]
     pub token_account: Box<InterfaceAccount<'info, TokenAccount>>,
     pub token_program: Program<'info, Token2022>,

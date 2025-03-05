@@ -17,9 +17,9 @@ use policy_engine::{
     cpi::{accounts::CreatePolicyEngine, create_policy_engine},
     program::PolicyEngine,
 };
-use rwa_utils::get_bump_in_seed_form;
+use rwa_utils::{get_bump_in_seed_form, ASSET_ACCESS_CONTROLLER_ID};
 
-use crate::{state::*, update_account_lamports_to_minimum_balance, AssetControllerErrors, ASSET_ACCESS_CONTROLLER_ID};
+use crate::{state::*, update_account_lamports_to_minimum_balance, AssetControllerErrors};
 
 #[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct CreateAssetControllerArgs {

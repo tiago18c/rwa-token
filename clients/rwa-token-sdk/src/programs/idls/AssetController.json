@@ -141,6 +141,24 @@
           "signer": true
         },
         {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "asset_mint"
+        },
+        {
+          "name": "asset_controller",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "asset_mint"
+              }
+            ]
+          }
+        },
+        {
           "name": "token_account",
           "writable": true
         },
@@ -209,7 +227,22 @@
           "signer": true
         },
         {
+          "name": "authority",
+          "signer": true
+        },
+        {
           "name": "asset_mint"
+        },
+        {
+          "name": "asset_controller",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "asset_mint"
+              }
+            ]
+          }
         },
         {
           "name": "token_account",

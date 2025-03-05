@@ -297,34 +297,6 @@ export async function getDetachFromPolicyEngineIx(
 	};
 }
 
-export interface CreateTrackerAccountArgs {
-	payer: string;
-	owner: string;
-	assetMint: string;
-}
-
-export async function getCreateTrackerAccountIx(
-	args: CreateTrackerAccountArgs,
-	provider: Provider
-): Promise<TransactionInstruction> {
-	const policyProgram = getPolicyEngineProgram(provider);
-	const trackerAccount = getTrackerAccountPda(args.assetMint, args.owner);
-	const ix = await policyProgram.methods
-		.createTrackerAccount()
-		.accountsStrict({
-			payer: args.payer,
-			trackerAccount,
-			systemProgram: SystemProgram.programId,
-			program: policyProgram.programId,
-			assetMint: new PublicKey(args.assetMint),
-			eventAuthority: getPolicyEngineEventAuthority(),
-			identityRegistry: getIdentityRegistryPda(args.assetMint),
-			identityAccount: getIdentityAccountPda(args.assetMint, args.owner),
-		})
-		.instruction();
-	return ix;
-}
-
 export interface AddLockArgs {
 	payer: string;
 	authority: string;

@@ -58,7 +58,8 @@
           "address": "11111111111111111111111111111111"
         },
         {
-          "name": "policy_engine_program"
+          "name": "policy_engine_program",
+          "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
         },
         {
           "name": "policy_engine",
@@ -266,7 +267,8 @@
           }
         },
         {
-          "name": "policy_engine_program"
+          "name": "policy_engine_program",
+          "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
         },
         {
           "name": "policy_engine",
@@ -386,6 +388,17 @@
               }
             ]
           }
+        },
+        {
+          "name": "policy_engine_program",
+          "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
+        },
+        {
+          "name": "tracker_account",
+          "writable": true
+        },
+        {
+          "name": "asset_mint"
         },
         {
           "name": "system_program",
@@ -720,7 +733,8 @@
           "address": "11111111111111111111111111111111"
         },
         {
-          "name": "policy_engine_program"
+          "name": "policy_engine_program",
+          "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
         },
         {
           "name": "policy_engine",
@@ -851,7 +865,8 @@
           }
         },
         {
-          "name": "policy_engine_program"
+          "name": "policy_engine_program",
+          "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
         },
         {
           "name": "tracker_account",

@@ -1,6 +1,7 @@
-use crate::state::*;
+use crate::{state::*, IdentityRegistryErrors};
 use anchor_lang::{prelude::*, solana_program::program_option::COption};
 use anchor_spl::token_interface::Mint;
+use rwa_utils::ASSET_CONTROLLER_ID;
 
 #[derive(Accounts)]
 #[instruction()]
@@ -28,6 +29,20 @@ pub fn handler(
     ctx: Context<CreateIdentityRegistry>,
     authority: Pubkey,
 ) -> Result<()> {
+    // asset controller authority derivation and enforcement
+    let (controller, _) = Pubkey::find_program_address(
+        &[
+            ctx.accounts.asset_mint.key().as_ref(),
+        ],
+        &ASSET_CONTROLLER_ID,
+    );
+
+    #[cfg(not(feature = "localnet"))]
+    require!(
+        ctx.accounts.signer.key() == controller,
+        IdentityRegistryErrors::UnauthorizedSigner
+    );
+
     ctx.accounts.identity_registry_account.new(
         ctx.accounts.asset_mint.key(),
         authority,

@@ -1,4 +1,4 @@
-use crate::{cpi_remove_tracker_account, state::*, RemovedIdentityEvent};
+use crate::{cpi_remove_tracker_account, state::*, RemovedIdentityEvent, POLICY_ENGINE_ID};
 use anchor_lang::prelude::*;
 
 #[derive(Accounts)]
@@ -36,6 +36,7 @@ pub struct RevokeIdentityAccount<'info> {
     pub wallet_identity: Box<Account<'info, WalletIdentity>>,
     
     /// CHECK: hardcoded address check
+    #[account(address = POLICY_ENGINE_ID)]
     pub policy_engine_program: UncheckedAccount<'info>,
     /// CHECK: checked in cpi
     #[account(mut)]

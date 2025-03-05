@@ -147,6 +147,24 @@ export type AssetController = {
           "signer": true
         },
         {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "assetMint"
+        },
+        {
+          "name": "assetController",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "assetMint"
+              }
+            ]
+          }
+        },
+        {
           "name": "tokenAccount",
           "writable": true
         },
@@ -215,7 +233,22 @@ export type AssetController = {
           "signer": true
         },
         {
+          "name": "authority",
+          "signer": true
+        },
+        {
           "name": "assetMint"
+        },
+        {
+          "name": "assetController",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "assetMint"
+              }
+            ]
+          }
         },
         {
           "name": "tokenAccount",
