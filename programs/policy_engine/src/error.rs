@@ -81,4 +81,6 @@ pub enum PolicyEngineErrors {
     TrackerAccountNotEmpty = 54,
     #[msg("Counter id already exists")]
     CounterIdAlreadyExists,
+    #[msg("Counter id not found")]
+    CounterIdNotFound,
 }

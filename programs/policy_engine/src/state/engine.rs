@@ -1000,24 +1000,23 @@ impl PolicyEngineAccount {
         removed_counters: Vec<u8>,
         added_counters: Vec<Counter>,
     ) -> Result<i32> {
-        let mut space: i32 = -removed_counters
-            .iter()
-            .rev()
-            .map(|id| self.counters.remove(*id as usize).get_space() as i32)
-            .sum::<i32>();
 
-        if added_counters.iter().any(|counter| {
-            self.counters.iter().any(|c| c.id == counter.id)
-        }) {
-            return Err(PolicyEngineErrors::CounterIdAlreadyExists.into());
+        let mut space: i32 = 0;
+
+        for removed_counter in removed_counters.iter() {
+            let pos = self.counters.iter().position(|c| c.id == *removed_counter)
+                .ok_or(PolicyEngineErrors::CounterIdNotFound)?;
+            space -= self.counters.remove(pos).get_space() as i32;
         }
 
-        space += added_counters
-            .iter()
-            .map(|counter| counter.get_space() as i32)
-            .sum::<i32>();
+        for added_counter in added_counters {
+            if self.counters.iter().any(|c| c.id == added_counter.id) {
+                return Err(PolicyEngineErrors::CounterIdAlreadyExists.into());
+            }
+            space += added_counter.get_space() as i32;
+            self.counters.push(added_counter);
+        }
 
-        self.counters.extend(added_counters);
         Ok(space)
     }
 
