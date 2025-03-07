@@ -23,7 +23,10 @@ pub struct RevokeTokens<'info> {
         constraint = asset_controller.authority == authority.key()
     )]
     pub asset_controller: Box<Account<'info, AssetControllerAccount>>,
-    #[account(mut)]
+    #[account(
+        mut,
+        constraint = revoke_token_account.owner == wallet_identity_account.wallet
+    )]
     pub revoke_token_account: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(has_one = asset_mint)]
     pub identity_registry: Box<Account<'info, IdentityRegistryAccount>>,
