@@ -83,4 +83,16 @@ pub enum PolicyEngineErrors {
     CounterIdAlreadyExists,
     #[msg("Counter id not found")]
     CounterIdNotFound,
+    #[msg("Counter underflow, please manually override the counter value")]
+    CounterUnderflow,
+    #[msg("Counter overflow, please manually override the counter value")]
+    CounterOverflow,
+    #[msg("Balance underflow error")]
+    BalanceUnderflow,
+    #[msg("Balance overflow error")]
+    BalanceOverflow,
+    #[msg("Lock index not found")]
+    LockIndexNotFound,
+    #[msg("Counter Limit index not found")]
+    CounterLimitIndexNotFound,
 }

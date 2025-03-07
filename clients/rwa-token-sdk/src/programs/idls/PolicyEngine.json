@@ -1717,6 +1717,41 @@
       "code": 6055,
       "name": "CounterIdAlreadyExists",
       "msg": "Counter id already exists"
+    },
+    {
+      "code": 6056,
+      "name": "CounterIdNotFound",
+      "msg": "Counter id not found"
+    },
+    {
+      "code": 6057,
+      "name": "CounterUnderflow",
+      "msg": "Counter underflow, please manually override the counter value"
+    },
+    {
+      "code": 6058,
+      "name": "CounterOverflow",
+      "msg": "Counter overflow, please manually override the counter value"
+    },
+    {
+      "code": 6059,
+      "name": "BalanceUnderflow",
+      "msg": "Balance underflow error"
+    },
+    {
+      "code": 6060,
+      "name": "BalanceOverflow",
+      "msg": "Balance overflow error"
+    },
+    {
+      "code": 6061,
+      "name": "LockIndexNotFound",
+      "msg": "Lock index not found"
+    },
+    {
+      "code": 6062,
+      "name": "CounterLimitIndexNotFound",
+      "msg": "Counter Limit index not found"
     }
   ],
   "types": [

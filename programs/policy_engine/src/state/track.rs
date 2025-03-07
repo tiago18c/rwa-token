@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::Side;
+use crate::{PolicyEngineErrors, Side};
 
 pub const MAX_TRANSFER_HISTORY: usize = 25;
 
@@ -62,9 +62,9 @@ impl TrackerAccount {
         side: Side,
     ) -> Result<()> {
         self.total_amount = if side != Side::Sell {
-            self.total_amount + amount
+            self.total_amount.checked_add(amount).ok_or(PolicyEngineErrors::BalanceOverflow)?
         } else {
-            self.total_amount - amount
+            self.total_amount.checked_sub(amount).ok_or(PolicyEngineErrors::BalanceUnderflow)?
         };
         Ok(())
     }
@@ -74,12 +74,12 @@ impl TrackerAccount {
             amount,
             issue_time,
         });
-        self.total_amount += amount;
+        self.total_amount = self.total_amount.checked_add(amount).ok_or(PolicyEngineErrors::BalanceOverflow)?;
         Ok(())
     }
 
     pub fn update_balance_burn(&mut self, amount: u64) -> Result<()> {
-        self.total_amount -= amount;
+        self.total_amount = self.total_amount.checked_sub(amount).ok_or(PolicyEngineErrors::BalanceUnderflow)?;
         Ok(())
     }
 
@@ -99,12 +99,15 @@ impl TrackerAccount {
     }
 
     pub fn remove_lock(&mut self, index: usize) -> Result<Lock> {
+        if index >= self.locks.len() {
+            return Err(PolicyEngineErrors::LockIndexNotFound.into());
+        }
         let lock = self.locks.remove(index);
         Ok(lock)
     }
 
     pub fn get_transferable_balance(&self, current_timestamp: i64) -> Result<u64> {
-        let mut locked_amount = 0;
+        let mut locked_amount: u64 = 0;
         for lock in self.locks.iter() {
             if lock.release_time == 0 || lock.release_time > current_timestamp {
                 locked_amount += lock.amount;
@@ -114,7 +117,7 @@ impl TrackerAccount {
     }
 
     pub fn get_compliance_transferable_balance(&self, current_timestamp: i64, lock_time: i64, transferrable_amount: u64) -> Result<u64> {
-        let mut locked_amount = 0;
+        let mut locked_amount: u64 = 0;
         for issuance in self.issuances.iter() {            
             if lock_time > current_timestamp || issuance.issue_time > (current_timestamp - lock_time) {
                 locked_amount += issuance.amount;

@@ -1723,6 +1723,41 @@ export type PolicyEngine = {
       "code": 6055,
       "name": "counterIdAlreadyExists",
       "msg": "Counter id already exists"
+    },
+    {
+      "code": 6056,
+      "name": "counterIdNotFound",
+      "msg": "Counter id not found"
+    },
+    {
+      "code": 6057,
+      "name": "counterUnderflow",
+      "msg": "Counter underflow, please manually override the counter value"
+    },
+    {
+      "code": 6058,
+      "name": "counterOverflow",
+      "msg": "Counter overflow, please manually override the counter value"
+    },
+    {
+      "code": 6059,
+      "name": "balanceUnderflow",
+      "msg": "Balance underflow error"
+    },
+    {
+      "code": 6060,
+      "name": "balanceOverflow",
+      "msg": "Balance overflow error"
+    },
+    {
+      "code": 6061,
+      "name": "lockIndexNotFound",
+      "msg": "Lock index not found"
+    },
+    {
+      "code": 6062,
+      "name": "counterLimitIndexNotFound",
+      "msg": "Counter Limit index not found"
     }
   ],
   "types": [

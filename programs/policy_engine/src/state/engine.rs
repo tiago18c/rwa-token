@@ -677,7 +677,7 @@ impl PolicyEngineAccount {
 
         for counter in self.counters.iter_mut() {
             if changed_counters.contains(&counter.id) {
-                counter.value -= 1;
+                counter.value = counter.value.checked_sub(1).ok_or(PolicyEngineErrors::CounterUnderflow)?;
             }
         }
 
@@ -702,7 +702,7 @@ impl PolicyEngineAccount {
 
         for counter in self.counters.iter_mut() {
             if changed_counters.contains(&counter.id) {
-                counter.value += 1;
+                counter.value = counter.value.checked_add(1).ok_or(PolicyEngineErrors::CounterOverflow)?;
             }
         }
 
