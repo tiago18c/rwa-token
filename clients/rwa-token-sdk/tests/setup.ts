@@ -5,7 +5,6 @@ import "dotenv/config";
 export async function setupTests() {
 	const payerKp = new Keypair();
 	const authorityKp = new Keypair();
-	const delegateKp = new Keypair();
 	const user1Kp = new Keypair();
 	const user2Kp = new Keypair();
 	const user3Kp = new Keypair();
@@ -17,7 +16,6 @@ export async function setupTests() {
 	const txns = await Promise.all([
 		provider.connection.requestAirdrop(payerKp.publicKey, LAMPORTS_PER_SOL),
 		provider.connection.requestAirdrop(authorityKp.publicKey, LAMPORTS_PER_SOL),
-		provider.connection.requestAirdrop(delegateKp.publicKey, LAMPORTS_PER_SOL),
 		provider.connection.requestAirdrop(user1Kp.publicKey, LAMPORTS_PER_SOL),
 		provider.connection.requestAirdrop(user2Kp.publicKey, LAMPORTS_PER_SOL),
 		provider.connection.requestAirdrop(user3Kp.publicKey, LAMPORTS_PER_SOL),
@@ -32,8 +30,6 @@ export async function setupTests() {
 		payer: payerKp.publicKey,
 		authorityKp,
 		authority: authorityKp.publicKey,
-		delegateKp,
-		delegate: delegateKp.publicKey,
 		provider,
 		user1Kp,
 		user1: user1Kp.publicKey,

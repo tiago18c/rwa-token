@@ -26,6 +26,9 @@ pub struct IssueTokens<'info> {
     )]
     pub asset_controller: Box<Account<'info, AssetControllerAccount>>,
     /// CHECK: can be any account
+    #[account(
+        constraint = to.key() == wallet_identity_account.wallet
+    )]
     pub to: UncheckedAccount<'info>,
     #[account(
         init_if_needed,

@@ -5,7 +5,7 @@ use anchor_spl::{
     token_interface::{memo_transfer_initialize, MemoTransfer, Mint, Token2022, TokenAccount},
 };
 
-use crate::ExtensionMetadataEvent;
+use crate::{AssetControllerAccount, ExtensionMetadataEvent};
 
 #[derive(AnchorDeserialize, AnchorSerialize)]
 pub struct EnableMemoTransferArgs {
@@ -19,7 +19,16 @@ pub struct EnableMemoTransfer<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
     pub owner: Signer<'info>,
+    #[account()]
+    pub authority: Signer<'info>,
+    #[account()]
     pub asset_mint: Box<InterfaceAccount<'info, Mint>>,
+    #[account(
+        seeds = [asset_mint.key().as_ref()],
+        bump,
+        constraint = asset_controller.authority == authority.key()
+    )]
+    pub asset_controller: Box<Account<'info, AssetControllerAccount>>,
     #[account(
         init_if_needed,
         payer = payer,

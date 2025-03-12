@@ -34,7 +34,6 @@ export async function getCreatePolicyEngineIx(
 	const ix = await policyProgram.methods
 		.createPolicyEngine(
 			new PublicKey(args.authority),
-			args.delegate ? new PublicKey(args.delegate) : null,
 		)
 		.accountsStrict({
 			payer: args.payer,
@@ -296,57 +295,6 @@ export async function getDetachFromPolicyEngineIx(
 		ixs: [ix],
 		signers: [],
 	};
-}
-
-export interface CreateTrackerAccountArgs {
-	payer: string;
-	owner: string;
-	assetMint: string;
-}
-
-export async function getCreateTrackerAccountIx(
-	args: CreateTrackerAccountArgs,
-	provider: Provider
-): Promise<TransactionInstruction> {
-	const policyProgram = getPolicyEngineProgram(provider);
-	const trackerAccount = getTrackerAccountPda(args.assetMint, args.owner);
-	const ix = await policyProgram.methods
-		.createTrackerAccount()
-		.accountsStrict({
-			payer: args.payer,
-			trackerAccount,
-			systemProgram: SystemProgram.programId,
-			program: policyProgram.programId,
-			assetMint: new PublicKey(args.assetMint),
-			eventAuthority: getPolicyEngineEventAuthority(),
-			identityRegistry: getIdentityRegistryPda(args.assetMint),
-			identityAccount: getIdentityAccountPda(args.assetMint, args.owner),
-		})
-		.instruction();
-	return ix;
-}
-
-export interface CloseTrackerAccountArgs {
-	payer: string;
-	owner: string;
-	assetMint: string;
-}
-
-export async function getCloseTrackerAccountIx(
-	args: CloseTrackerAccountArgs,
-	provider: Provider
-): Promise<TransactionInstruction> {
-	const policyProgram = getPolicyEngineProgram(provider);
-	const trackerAccount = getTrackerAccountPda(args.assetMint, args.owner);
-	const ix = await policyProgram.methods
-		.closeTrackerAccount()
-		.accountsStrict({
-			payer: args.payer,
-			trackerAccount,
-			identityAccount: getIdentityAccountPda(args.assetMint, args.owner),
-		})
-		.instruction();
-	return ix;
 }
 
 export interface AddLockArgs {

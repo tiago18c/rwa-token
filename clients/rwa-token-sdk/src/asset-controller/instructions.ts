@@ -11,7 +11,6 @@ import {
 	getPolicyEnginePda,
 	getTrackerAccountPda,
 	policyEngineProgramId,
-	getCreateTrackerAccountIx,
 	getExtraMetasListPda,
 } from "../policy-engine";
 import {
@@ -71,7 +70,6 @@ export async function getCreateAssetControllerIx(
 			name: args.name,
 			uri: args.uri,
 			symbol: args.symbol,
-			delegate: args.delegate ? new PublicKey(args.delegate) : null,
 			interestRate: args.interestRate ? args.interestRate : null,
 		})
 		.accountsStrict({
@@ -329,7 +327,6 @@ export type SetupAssetControllerArgs = {
   authority: string;
   decimals: number;
   payer: string;
-  delegate?: string;
   name: string;
   uri: string;
   symbol: string;
@@ -400,15 +397,6 @@ export async function getSetupUserIxs(
 		provider
 	);
 	ixs.push(identityAccountIx);
-	const trackerAccountIx = await getCreateTrackerAccountIx(
-		{
-			payer: args.payer,
-			owner: args.owner,
-			assetMint: args.assetMint,
-		},
-		provider
-	);
-	ixs.push(trackerAccountIx);
 	if (args.levels.length > 1) {
 		const addLevelIx = await getAddLevelToIdentityAccount(
 			{
@@ -463,6 +451,7 @@ export type MemoTranferArgs = {
 	owner: string;
 	tokenAccount: string;
 	assetMint: string;
+	authority: string;
 };
 
 /**
@@ -487,6 +476,8 @@ export async function getEnableMemoTransferIx(
 			payer: new PublicKey(args.owner),
 			associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
 			systemProgram: SystemProgram.programId,
+			assetController: getAssetControllerPda(args.assetMint),
+			authority: new PublicKey(args.authority),
 		})
 		.instruction();
 	return ix;
@@ -510,32 +501,9 @@ export async function getDisableMemoTransferIx(
 			tokenProgram: TOKEN_2022_PROGRAM_ID,
 			program: assetControllerProgramId,
 			eventAuthority: getAssetControllerEventAuthority(),
-		})
-		.instruction();
-	return ix;
-}
-
-export type CloseMintArgs = {
-	authority: string;
-} & CommonArgs;
-
-/**
- * Generate Instructions to close a mint
- * @param args - {@link CloseMintArgs}
- * @returns - {@link TransactionInstruction}
- */
-export async function getCloseMintIx(
-	args: CloseMintArgs,
-	provider: Provider
-): Promise<TransactionInstruction> {
-	const assetProgram = getAssetControllerProgram(provider);
-	const ix = await assetProgram.methods
-		.closeMintAccount()
-		.accountsStrict({
+			assetController: getAssetControllerPda(args.assetMint),
 			authority: new PublicKey(args.authority),
 			assetMint: new PublicKey(args.assetMint),
-			tokenProgram: TOKEN_2022_PROGRAM_ID,
-			assetController: getAssetControllerPda(args.assetMint),
 		})
 		.instruction();
 	return ix;

@@ -526,8 +526,21 @@ export type PolicyEngine = {
       "accounts": [
         {
           "name": "payer",
-          "writable": true,
-          "signer": true
+          "writable": true
+        },
+        {
+          "name": "identityRegistry",
+          "signer": true,
+          "relations": [
+            "identityAccount"
+          ]
+        },
+        {
+          "name": "assetMint",
+          "relations": [
+            "identityRegistry",
+            "trackerAccount"
+          ]
         },
         {
           "name": "identityAccount",
@@ -627,12 +640,6 @@ export type PolicyEngine = {
         {
           "name": "authority",
           "type": "pubkey"
-        },
-        {
-          "name": "delegate",
-          "type": {
-            "option": "pubkey"
-          }
         }
       ]
     },
@@ -658,13 +665,60 @@ export type PolicyEngine = {
           "signer": true
         },
         {
-          "name": "identityAccount"
+          "name": "identityAccount",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "identityRegistry"
+              },
+              {
+                "kind": "arg",
+                "path": "owner"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                231,
+                75,
+                81,
+                14,
+                232,
+                84,
+                45,
+                52,
+                3,
+                211,
+                48,
+                13,
+                45,
+                218,
+                249,
+                1,
+                6,
+                163,
+                235,
+                112,
+                36,
+                214,
+                213,
+                157,
+                141,
+                10,
+                56,
+                4,
+                197,
+                233,
+                153,
+                177
+              ]
+            }
+          }
         },
         {
           "name": "identityRegistry",
-          "relations": [
-            "identityAccount"
-          ]
+          "signer": true
         },
         {
           "name": "assetMint",
@@ -691,41 +745,14 @@ export type PolicyEngine = {
         {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
-        },
-        {
-          "name": "eventAuthority",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  95,
-                  95,
-                  101,
-                  118,
-                  101,
-                  110,
-                  116,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "program"
         }
       ],
-      "args": []
+      "args": [
+        {
+          "name": "owner",
+          "type": "pubkey"
+        }
+      ]
     },
     {
       "name": "detachFromPolicyEngine",
@@ -1687,6 +1714,50 @@ export type PolicyEngine = {
     {
       "code": 6053,
       "name": "investorFullyLocked"
+    },
+    {
+      "code": 6054,
+      "name": "trackerAccountNotEmpty"
+    },
+    {
+      "code": 6055,
+      "name": "counterIdAlreadyExists",
+      "msg": "Counter id already exists"
+    },
+    {
+      "code": 6056,
+      "name": "counterIdNotFound",
+      "msg": "Counter id not found"
+    },
+    {
+      "code": 6057,
+      "name": "counterUnderflow",
+      "msg": "Counter underflow, please manually override the counter value"
+    },
+    {
+      "code": 6058,
+      "name": "counterOverflow",
+      "msg": "Counter overflow, please manually override the counter value"
+    },
+    {
+      "code": 6059,
+      "name": "balanceUnderflow",
+      "msg": "Balance underflow error"
+    },
+    {
+      "code": 6060,
+      "name": "balanceOverflow",
+      "msg": "Balance overflow error"
+    },
+    {
+      "code": 6061,
+      "name": "lockIndexNotFound",
+      "msg": "Lock index not found"
+    },
+    {
+      "code": 6062,
+      "name": "counterLimitIndexNotFound",
+      "msg": "Counter Limit index not found"
     }
   ],
   "types": [
@@ -2268,13 +2339,6 @@ export type PolicyEngine = {
               "authority to manage the registry"
             ],
             "type": "pubkey"
-          },
-          {
-            "name": "delegate",
-            "docs": [
-              "registry delegate"
-            ],
-            "type": "pubkey"
           }
         ]
       }
@@ -2460,13 +2524,6 @@ export type PolicyEngine = {
             "name": "authority",
             "docs": [
               "authority of the registry"
-            ],
-            "type": "pubkey"
-          },
-          {
-            "name": "delegate",
-            "docs": [
-              "policy delegate"
             ],
             "type": "pubkey"
           },

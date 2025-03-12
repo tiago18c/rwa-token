@@ -9,14 +9,10 @@ pub struct ChangeCounters<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
     #[account(
-        constraint = policy_engine.authority == signer.key() || policy_engine.delegate == signer.key()
+        constraint = policy_engine.authority == signer.key()
     )]
     pub signer: Signer<'info>,
-    #[account(mut,
-        realloc = policy_engine.to_account_info().data_len() + Counter::INIT_SPACE * added_counters.len() - Counter::INIT_SPACE * removed_counters.len(),
-        realloc::zero = false,
-        realloc::payer = payer,
-    )]
+    #[account(mut)]
     pub policy_engine: Box<Account<'info, PolicyEngineAccount>>,
     pub system_program: Program<'info, System>,
 }

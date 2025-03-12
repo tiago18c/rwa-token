@@ -139,9 +139,9 @@ pub enum FilterLevel {
 impl IdentityFilter {
     pub fn get_space(&self) -> usize {
         match self {
-            IdentityFilter::Simple(filter) => filter.get_space(),
+            IdentityFilter::Simple(filter) => 1 + filter.get_space(),
             IdentityFilter::IfThen(filter, then_filter) => {
-                filter.get_space() + then_filter.get_space()
+                1 + filter.get_space() + then_filter.get_space()
             }
         }
     }
@@ -166,8 +166,6 @@ pub struct PolicyEngineAccount {
     pub asset_mint: Pubkey,
     /// authority of the registry
     pub authority: Pubkey,
-    /// policy delegate
-    pub delegate: Pubkey,
     /// generic mapping for levels
     pub mapping: [u8; 256],
     /// policies to apply on issuance
@@ -227,7 +225,7 @@ impl CounterLimit {
                 max: _,
                 min: _,
                 counters,
-            } => Counter::INIT_SPACE + counters.len(),
+            } => CounterLimit::INIT_SPACE + counters.len(),
             _ => CounterLimit::INIT_SPACE,
         }
     }
@@ -254,11 +252,11 @@ pub struct Policy {
 
 impl Policy {
     pub fn get_space(&self) -> usize {
-        self.identity_filter.get_space() + PolicyType::INIT_SPACE + self.hash.len() + 4
+        self.identity_filter.get_space() + PolicyType::INIT_SPACE + 69
     }
 
     pub fn get_new_space(filter: &IdentityFilter) -> usize {
-        filter.get_space() + PolicyType::INIT_SPACE + 68
+        filter.get_space() + PolicyType::INIT_SPACE + 69
     }
 }
 
@@ -288,13 +286,11 @@ impl PolicyEngineAccount {
     pub const VERSION: u8 = 1;
     pub fn new(
         authority: Pubkey,
-        delegate: Option<Pubkey>,
         asset_mint: Pubkey,
     ) -> Self {
         Self {
             version: Self::VERSION,
             authority,
-            delegate: delegate.unwrap_or(authority),
             asset_mint,
             mapping: [0; 256],
             issuance_policies: IssuancePolicies {
@@ -307,9 +303,6 @@ impl PolicyEngineAccount {
             counters: vec![],
             counter_limits: vec![],
         }
-    }
-    pub fn update_delegate(&mut self, delegate: Pubkey) {
-        self.delegate = delegate;
     }
 
     pub fn change_mapping(&mut self, mapping_source: Vec<u8>, mapping_value: Vec<u8>) {
@@ -684,7 +677,7 @@ impl PolicyEngineAccount {
 
         for counter in self.counters.iter_mut() {
             if changed_counters.contains(&counter.id) {
-                counter.value -= 1;
+                counter.value = counter.value.checked_sub(1).ok_or(PolicyEngineErrors::CounterUnderflow)?;
             }
         }
 
@@ -709,7 +702,7 @@ impl PolicyEngineAccount {
 
         for counter in self.counters.iter_mut() {
             if changed_counters.contains(&counter.id) {
-                counter.value += 1;
+                counter.value = counter.value.checked_add(1).ok_or(PolicyEngineErrors::CounterOverflow)?;
             }
         }
 
@@ -1007,18 +1000,23 @@ impl PolicyEngineAccount {
         removed_counters: Vec<u8>,
         added_counters: Vec<Counter>,
     ) -> Result<i32> {
-        let mut space: i32 = -removed_counters
-            .iter()
-            .rev()
-            .map(|id| self.counters.remove(*id as usize).get_space() as i32)
-            .sum::<i32>();
 
-        space += added_counters
-            .iter()
-            .map(|counter| counter.get_space() as i32)
-            .sum::<i32>();
+        let mut space: i32 = 0;
 
-        self.counters.extend(added_counters);
+        for removed_counter in removed_counters.iter() {
+            let pos = self.counters.iter().position(|c| c.id == *removed_counter)
+                .ok_or(PolicyEngineErrors::CounterIdNotFound)?;
+            space -= self.counters.remove(pos).get_space() as i32;
+        }
+
+        for added_counter in added_counters {
+            if self.counters.iter().any(|c| c.id == added_counter.id) {
+                return Err(PolicyEngineErrors::CounterIdAlreadyExists.into());
+            }
+            space += added_counter.get_space() as i32;
+            self.counters.push(added_counter);
+        }
+
         Ok(space)
     }
 

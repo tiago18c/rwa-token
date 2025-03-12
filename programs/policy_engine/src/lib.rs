@@ -26,9 +26,8 @@ pub mod policy_engine {
     pub fn create_policy_engine(
         ctx: Context<CreatePolicyEngine>,
         authority: Pubkey,
-        delegate: Option<Pubkey>,
     ) -> Result<()> {
-        instructions::engine::create::handler(ctx, authority, delegate)
+        instructions::engine::create::handler(ctx, authority)
     }
 
     /// policies
@@ -51,8 +50,8 @@ pub mod policy_engine {
     }
 
     /// create tracker account
-    pub fn create_tracker_account(ctx: Context<CreateTrackerAccount>) -> Result<()> {
-        instructions::tracker::create::handler(ctx)
+    pub fn create_tracker_account(ctx: Context<CreateTrackerAccount>, owner: Pubkey) -> Result<()> {
+        instructions::tracker::create::handler(ctx, owner)
     }
 
     /// close tracker account

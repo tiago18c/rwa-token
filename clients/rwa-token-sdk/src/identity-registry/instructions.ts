@@ -35,7 +35,6 @@ export async function getCreateIdentityRegistryIx(
 	const ix = await identityProgram.methods
 		.createIdentityRegistry(
 			new PublicKey(args.authority),
-			args.delegate ? new PublicKey(args.delegate) : null,
 		)
 		.accountsStrict({
 			payer: args.payer,
@@ -79,6 +78,9 @@ export async function getCreateIdentityAccountIx(
 			walletIdentity: getWalletIdentityAccountPda(args.assetMint, args.owner),
 			eventAuthority: getIdentityRegistryEventAuthority(),
 			program: identityProgram.programId,
+			trackerAccount: getTrackerAccountPda(args.assetMint, args.owner),
+			assetMint: new PublicKey(args.assetMint),
+			policyEngineProgram: policyEngineProgramId,
 		})
 		.instruction();
 	return ix;
@@ -271,6 +273,9 @@ export async function getRevokeIdentityAccountIx(
 			walletIdentity: getWalletIdentityAccountPda(args.assetMint, args.owner),
 			eventAuthority: getIdentityRegistryEventAuthority(),
 			program: identityProgram.programId,
+			trackerAccount: getTrackerAccountPda(args.assetMint, args.owner),
+			assetMint: new PublicKey(args.assetMint),
+			policyEngineProgram: policyEngineProgramId,
 		})
 		.instruction();
 	return ix;

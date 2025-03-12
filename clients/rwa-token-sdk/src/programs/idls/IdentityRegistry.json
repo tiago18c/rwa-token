@@ -58,7 +58,8 @@
           "address": "11111111111111111111111111111111"
         },
         {
-          "name": "policy_engine_program"
+          "name": "policy_engine_program",
+          "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
         },
         {
           "name": "policy_engine",
@@ -266,7 +267,8 @@
           }
         },
         {
-          "name": "policy_engine_program"
+          "name": "policy_engine_program",
+          "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
         },
         {
           "name": "policy_engine",
@@ -388,6 +390,17 @@
           }
         },
         {
+          "name": "policy_engine_program",
+          "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
+        },
+        {
+          "name": "tracker_account",
+          "writable": true
+        },
+        {
+          "name": "asset_mint"
+        },
+        {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
         },
@@ -492,44 +505,6 @@
       "args": [
         {
           "name": "authority",
-          "type": "pubkey"
-        },
-        {
-          "name": "delegate",
-          "type": {
-            "option": "pubkey"
-          }
-        }
-      ]
-    },
-    {
-      "name": "delegate_identity_regsitry",
-      "docs": [
-        "delegate identity registry"
-      ],
-      "discriminator": [
-        29,
-        162,
-        167,
-        70,
-        52,
-        79,
-        50,
-        65
-      ],
-      "accounts": [
-        {
-          "name": "authority",
-          "signer": true
-        },
-        {
-          "name": "identity_registry_account",
-          "writable": true
-        }
-      ],
-      "args": [
-        {
-          "name": "delegate",
           "type": "pubkey"
         }
       ]
@@ -758,7 +733,8 @@
           "address": "11111111111111111111111111111111"
         },
         {
-          "name": "policy_engine_program"
+          "name": "policy_engine_program",
+          "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
         },
         {
           "name": "policy_engine",
@@ -887,6 +863,17 @@
               }
             ]
           }
+        },
+        {
+          "name": "policy_engine_program",
+          "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
+        },
+        {
+          "name": "tracker_account",
+          "writable": true
+        },
+        {
+          "name": "asset_mint"
         },
         {
           "name": "event_authority",
@@ -1344,13 +1331,6 @@
             "name": "authority",
             "docs": [
               "authority to manage the registry"
-            ],
-            "type": "pubkey"
-          },
-          {
-            "name": "delegate",
-            "docs": [
-              "registry delegate"
             ],
             "type": "pubkey"
           }

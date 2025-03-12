@@ -64,7 +64,8 @@ export type IdentityRegistry = {
           "address": "11111111111111111111111111111111"
         },
         {
-          "name": "policyEngineProgram"
+          "name": "policyEngineProgram",
+          "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
         },
         {
           "name": "policyEngine",
@@ -272,7 +273,8 @@ export type IdentityRegistry = {
           }
         },
         {
-          "name": "policyEngineProgram"
+          "name": "policyEngineProgram",
+          "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
         },
         {
           "name": "policyEngine",
@@ -394,6 +396,17 @@ export type IdentityRegistry = {
           }
         },
         {
+          "name": "policyEngineProgram",
+          "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
+        },
+        {
+          "name": "trackerAccount",
+          "writable": true
+        },
+        {
+          "name": "assetMint"
+        },
+        {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
         },
@@ -498,44 +511,6 @@ export type IdentityRegistry = {
       "args": [
         {
           "name": "authority",
-          "type": "pubkey"
-        },
-        {
-          "name": "delegate",
-          "type": {
-            "option": "pubkey"
-          }
-        }
-      ]
-    },
-    {
-      "name": "delegateIdentityRegsitry",
-      "docs": [
-        "delegate identity registry"
-      ],
-      "discriminator": [
-        29,
-        162,
-        167,
-        70,
-        52,
-        79,
-        50,
-        65
-      ],
-      "accounts": [
-        {
-          "name": "authority",
-          "signer": true
-        },
-        {
-          "name": "identityRegistryAccount",
-          "writable": true
-        }
-      ],
-      "args": [
-        {
-          "name": "delegate",
           "type": "pubkey"
         }
       ]
@@ -764,7 +739,8 @@ export type IdentityRegistry = {
           "address": "11111111111111111111111111111111"
         },
         {
-          "name": "policyEngineProgram"
+          "name": "policyEngineProgram",
+          "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
         },
         {
           "name": "policyEngine",
@@ -893,6 +869,17 @@ export type IdentityRegistry = {
               }
             ]
           }
+        },
+        {
+          "name": "policyEngineProgram",
+          "address": "FsE8mCJyvgMzqJbfHbJQm3iuf3cRZC6n2vZi1Q8rQCy2"
+        },
+        {
+          "name": "trackerAccount",
+          "writable": true
+        },
+        {
+          "name": "assetMint"
         },
         {
           "name": "eventAuthority",
@@ -1350,13 +1337,6 @@ export type IdentityRegistry = {
             "name": "authority",
             "docs": [
               "authority to manage the registry"
-            ],
-            "type": "pubkey"
-          },
-          {
-            "name": "delegate",
-            "docs": [
-              "registry delegate"
             ],
             "type": "pubkey"
           }

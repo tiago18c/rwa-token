@@ -520,8 +520,21 @@
       "accounts": [
         {
           "name": "payer",
-          "writable": true,
-          "signer": true
+          "writable": true
+        },
+        {
+          "name": "identity_registry",
+          "signer": true,
+          "relations": [
+            "identity_account"
+          ]
+        },
+        {
+          "name": "asset_mint",
+          "relations": [
+            "identity_registry",
+            "tracker_account"
+          ]
         },
         {
           "name": "identity_account",
@@ -621,12 +634,6 @@
         {
           "name": "authority",
           "type": "pubkey"
-        },
-        {
-          "name": "delegate",
-          "type": {
-            "option": "pubkey"
-          }
         }
       ]
     },
@@ -652,13 +659,60 @@
           "signer": true
         },
         {
-          "name": "identity_account"
+          "name": "identity_account",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "identity_registry"
+              },
+              {
+                "kind": "arg",
+                "path": "owner"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                231,
+                75,
+                81,
+                14,
+                232,
+                84,
+                45,
+                52,
+                3,
+                211,
+                48,
+                13,
+                45,
+                218,
+                249,
+                1,
+                6,
+                163,
+                235,
+                112,
+                36,
+                214,
+                213,
+                157,
+                141,
+                10,
+                56,
+                4,
+                197,
+                233,
+                153,
+                177
+              ]
+            }
+          }
         },
         {
           "name": "identity_registry",
-          "relations": [
-            "identity_account"
-          ]
+          "signer": true
         },
         {
           "name": "asset_mint",
@@ -685,41 +739,14 @@
         {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
-        },
-        {
-          "name": "event_authority",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  95,
-                  95,
-                  101,
-                  118,
-                  101,
-                  110,
-                  116,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "program"
         }
       ],
-      "args": []
+      "args": [
+        {
+          "name": "owner",
+          "type": "pubkey"
+        }
+      ]
     },
     {
       "name": "detach_from_policy_engine",
@@ -1681,6 +1708,50 @@
     {
       "code": 6053,
       "name": "InvestorFullyLocked"
+    },
+    {
+      "code": 6054,
+      "name": "TrackerAccountNotEmpty"
+    },
+    {
+      "code": 6055,
+      "name": "CounterIdAlreadyExists",
+      "msg": "Counter id already exists"
+    },
+    {
+      "code": 6056,
+      "name": "CounterIdNotFound",
+      "msg": "Counter id not found"
+    },
+    {
+      "code": 6057,
+      "name": "CounterUnderflow",
+      "msg": "Counter underflow, please manually override the counter value"
+    },
+    {
+      "code": 6058,
+      "name": "CounterOverflow",
+      "msg": "Counter overflow, please manually override the counter value"
+    },
+    {
+      "code": 6059,
+      "name": "BalanceUnderflow",
+      "msg": "Balance underflow error"
+    },
+    {
+      "code": 6060,
+      "name": "BalanceOverflow",
+      "msg": "Balance overflow error"
+    },
+    {
+      "code": 6061,
+      "name": "LockIndexNotFound",
+      "msg": "Lock index not found"
+    },
+    {
+      "code": 6062,
+      "name": "CounterLimitIndexNotFound",
+      "msg": "Counter Limit index not found"
     }
   ],
   "types": [
@@ -2262,13 +2333,6 @@
               "authority to manage the registry"
             ],
             "type": "pubkey"
-          },
-          {
-            "name": "delegate",
-            "docs": [
-              "registry delegate"
-            ],
-            "type": "pubkey"
           }
         ]
       }
@@ -2454,13 +2518,6 @@
             "name": "authority",
             "docs": [
               "authority of the registry"
-            ],
-            "type": "pubkey"
-          },
-          {
-            "name": "delegate",
-            "docs": [
-              "policy delegate"
             ],
             "type": "pubkey"
           },

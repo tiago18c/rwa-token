@@ -1,5 +1,3 @@
-use std::str::FromStr;
-
 use crate::utils::POLICY_ENGINE_ID;
 use crate::{cpi_enforce_policy_on_levels_change, state::*, ChangeCountryEvent};
 use anchor_lang::prelude::*;
@@ -9,7 +7,7 @@ use anchor_lang::prelude::*;
 pub struct ChangeCountry<'info> {
     pub payer: Signer<'info>,
     #[account(
-        constraint = identity_registry.authority == signer.key() || identity_registry.delegate == signer.key()
+        constraint = identity_registry.authority == signer.key()
     )]
     pub signer: Signer<'info>,
     #[account(has_one = asset_mint)]
@@ -21,7 +19,7 @@ pub struct ChangeCountry<'info> {
     )]
     pub identity_account: Box<Account<'info, IdentityAccount>>,
 
-    #[account(address = Pubkey::from_str(POLICY_ENGINE_ID).unwrap())]
+    #[account(address = POLICY_ENGINE_ID)]
     /// CHECK: hardcoded address check
     pub policy_engine_program: UncheckedAccount<'info>,
     /// CHECK: checked in cpi

@@ -26,4 +26,6 @@ pub enum AssetControllerErrors {
     TokenAccountAlreadyInitialized,
     #[msg("Invalid identity accounts")]
     InvalidIdentityAccounts,
+    #[msg("Invalid authority")]
+    InvalidAuthority,
 }

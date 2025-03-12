@@ -14,48 +14,6 @@ export type AssetController = {
   },
   "instructions": [
     {
-      "name": "closeMintAccount",
-      "docs": [
-        "close mint account"
-      ],
-      "discriminator": [
-        14,
-        121,
-        72,
-        246,
-        96,
-        224,
-        42,
-        162
-      ],
-      "accounts": [
-        {
-          "name": "authority",
-          "signer": true
-        },
-        {
-          "name": "assetMint",
-          "writable": true
-        },
-        {
-          "name": "assetController",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "account",
-                "path": "assetMint"
-              }
-            ]
-          }
-        },
-        {
-          "name": "tokenProgram",
-          "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
-        }
-      ],
-      "args": []
-    },
-    {
       "name": "createAssetController",
       "docs": [
         "create an rwa asset"
@@ -189,6 +147,24 @@ export type AssetController = {
           "signer": true
         },
         {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "assetMint"
+        },
+        {
+          "name": "assetController",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "assetMint"
+              }
+            ]
+          }
+        },
+        {
           "name": "tokenAccount",
           "writable": true
         },
@@ -257,7 +233,22 @@ export type AssetController = {
           "signer": true
         },
         {
+          "name": "authority",
+          "signer": true
+        },
+        {
           "name": "assetMint"
+        },
+        {
+          "name": "assetController",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "assetMint"
+              }
+            ]
+          }
         },
         {
           "name": "tokenAccount",
@@ -1261,6 +1252,11 @@ export type AssetController = {
       "code": 6011,
       "name": "invalidIdentityAccounts",
       "msg": "Invalid identity accounts"
+    },
+    {
+      "code": 6012,
+      "name": "invalidAuthority",
+      "msg": "Invalid authority"
     }
   ],
   "types": [
@@ -1283,16 +1279,7 @@ export type AssetController = {
           {
             "name": "authority",
             "docs": [
-              "authority has the ability to change delegate, freeze token accounts, etc."
-            ],
-            "type": "pubkey"
-          },
-          {
-            "name": "delegate",
-            "docs": [
-              "delegate has the ability to generate tranasction approval accounts,",
-              "by default points to self, which allows any programs to generate an approval account",
-              "update to any other account to control cpis"
+              "authority has the ability to seize, freeze token accounts, etc."
             ],
             "type": "pubkey"
           }
@@ -1466,12 +1453,6 @@ export type AssetController = {
           {
             "name": "uri",
             "type": "string"
-          },
-          {
-            "name": "delegate",
-            "type": {
-              "option": "pubkey"
-            }
           },
           {
             "name": "interestRate",
@@ -1825,13 +1806,6 @@ export type AssetController = {
               "authority to manage the registry"
             ],
             "type": "pubkey"
-          },
-          {
-            "name": "delegate",
-            "docs": [
-              "registry delegate"
-            ],
-            "type": "pubkey"
           }
         ]
       }
@@ -1979,13 +1953,6 @@ export type AssetController = {
             "name": "authority",
             "docs": [
               "authority of the registry"
-            ],
-            "type": "pubkey"
-          },
-          {
-            "name": "delegate",
-            "docs": [
-              "policy delegate"
             ],
             "type": "pubkey"
           },

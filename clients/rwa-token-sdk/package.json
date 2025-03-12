@@ -1,6 +1,6 @@
 {
   "name": "@dstoken-solana/rwa-token-sdk",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "RWA Token SDK for the development of permissioned tokens on SVM blockchains.",
   "homepage": "https://github.com/bridgesplit/rwa-token#readme",
   "main": "dist/index.js",
@@ -32,24 +32,24 @@
     "tokenization"
   ],
   "dependencies": {
-    "@coral-xyz/anchor": "^0.30.1",
-    "@solana/spl-token": "^0.3.11",
-    "@solana/web3.js": "^1.95.4",
-    "dotenv": "^16.4.4"
+    "@coral-xyz/anchor": "0.30.1",
+    "@solana/spl-token": "0.4.12",
+    "@solana/web3.js": "1.98.0",
+    "dotenv": "16.4.7"
   },
   "devDependencies": {
-    "@rollup/plugin-json": "^6.1.0",
-    "@typescript-eslint/eslint-plugin": "^7.6.0",
-    "@typescript-eslint/parser": "^7.6.0",
-    "eslint": ">=8.56.0",
-    "eslint-config-xo": "^0.44.0",
-    "eslint-config-xo-typescript": "^3.0.0",
-    "rollup": "^2.56.3",
-    "rollup-plugin-dts": "^6.1.1",
-    "rollup-plugin-typescript2": "^0.36.0",
-    "typedoc": "^0.25.13",
-    "typescript": ">=5.0.0",
-    "vitest": "^1.5.2"
+    "@rollup/plugin-json": "6.1.0",
+    "@typescript-eslint/eslint-plugin": "7.18.0",
+    "@typescript-eslint/parser": "7.18.0",
+    "eslint": "9.21.0",
+    "eslint-config-xo": "0.44.0",
+    "eslint-config-xo-typescript": "3.0.0",
+    "rollup": "2.79.2",
+    "rollup-plugin-dts": "6.1.1",
+    "rollup-plugin-typescript2": "0.36.0",
+    "typedoc": "0.25.13",
+    "typescript": "5.8.2",
+    "vitest": "3.0.5"
   },
   "author": "Standard Labs, Inc.",
   "contributors": [

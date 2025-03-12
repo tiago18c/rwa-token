@@ -1,5 +1,3 @@
-use std::str::FromStr;
-
 use crate::utils::POLICY_ENGINE_ID;
 use crate::{cpi_enforce_policy_on_levels_change, state::*, AddLevelsToIdentityEvent};
 use anchor_lang::prelude::*;
@@ -11,7 +9,7 @@ pub struct AddLevelToIdentityAccount<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
     #[account(
-        constraint = identity_registry.authority == signer.key() || identity_registry.delegate == signer.key()
+        constraint = identity_registry.authority == signer.key()
     )]
     pub signer: Signer<'info>,
     #[account(has_one = asset_mint)]
@@ -27,7 +25,7 @@ pub struct AddLevelToIdentityAccount<'info> {
     pub identity_account: Box<Account<'info, IdentityAccount>>,
     pub system_program: Program<'info, System>,
 
-    #[account(address = Pubkey::from_str(POLICY_ENGINE_ID).unwrap())]
+    #[account(address = POLICY_ENGINE_ID)]
     /// CHECK: hardcoded address check
     pub policy_engine_program: UncheckedAccount<'info>,
     /// CHECK: checked in cpi

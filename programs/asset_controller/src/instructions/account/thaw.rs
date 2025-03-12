@@ -20,8 +20,6 @@ pub struct ThawTokenAccount<'info> {
         constraint = asset_controller.authority == authority.key()
     )]
     pub asset_controller: Box<Account<'info, AssetControllerAccount>>,
-    #[account(mut, has_one = asset_mint)]
-    pub identity_registry_account: Box<Account<'info, IdentityRegistryAccount>>,
     #[account(mut)]
     pub token_account: Box<InterfaceAccount<'info, TokenAccount>>,
     pub token_program: Program<'info, Token2022>,

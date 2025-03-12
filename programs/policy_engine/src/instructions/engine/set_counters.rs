@@ -8,7 +8,7 @@ use crate::{state::*, SetCounterValueEvent};
 pub struct SetCounters<'info> {
     pub payer: Signer<'info>,
     #[account(
-        constraint = policy_engine.authority == signer.key() || policy_engine.delegate == signer.key()
+        constraint = policy_engine.authority == signer.key()
     )]
     pub signer: Signer<'info>,
     #[account(mut)]

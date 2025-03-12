@@ -26,17 +26,8 @@ pub mod identity_registry {
     pub fn create_identity_registry(
         ctx: Context<CreateIdentityRegistry>,
         authority: Pubkey,
-        delegate: Option<Pubkey>,
     ) -> Result<()> {
-        instructions::registry::create::handler(ctx, authority, delegate)
-    }
-
-    /// delegate identity registry
-    pub fn delegate_identity_regsitry(
-        ctx: Context<DelegateIdentityRegistry>,
-        delegate: Pubkey,
-    ) -> Result<()> {
-        instructions::registry::delegate::handler(ctx, delegate)
+        instructions::registry::create::handler(ctx, authority)
     }
 
     /// identity functions

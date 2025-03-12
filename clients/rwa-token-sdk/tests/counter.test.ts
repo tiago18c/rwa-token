@@ -395,6 +395,118 @@ describe("counter tests", async () => {
 		expect(policyAccount?.counters[4].value.toNumber()).toBe(1);
 		expect(policyAccount?.counters[5].value.toNumber()).toBe(3);
 	});
+
+	
+	test("remove counter", async () => {
+		const policyAccountBefore = await getPolicyEngineAccount(mint, rwaClient.provider);
+		expect(policyAccountBefore?.counters.length).toBe(6);
+		expect(policyAccountBefore?.counters[5].id).toBe(5);
+
+		const counters = await rwaClient.policyEngine.changeCounters({
+			authority: setup.authority.toString(),
+			payer: setup.payer.toString(),
+			assetMint: mint,
+			addedCounters: [],
+			removedCounters: Buffer.from([5]),
+		});
+
+		const txnId = await sendAndConfirmTransaction(
+			rwaClient.provider.connection,
+			new Transaction().add(...counters.ixs),
+			[setup.payerKp, setup.authorityKp]
+		);
+		expect(txnId).toBeTruthy();
+
+		const policyAccount = await getPolicyEngineAccount(mint, rwaClient.provider);
+		console.log(policyAccount?.counters);
+		expect(policyAccount?.counters.length).toBe(5);
+		expect(policyAccount?.counters[4].id).toBe(4);
+	});
+	
+	test("fail to add duplicate counter id", async () => {
+		const counters = await rwaClient.policyEngine.changeCounters({
+			authority: setup.authority.toString(),
+			payer: setup.payer.toString(),
+			assetMint: mint,
+			addedCounters: [{
+				id: 0,
+				identityFilter: {
+					simple: [{
+						single: [{
+							target: {receiver: {}},
+							mode: {include: {}},
+							level: {level: [1]},
+						}]
+					}]
+				},
+				value: new BN(0),
+			}, ],
+			removedCounters: Buffer.from([4]),
+		});
+
+		expect(sendAndConfirmTransaction(
+			rwaClient.provider.connection,
+			new Transaction().add(...counters.ixs),
+			[setup.payerKp, setup.authorityKp]
+		)).rejects.toThrow(/CounterIdAlreadyExists/);
+	});
+	
+	test("fail to add duplicate counter id from input", async () => {
+		const counters = await rwaClient.policyEngine.changeCounters({
+			authority: setup.authority.toString(),
+			payer: setup.payer.toString(),
+			assetMint: mint,
+			addedCounters: [{
+				id: 20,
+				identityFilter: {
+					simple: [{
+						single: [{
+							target: {receiver: {}},
+							mode: {include: {}},
+							level: {level: [1]},
+						}]
+					}]
+				},
+				value: new BN(0),
+			}, {
+				id: 20,
+				identityFilter: {
+					simple: [{
+						single: [{
+							target: {receiver: {}},
+							mode: {include: {}},
+							level: {level: [1]},
+						}]
+					}]
+				},
+				value: new BN(0),
+			}, ],
+			removedCounters: Buffer.from([4]),
+		});
+
+		expect(sendAndConfirmTransaction(
+			rwaClient.provider.connection,
+			new Transaction().add(...counters.ixs),
+			[setup.payerKp, setup.authorityKp]
+		)).rejects.toThrow(/CounterIdAlreadyExists/);
+	});
+
+	
+	test("fail to remove non existing counter id", async () => {
+		const counters = await rwaClient.policyEngine.changeCounters({
+			authority: setup.authority.toString(),
+			payer: setup.payer.toString(),
+			assetMint: mint,
+			addedCounters: [],
+			removedCounters: Buffer.from([40]),
+		});
+
+		expect(sendAndConfirmTransaction(
+			rwaClient.provider.connection,
+			new Transaction().add(...counters.ixs),
+			[setup.payerKp, setup.authorityKp]
+		)).rejects.toThrow(/CounterIdNotFound/);
+	});
 });
 
 

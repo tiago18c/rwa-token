@@ -11,8 +11,6 @@ pub struct IdentityRegistryAccount {
     pub asset_mint: Pubkey,
     /// authority to manage the registry
     pub authority: Pubkey,
-    /// registry delegate
-    pub delegate: Pubkey,
 }
 
 /// level if attached to user account, will skip any policy checks
@@ -38,16 +36,11 @@ impl IdentityRegistryAccount {
         &mut self,
         asset_mint: Pubkey,
         authority: Pubkey,
-        delegate: Option<Pubkey>,
         bump: u8,
     ) {
         self.asset_mint = asset_mint;
         self.authority = authority;
-        self.delegate = delegate.unwrap_or(authority);
         self.version = Self::VERSION;
         self.bump = bump;
-    }
-    pub fn update_delegate(&mut self, delegate: Pubkey) {
-        self.delegate = delegate;
     }
 }
