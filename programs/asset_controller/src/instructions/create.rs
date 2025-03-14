@@ -1,14 +1,9 @@
 /// creates a mint a new asset
 use anchor_lang::prelude::*;
-use anchor_spl::{
-    token_2022::spl_token_2022::extension::{
-        interest_bearing_mint::InterestBearingConfig, ExtensionType,
-    },
-    token_interface::{
-        get_mint_extension_data, token_metadata_initialize, Mint, Token2022,
+use anchor_spl::token_interface::{
+        token_metadata_initialize, Mint, Token2022,
         TokenMetadataInitialize,
-    },
-};
+    };
 use identity_registry::{
     cpi::{accounts::CreateIdentityRegistry, create_identity_registry},
     program::IdentityRegistry,
@@ -27,7 +22,6 @@ pub struct CreateAssetControllerArgs {
     pub name: String,
     pub symbol: String,
     pub uri: String,
-    pub interest_rate: Option<i16>,
 }
 
 #[derive(Accounts)]
@@ -58,14 +52,8 @@ pub struct CreateAssetController<'info> {
         extensions::permanent_delegate::delegate = asset_controller.key(),
         extensions::transfer_hook::authority = asset_controller.key(),
         extensions::transfer_hook::program_id = policy_engine::id(),
-        extensions::group_member_pointer::authority = asset_controller.key(),
-        extensions::group_member_pointer::member_address = asset_mint.key(),
-        extensions::group_pointer::authority = asset_controller.key(),
-        extensions::group_pointer::group_address = asset_mint.key(),
         extensions::metadata_pointer::authority = asset_controller.key(),
         extensions::metadata_pointer::metadata_address = asset_mint.key(),
-        extensions::interest_bearing_mint::authority = asset_controller.key(),
-        extensions::interest_bearing_mint::rate = args.interest_rate.unwrap_or(0),
         extensions::close_authority::authority = asset_controller.key(),
     )]
     pub asset_mint: Box<InterfaceAccount<'info, Mint>>,
@@ -209,17 +197,6 @@ pub fn handler(ctx: Context<CreateAssetController>, args: CreateAssetControllerA
         symbol: Some(args.symbol),
         uri: Some(args.uri),
         decimals: Some(args.decimals),
-    });
-
-    let extension_metadata = get_mint_extension_data::<InterestBearingConfig>(
-        &ctx.accounts.asset_mint.to_account_info(),
-    )?;
-
-    emit_cpi!(ExtensionMetadataEvent {
-        address: ctx.accounts.asset_mint.key().to_string(),
-        extension_type: ExtensionType::InterestBearingConfig as u8,
-        metadata: serde_json::to_vec(&extension_metadata)
-            .map_err(|_| ProgramError::InvalidAccountData)?,
     });
 
     // create policy registry

@@ -3,7 +3,6 @@ import {
 	getDisableMemoTransferIx,
 	getEnableMemoTransferIx,
 	getSetupUserIxs,
-	getUpdateInterestBearingMintRateIx,
 } from "../src";
 import { setupTests } from "./setup";
 import {
@@ -53,7 +52,6 @@ describe("extension tests", async () => {
 			name: "Test Class Asset",
 			uri: "https://test.com",
 			symbol: "TFT",
-			interestRate: 100,
 			memoTransfer: true,
 		};
 
@@ -85,10 +83,6 @@ describe("extension tests", async () => {
 			undefined,
 			TOKEN_2022_PROGRAM_ID,
 		);
-		const interestBearingMintConfig = getInterestBearingMintConfigState(
-			mintData,
-		);
-		expect(interestBearingMintConfig?.currentRate).toEqual(100);
 	});
 
 	test("enable memo transfer", async () => {
@@ -119,36 +113,6 @@ describe("extension tests", async () => {
 		expect(memoTransfer?.requireIncomingTransferMemos).toEqual(true);
 	});
 
-
-	test("update interest rate", async () => {
-		const updateIx = await getUpdateInterestBearingMintRateIx(
-			{
-				authority: setup.authority.toString(),
-				assetMint: mint,
-				payer: setup.payer.toString(),
-				rate: 200,
-			},
-			rwaClient.provider
-		);
-		const txnId = await sendAndConfirmTransaction(
-			rwaClient.provider.connection,
-			new Transaction().add(updateIx),
-			[setup.authorityKp]
-		);
-		expect(txnId).toBeTruthy();
-		const mintData = await getMint(
-			rwaClient.provider.connection,
-			new PublicKey(mint),
-			undefined,
-			TOKEN_2022_PROGRAM_ID,
-		);
-		const interestBearingMintConfig = getInterestBearingMintConfigState(
-			mintData,
-		);
-		expect(interestBearingMintConfig?.currentRate).toEqual(200);
-	});
-
-
 	test("disable transfer memo", async () => {
 		const updateIx = await getDisableMemoTransferIx(
 			{
@@ -171,11 +135,11 @@ describe("extension tests", async () => {
 			undefined,
 			TOKEN_2022_PROGRAM_ID,
 		);
-		// Get Interest Config for Mint Account
-		const interestBearingMintConfig = getMemoTransfer(
+		// Get memo Config for Mint Account
+		const memoMintConfig = getMemoTransfer(
 			mintAccount, 
 		);
-		expect(interestBearingMintConfig?.requireIncomingTransferMemos).toEqual(false);
+		expect(memoMintConfig?.requireIncomingTransferMemos).toEqual(false);
 	});
 
 });

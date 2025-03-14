@@ -73,14 +73,6 @@ pub mod asset_controller {
         instructions::extensions::disable_memo::handler(ctx)
     }
 
-    /// interest bearing mint rate update
-    pub fn update_interest_bearing_mint_rate(
-        ctx: Context<UpdateInterestBearingMintRate>,
-        rate: i16,
-    ) -> Result<()> {
-        instructions::extensions::interest_bearing::handler(ctx, rate)
-    }
-
     /// freeze token account
     pub fn freeze_token_account(ctx: Context<FreezeTokenAccount>) -> Result<()> {
         instructions::account::freeze::handler(ctx)

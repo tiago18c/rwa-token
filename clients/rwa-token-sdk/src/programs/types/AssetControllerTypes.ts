@@ -828,10 +828,7 @@ export type AssetController = {
         },
         {
           "name": "assetMint",
-          "writable": true,
-          "relations": [
-            "identityRegistryAccount"
-          ]
+          "writable": true
         },
         {
           "name": "assetController",
@@ -843,10 +840,6 @@ export type AssetController = {
               }
             ]
           }
-        },
-        {
-          "name": "identityRegistryAccount",
-          "writable": true
         },
         {
           "name": "tokenAccount",
@@ -858,85 +851,6 @@ export type AssetController = {
         }
       ],
       "args": []
-    },
-    {
-      "name": "updateInterestBearingMintRate",
-      "docs": [
-        "interest bearing mint rate update"
-      ],
-      "discriminator": [
-        29,
-        174,
-        109,
-        163,
-        227,
-        75,
-        2,
-        144
-      ],
-      "accounts": [
-        {
-          "name": "authority",
-          "signer": true
-        },
-        {
-          "name": "assetMint",
-          "writable": true
-        },
-        {
-          "name": "assetController",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "account",
-                "path": "assetMint"
-              }
-            ]
-          }
-        },
-        {
-          "name": "tokenProgram",
-          "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
-        },
-        {
-          "name": "eventAuthority",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  95,
-                  95,
-                  101,
-                  118,
-                  101,
-                  110,
-                  116,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "program"
-        }
-      ],
-      "args": [
-        {
-          "name": "rate",
-          "type": "i16"
-        }
-      ]
     },
     {
       "name": "updateMetadata",
@@ -1453,12 +1367,6 @@ export type AssetController = {
           {
             "name": "uri",
             "type": "string"
-          },
-          {
-            "name": "interestRate",
-            "type": {
-              "option": "i16"
-            }
           }
         ]
       }

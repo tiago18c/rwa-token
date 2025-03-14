@@ -51,7 +51,6 @@ export type CreateAssetControllerIx = {
   name: string;
   uri: string;
   symbol: string;
-  interestRate?: number;
 } & CommonArgs;
 
 /**
@@ -70,7 +69,6 @@ export async function getCreateAssetControllerIx(
 			name: args.name,
 			uri: args.uri,
 			symbol: args.symbol,
-			interestRate: args.interestRate ? args.interestRate : null,
 		})
 		.accountsStrict({
 			payer: args.payer,
@@ -418,35 +416,6 @@ export async function getSetupUserIxs(
 	};
 }
 
-export type InterestBearingMintArgs = {
-	rate: number;
-	authority: string;
-  } & CommonArgs;
-
-/**
- * Generate Instructions to update interest rate
- * @param args - {@link InterestRateArgs}
- * @returns - {@link TransactionInstruction}
- * */
-export async function getUpdateInterestBearingMintRateIx(
-	args: InterestBearingMintArgs,
-	provider: Provider
-): Promise<TransactionInstruction> {
-	const assetProgram = getAssetControllerProgram(provider);
-	const ix = await assetProgram.methods
-		.updateInterestBearingMintRate(args.rate)
-		.accountsStrict({
-			authority: new PublicKey(args.authority),
-			assetMint: new PublicKey(args.assetMint),
-			tokenProgram: TOKEN_2022_PROGRAM_ID,
-			assetController: getAssetControllerPda(args.assetMint),
-			program: assetControllerProgramId,
-			eventAuthority: getAssetControllerEventAuthority(),
-		})
-		.instruction();
-	return ix;
-}
-
 export type MemoTranferArgs = {
 	owner: string;
 	tokenAccount: string;
@@ -559,7 +528,6 @@ export async function getThawTokenIx(
 			assetMint: new PublicKey(args.assetMint),
 			tokenProgram: TOKEN_2022_PROGRAM_ID,
 			assetController: getAssetControllerPda(args.assetMint),
-			identityRegistryAccount: getIdentityRegistryPda(args.assetMint),
 			tokenAccount: getAssociatedTokenAddressSync(
 				new PublicKey(args.assetMint),
 				new PublicKey(args.owner),

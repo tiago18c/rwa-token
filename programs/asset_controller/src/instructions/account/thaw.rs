@@ -4,7 +4,6 @@ use anchor_spl::{
     token_2022::{thaw_account, ThawAccount},
     token_interface::{Mint, Token2022, TokenAccount},
 };
-use identity_registry::IdentityRegistryAccount;
 use rwa_utils::get_bump_in_seed_form;
 
 #[derive(Accounts)]
