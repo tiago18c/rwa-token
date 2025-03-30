@@ -379,7 +379,6 @@ impl PolicyEngineAccount {
     pub fn enforce_policy_issuance(
         &self,
         supply: u64,
-        timestamp: i64,
         identity: &[IdentityLevel],
         country: u8,
         tracker_account: Option<&TrackerAccount>,
@@ -396,7 +395,6 @@ impl PolicyEngineAccount {
                         identity,
                         country,
                         &policy.identity_filter,
-                        timestamp,
                     ).is_err() {
                         get_custom_error(policy.custom_error, PolicyEngineErrors::IdentityFilterFailed)?;
                     }
@@ -407,7 +405,6 @@ impl PolicyEngineAccount {
                             identity,
                             country,
                             &policy.identity_filter,
-                            timestamp,
                         )
                         .is_ok()
                     {
@@ -424,7 +421,6 @@ impl PolicyEngineAccount {
                             identity,
                             country,
                             &policy.identity_filter,
-                            timestamp,
                         )
                         .is_ok()
                     {
@@ -441,7 +437,6 @@ impl PolicyEngineAccount {
                             identity,
                             country,
                             &policy.identity_filter,
-                            timestamp,
                         )
                         .is_ok()
                     {
@@ -463,7 +458,6 @@ impl PolicyEngineAccount {
                             identity,
                             country,
                             &policy.identity_filter,
-                            timestamp,
                         )
                         .is_ok()
                     {
@@ -501,7 +495,6 @@ impl PolicyEngineAccount {
                             destination_identity,
                             destination_country,
                             &policy.identity_filter,
-                            timestamp,
                         )
                         .is_err()
                     {
@@ -516,7 +509,6 @@ impl PolicyEngineAccount {
                             destination_identity,
                             destination_country,
                             &policy.identity_filter,
-                            timestamp,
                         )
                         .is_ok()
                         && transfer_amount > *limit
@@ -533,7 +525,6 @@ impl PolicyEngineAccount {
                                 destination_identity,
                                 destination_country,
                                 &policy.identity_filter,
-                                timestamp,
                             )
                             .is_ok()
                     {
@@ -549,7 +540,6 @@ impl PolicyEngineAccount {
                                 source_identity,
                                 source_country,
                                 &policy.identity_filter,
-                                timestamp,
                             )
                             .is_ok()
                         {
@@ -562,7 +552,6 @@ impl PolicyEngineAccount {
                                 destination_identity,
                                 destination_country,
                                 &policy.identity_filter,
-                                timestamp,
                             )
                             .is_ok()
                         {
@@ -580,7 +569,6 @@ impl PolicyEngineAccount {
                             destination_identity,
                             destination_country,
                             &policy.identity_filter,
-                            timestamp,
                         )
                         .is_ok()
                     {
@@ -595,7 +583,6 @@ impl PolicyEngineAccount {
                             destination_identity,
                             destination_country,
                             &policy.identity_filter,
-                            timestamp,
                         )
                         .is_ok()
                         && source_balance != 0
@@ -611,7 +598,6 @@ impl PolicyEngineAccount {
                             destination_identity,
                             destination_country,
                             &policy.identity_filter,
-                            timestamp,
                         )
                         .is_ok()
                     {
@@ -626,7 +612,6 @@ impl PolicyEngineAccount {
                             destination_identity,
                             destination_country,
                             &policy.identity_filter,
-                            timestamp,
                         )
                         .is_ok()
                     {
@@ -646,7 +631,6 @@ impl PolicyEngineAccount {
                             destination_identity,
                             destination_country,
                             &policy.identity_filter,
-                            timestamp,
                         )
                         .is_ok()
                     {
@@ -668,7 +652,7 @@ impl PolicyEngineAccount {
         let mut changed_counters = Vec::new();
         for counter in self.counters.iter() {
             if self
-                .enforce_filters_single(identity, country, &counter.identity_filter, 0)
+                .enforce_filters_single(identity, country, &counter.identity_filter)
                 .is_ok()
             {
                 changed_counters.push(counter.id);
@@ -693,7 +677,7 @@ impl PolicyEngineAccount {
 
         for counter in self.counters.iter() {
             if self
-                .enforce_filters_single(identity, country, &counter.identity_filter, 0)
+                .enforce_filters_single(identity, country, &counter.identity_filter)
                 .is_ok()
             {
                 changed_counters.push(counter.id);
@@ -875,12 +859,11 @@ impl PolicyEngineAccount {
                     previous_levels,
                     previous_country,
                     &counter.identity_filter,
-                    0,
                 )
                 .is_ok();
 
             let new_match = self
-                .enforce_filters_single(new_levels, new_country, &counter.identity_filter, 0)
+                .enforce_filters_single(new_levels, new_country, &counter.identity_filter)
                 .is_ok();
 
             if prev_match && !new_match {
@@ -921,7 +904,6 @@ impl PolicyEngineAccount {
                                 new_levels,
                                 country,
                                 &policy.identity_filter,
-                                timestamp,
                             )
                             .is_ok()
                     {
@@ -939,7 +921,6 @@ impl PolicyEngineAccount {
                                 new_levels,
                                 country,
                                 &policy.identity_filter,
-                                timestamp,
                             )
                             .is_ok()
                     {
@@ -955,7 +936,6 @@ impl PolicyEngineAccount {
                                 new_levels,
                                 country,
                                 &policy.identity_filter,
-                                timestamp,
                             )
                             .is_ok()
                     {
@@ -1046,19 +1026,16 @@ impl PolicyEngineAccount {
         identity: &[IdentityLevel],
         country: u8,
         filter: &FilterData,
-        timestamp: i64,
     ) -> Result<()> {
         match filter.level {
             FilterLevel::Level(level) => {
                 let id = identity.iter().find(|identity| identity.level == level);
                 if filter.mode == FilterMode::Include
                     && id.is_some()
-                    && id.unwrap().expiry >= timestamp
                 {
                     return Ok(());
                 } else if filter.mode == FilterMode::Exclude
                     && id.is_some()
-                    && id.unwrap().expiry >= timestamp
                 {
                     return Err(PolicyEngineErrors::IdentityFilterFailed.into());
                 } else if filter.mode == FilterMode::Exclude {
@@ -1081,12 +1058,10 @@ impl PolicyEngineAccount {
                     let id = identity.iter().find(|identity| identity.level == source);
                     if filter.mode == FilterMode::Include
                         && id.is_some()
-                        && id.unwrap().expiry >= timestamp
                     {
                         return Ok(());
                     } else if filter.mode == FilterMode::Exclude
                         && id.is_some()
-                        && id.unwrap().expiry >= timestamp
                     {
                         return Err(PolicyEngineErrors::IdentityFilterFailed.into());
                     } else if filter.mode == FilterMode::Exclude {
@@ -1111,12 +1086,10 @@ impl PolicyEngineAccount {
                     .find(|identity| self.mapping[identity.level as usize] == target);
                 if filter.mode == FilterMode::Include
                     && id.is_some()
-                    && id.unwrap().expiry >= timestamp
                 {
                     return Ok(());
                 } else if filter.mode == FilterMode::Exclude
                     && id.is_some()
-                    && id.unwrap().expiry >= timestamp
                 {
                     return Err(PolicyEngineErrors::IdentityFilterFailed.into());
                 } else if filter.mode == FilterMode::Exclude {
@@ -1134,24 +1107,23 @@ impl PolicyEngineAccount {
         identity_receiver: &[IdentityLevel],
         country_receiver: u8,
         filter: &FilterData,
-        timestamp: i64,
     ) -> Result<()> {
         match filter.target {
             FilterTarget::Sender => {
-                self.match_data(identity_sender, country_sender, filter, timestamp)
+                self.match_data(identity_sender, country_sender, filter)
             }
             FilterTarget::Receiver => {
-                self.match_data(identity_receiver, country_receiver, filter, timestamp)
+                self.match_data(identity_receiver, country_receiver, filter)
             }
             FilterTarget::BothAnd => self
-                .match_data(identity_sender, country_sender, filter, timestamp)
+                .match_data(identity_sender, country_sender, filter)
                 .and_then(|_| {
-                    self.match_data(identity_receiver, country_receiver, filter, timestamp)
+                    self.match_data(identity_receiver, country_receiver, filter)
                 }),
             FilterTarget::BothOr => self
-                .match_data(identity_sender, country_sender, filter, timestamp)
+                .match_data(identity_sender, country_sender, filter)
                 .or_else(|_| {
-                    self.match_data(identity_receiver, country_receiver, filter, timestamp)
+                    self.match_data(identity_receiver, country_receiver, filter)
                 }),
         }
     }
@@ -1163,7 +1135,6 @@ impl PolicyEngineAccount {
         identity_receiver: &[IdentityLevel],
         country_receiver: u8,
         filter: &IdentityFilter,
-        timestamp: i64,
     ) -> Result<()> {
         match filter {
             IdentityFilter::Simple(filter) => self.enforce_inner_filter(
@@ -1172,7 +1143,6 @@ impl PolicyEngineAccount {
                 identity_receiver,
                 country_receiver,
                 filter,
-                timestamp,
             ),
             IdentityFilter::IfThen(filter, then_filter) => {
                 if self
@@ -1182,7 +1152,6 @@ impl PolicyEngineAccount {
                         identity_receiver,
                         country_receiver,
                         filter,
-                        timestamp,
                     )
                     .is_ok()
                 {
@@ -1192,7 +1161,6 @@ impl PolicyEngineAccount {
                         identity_receiver,
                         country_receiver,
                         then_filter,
-                        timestamp,
                     )
                 } else {
                     Ok(())
@@ -1206,15 +1174,14 @@ impl PolicyEngineAccount {
         identity: &[IdentityLevel],
         country: u8,
         filter: &IdentityFilter,
-        timestamp: i64,
     ) -> Result<()> {
         match filter {
             IdentityFilter::Simple(filter) => {
-                self.enforce_inner_filter(identity, country, identity, country, filter, timestamp)
+                self.enforce_inner_filter(identity, country, identity, country, filter)
             }
             IdentityFilter::IfThen(filter, then_filter) => {
                 if self
-                    .enforce_inner_filter(identity, country, identity, country, filter, timestamp)
+                    .enforce_inner_filter(identity, country, identity, country, filter)
                     .is_ok()
                 {
                     self.enforce_inner_filter(
@@ -1223,7 +1190,6 @@ impl PolicyEngineAccount {
                         identity,
                         country,
                         then_filter,
-                        timestamp,
                     )
                 } else {
                     Ok(())
@@ -1239,7 +1205,6 @@ impl PolicyEngineAccount {
         identity_receiver: &[IdentityLevel],
         country_receiver: u8,
         filter: &FilterInner,
-        timestamp: i64,
     ) -> Result<()> {
         match filter {
             FilterInner::Single(filter) => self.match_filter_data_and_target(
@@ -1248,7 +1213,6 @@ impl PolicyEngineAccount {
                 identity_receiver,
                 country_receiver,
                 filter,
-                timestamp,
             ),
             FilterInner::Tuple(filter, FilterComparison::And, then_filter) => self
                 .match_filter_data_and_target(
@@ -1257,7 +1221,6 @@ impl PolicyEngineAccount {
                     identity_receiver,
                     country_receiver,
                     filter,
-                    timestamp,
                 )
                 .and_then(|_| {
                     self.match_filter_data_and_target(
@@ -1266,7 +1229,6 @@ impl PolicyEngineAccount {
                         identity_receiver,
                         country_receiver,
                         then_filter,
-                        timestamp,
                     )
                 }),
             FilterInner::Tuple(filter, FilterComparison::Or, then_filter) => self
@@ -1276,7 +1238,6 @@ impl PolicyEngineAccount {
                     identity_receiver,
                     country_receiver,
                     filter,
-                    timestamp,
                 )
                 .or_else(|_| {
                     self.match_filter_data_and_target(
@@ -1285,7 +1246,6 @@ impl PolicyEngineAccount {
                         identity_receiver,
                         country_receiver,
                         then_filter,
-                        timestamp,
                     )
                 }),
             FilterInner::Multiple(FilterComparison::And, filters) => {
@@ -1298,7 +1258,6 @@ impl PolicyEngineAccount {
                             identity_receiver,
                             country_receiver,
                             filter,
-                            timestamp,
                         )
                     });
                     if result.is_err() {
@@ -1317,7 +1276,6 @@ impl PolicyEngineAccount {
                             identity_receiver,
                             country_receiver,
                             filter,
-                            timestamp,
                         )
                     });
                     if result.is_ok() {
