@@ -74,7 +74,7 @@ describe("counter tests", async () => {
 			payer: setup.payer.toString(),
 			owner: setup.user2.toString(),
 			signer: setup.authority.toString(),
-			levels: [2],
+			levels: [5],
 			expiry: [new BN(1800000000)],
 			country: 2,
 		}, rwaClient.provider);

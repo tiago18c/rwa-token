@@ -1,6 +1,5 @@
 use crate::{
-    assert_is_transferring, verify_pda, PolicyEngineAccount,
-    PolicyEngineErrors, Side, TrackerAccount, PLATFORM_WALLET_LEVEL, US_COMPLIANCE_LEVEL,
+    assert_is_transferring, verify_pda, PolicyEngineAccount, PolicyEngineErrors, Side, TrackerAccount, LOCKED_LEVEL, PLATFORM_WALLET_LEVEL, US_COMPLIANCE_LEVEL
 };
 use anchor_lang::prelude::*;
 use anchor_spl::{token_2022::spl_token_2022::extension::permanent_delegate::PermanentDelegate, token_interface::{get_mint_extension_data, Mint, TokenAccount}};
@@ -144,15 +143,16 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
 
     let timestamp = Clock::get()?.unix_timestamp;
     let is_permanent_delegate = ctx.accounts.owner_delegate.key() == get_mint_extension_data::<PermanentDelegate>(&ctx.accounts.asset_mint.to_account_info())?.delegate.0;
-
     let is_platform_wallet_from = source_identity_account.levels.iter().any(|l| l.level == PLATFORM_WALLET_LEVEL);
-    //let is_platform_wallet_to = destination_levels.iter().any(|l| l.level == PLATFORM_WALLET_LEVEL);
-
+    let is_platform_wallet_to = destination_identity_account.levels.iter().any(|l| l.level == PLATFORM_WALLET_LEVEL);
+    let is_platform_wallet = is_platform_wallet_from || is_platform_wallet_to;
+    
     if !self_transfer {
-            
-
-        if !is_permanent_delegate && !is_platform_wallet_from {
-            let transferable_amount = source_tracker_account.get_transferable_balance(timestamp)?;
+        
+        
+        if !is_permanent_delegate && !is_platform_wallet_from && !is_platform_wallet_to {
+            let is_locked_from = source_identity_account.levels.iter().any(|l| l.level == LOCKED_LEVEL);
+            let transferable_amount = if !is_locked_from { source_tracker_account.get_transferable_balance(timestamp)? } else { 0 };
             require!(
                 transferable_amount >= amount,
                 PolicyEngineErrors::TokensLocked
@@ -246,6 +246,7 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
             source_balance,
             destination_balance,
             self_transfer,
+            is_platform_wallet,
         )?;
     }
 

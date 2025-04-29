@@ -73,7 +73,7 @@ describe("test additional policies", async () => {
 			payer: setup.payer.toString(),
 			owner: setup.user2.toString(),
 			assetMint: mint,
-			levels: [2],
+			levels: [3],
 			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60)],
 			signer: setup.authorityKp.publicKey.toString(),
 			country: 0,
@@ -115,7 +115,7 @@ describe("test additional policies", async () => {
 							{
 								target: {receiver: {}},
 								mode: {include: {}},
-								level: {level: [2]},
+								level: {level: [3]},
 							}
 						]
 					}]
@@ -186,7 +186,7 @@ describe("test additional policies", async () => {
 							{
 								target: {sender: {}},
 								mode: {include: {}},
-								level: {level: [2]},
+								level: {level: [3]},
 							}
 						]
 					}]

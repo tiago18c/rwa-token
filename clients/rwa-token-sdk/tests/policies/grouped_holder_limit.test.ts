@@ -60,7 +60,7 @@ describe("test additional policies", async () => {
 			payer: setup.payer.toString(),
 			owner: setup.user1.toString(),
 			assetMint: mint,
-			levels: [1,2],
+			levels: [1,3],
 			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60), new BN(Date.now() / 1000 + 24 * 60 * 60)],
 			signer: setup.authorityKp.publicKey.toString(),
 			country: 0,
@@ -77,7 +77,7 @@ describe("test additional policies", async () => {
 			payer: setup.payer.toString(),
 			owner: setup.user2.toString(),
 			assetMint: mint,
-			levels: [1,2],
+			levels: [1,3],
 			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60), new BN(Date.now() / 1000 + 24 * 60 * 60)],
 			signer: setup.authorityKp.publicKey.toString(),
 			country: 0,
@@ -93,7 +93,7 @@ describe("test additional policies", async () => {
 			payer: setup.payer.toString(),
 			owner: setup.user3.toString(),
 			assetMint: mint,
-			levels: [1,2],
+			levels: [1,3],
 			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60), new BN(Date.now() / 1000 + 24 * 60 * 60)],
 			signer: setup.authorityKp.publicKey.toString(),
 			country: 0,
@@ -143,7 +143,7 @@ describe("test additional policies", async () => {
 									{
 										target: {bothOr: {}},
 										mode: {include: {}},
-										level: {level: [2]},
+										level: {level: [3]},
 									}
 								]
 							}]
@@ -245,7 +245,7 @@ describe("test additional policies", async () => {
 				payer: setup.payer.toString(),
 				owner: setup.user4.toString(),
 				assetMint: mint,
-				levels: [1,2,3],
+				levels: [1,3,4],
 				expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60), new BN(Date.now() / 1000 + 24 * 60 * 60), new BN(Date.now() / 1000 + 24 * 60 * 60)],
 				signer: setup.authorityKp.publicKey.toString(),
 				country: 0,

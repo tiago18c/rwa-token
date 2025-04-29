@@ -484,11 +484,12 @@ impl PolicyEngineAccount {
         source_balance: u64,
         destination_balance: u64,
         self_transfer: bool,
+        is_platform_wallet: bool,
     ) -> Result<()> {
         for policy in self.policies.iter() {
             match &policy.policy_type {
                 PolicyType::IdentityApproval => {
-                    if self
+                    if !self_transfer && self
                         .enforce_filters_on_transfer(
                             source_identity,
                             source_country,
@@ -534,7 +535,7 @@ impl PolicyEngineAccount {
                     }
                 }
                 PolicyType::MinBalance { limit } => {
-                    if !self_transfer {
+                    if !self_transfer && !is_platform_wallet {
                         if self
                             .enforce_filters_single(
                                 source_identity,
@@ -576,7 +577,7 @@ impl PolicyEngineAccount {
                     }
                 }
                 PolicyType::ForceFullTransfer => {
-                    if self
+                    if !self_transfer && self
                         .enforce_filters_on_transfer(
                             source_identity,
                             source_country,
@@ -591,7 +592,7 @@ impl PolicyEngineAccount {
                     }
                 }
                 PolicyType::ForbiddenIdentityGroup => {
-                    if self
+                    if !self_transfer && self
                         .enforce_filters_on_transfer(
                             source_identity,
                             source_country,
@@ -605,7 +606,7 @@ impl PolicyEngineAccount {
                     }
                 }
                 PolicyType::MinMaxBalance { min, max } => {
-                    if self
+                    if !self_transfer && self
                         .enforce_filters_on_transfer(
                             source_identity,
                             source_country,
