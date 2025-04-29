@@ -163,7 +163,7 @@ export async function getIssueTokensIx(
 			tokenAccount: getAssociatedTokenAddressSync(
 				new PublicKey(args.assetMint),
 				new PublicKey(args.wallet || args.owner),
-				false,
+				true,
 				TOKEN_2022_PROGRAM_ID
 			),
 			associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -503,7 +503,7 @@ export async function getFreezeTokenIx(
 			tokenAccount: getAssociatedTokenAddressSync(
 				new PublicKey(args.assetMint),
 				new PublicKey(args.owner),
-				false,
+				true,
 				TOKEN_2022_PROGRAM_ID
 			),
 		})
@@ -531,7 +531,7 @@ export async function getThawTokenIx(
 			tokenAccount: getAssociatedTokenAddressSync(
 				new PublicKey(args.assetMint),
 				new PublicKey(args.owner),
-				false,
+				true,
 				TOKEN_2022_PROGRAM_ID
 			),
 		})
@@ -568,7 +568,7 @@ export async function getRevokeTokensIx(
 			revokeTokenAccount: getAssociatedTokenAddressSync(
 				new PublicKey(args.assetMint),
 				new PublicKey(args.owner),
-				false,
+				true,
 				TOKEN_2022_PROGRAM_ID
 			),
 			policyEngine: getPolicyEnginePda(args.assetMint),
@@ -675,7 +675,7 @@ export async function getSeizeTokensIx(
 			sourceTokenAccount: getAssociatedTokenAddressSync(
 				new PublicKey(args.assetMint),
 				new PublicKey(args.wallet || args.from),
-				false,
+				true,
 				TOKEN_2022_PROGRAM_ID
 			),
 			destinationTokenAccount: getAssociatedTokenAddressSync(
