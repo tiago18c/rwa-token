@@ -625,7 +625,7 @@ impl PolicyEngineAccount {
                     }
                 }
                 PolicyType::BlockFlowbackEndTime { time } => {
-                    if self
+                    if !is_platform_wallet && self
                         .enforce_filters_on_transfer(
                             source_identity,
                             source_country,

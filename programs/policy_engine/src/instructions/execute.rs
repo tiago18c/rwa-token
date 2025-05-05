@@ -150,7 +150,7 @@ pub fn handler(ctx: Context<ExecuteTransferHook>, amount: u64) -> Result<()> {
     if !self_transfer {
         
         
-        if !is_permanent_delegate && !is_platform_wallet_from && !is_platform_wallet_to {
+        if !is_permanent_delegate && !is_platform_wallet {
             let is_locked_from = source_identity_account.levels.iter().any(|l| l.level == LOCKED_LEVEL);
             let transferable_amount = if !is_locked_from { source_tracker_account.get_transferable_balance(timestamp)? } else { 0 };
             require!(
