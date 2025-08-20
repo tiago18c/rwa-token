@@ -75,7 +75,7 @@ describe("issuance policies", async () => {
 						{
 							target: {bothOr: {}},
 							mode: {include: {}},
-							level: {level: [2]},
+							level: {level: [3]},
 						}
 					]
 				}]
@@ -115,7 +115,7 @@ describe("issuance policies", async () => {
 		expect(txnId).toBeTruthy();
 	});
 
-	test("attach transaction amount limit policy to identity level 2", async () => {
+	test("attach transaction amount limit policy to identity level 3", async () => {
 		const attachPolicy = await rwaClient.policyEngine.attachPolicy({
 			payer: setup.payer.toString(),
 			assetMint: mint,
@@ -126,7 +126,7 @@ describe("issuance policies", async () => {
 						{
 							target: {sender: {}},
 							mode: {include: {}},
-							level: {level: [2]},
+							level: {level: [3]},
 						}
 					]
 				}]
@@ -160,7 +160,7 @@ describe("issuance policies", async () => {
 			payer: setup.payer.toString(),
 			owner: setup.user2.toString(),
 			assetMint: mint,
-			levels: [2],
+			levels: [3],
 			expiry: [new BN(Date.now() / 1000 + 24 * 60 * 60)],
 			signer: setup.authorityKp.publicKey.toString(),
 			country: 1,

@@ -69,7 +69,6 @@ pub fn handler(
     // evaluate policies
     ctx.accounts.policy_engine.enforce_policy_issuance(
         ctx.accounts.asset_mint.supply,
-        Clock::get()?.unix_timestamp,
         &ctx.accounts.identity_account.levels,
         ctx.accounts.identity_account.country,
         Some(&tracker_account),

@@ -11,6 +11,7 @@ use spl_tlv_account_resolution::{
 
 pub const ASSET_CONTROLLER_ID: Pubkey = pubkey!("7tXjmbkZVY3Gmg9kDBebcNXT1yC5pyoxxXVLwdbv9tvP");
 pub const PLATFORM_WALLET_LEVEL: u8 = 30;
+pub const LOCKED_LEVEL: u8 = 2;
 pub const US_COMPLIANCE_LEVEL: u8 = 11;
 
 pub fn get_custom_error(error_code: u8, fallback_error: PolicyEngineErrors) -> Result<()> {

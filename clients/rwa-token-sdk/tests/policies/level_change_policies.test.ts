@@ -208,7 +208,7 @@ describe("level change policies tests", async () => {
 						{
 							target: {receiver: {}},
 							mode: {include: {}},
-							level: {level: [2]},
+							level: {level: [3]},
 						}
 					]
 				}]
@@ -238,7 +238,7 @@ describe("level change policies tests", async () => {
 						{
 							target: {receiver: {}},
 							mode: {include: {}},
-							level: {level: [2]},
+							level: {level: [3]},
 						}
 					]
 				}]
@@ -260,7 +260,7 @@ describe("level change policies tests", async () => {
 	test("add levels to identity account", async () => {
 		const addLevelIx = await rwaClient.identityRegistry.addIdentityLevelToUserAccount({
 			owner: setup.user1.toString(),
-			levels: [2],
+			levels: [3],
 			expiries: [new BN(1800000000)],
 			signer: setup.authority.toString(),
 			assetMint: mint,
@@ -278,7 +278,7 @@ describe("level change policies tests", async () => {
 	test("add levels to identity account2", async () => {
 		const addLevelIx = await rwaClient.identityRegistry.addIdentityLevelToUserAccount({
 			owner: setup.user2.toString(),
-			levels: [2],
+			levels: [3],
 			expiries: [new BN(1800000000)],
 			signer: setup.authority.toString(),
 			assetMint: mint,
@@ -296,7 +296,7 @@ describe("level change policies tests", async () => {
 	test("add levels to identity account3", async () => {
 		const addLevelIx = await rwaClient.identityRegistry.addIdentityLevelToUserAccount({
 			owner: setup.user3.toString(),
-			levels: [2],
+			levels: [3],
 			expiries: [new BN(1800000000)],
 			signer: setup.authority.toString(),
 			assetMint: mint,
